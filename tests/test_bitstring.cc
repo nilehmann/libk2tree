@@ -18,6 +18,11 @@ TEST(BitStringChar, Constructor) {
   for (int i = 0; i < 1000; ++i)
     ASSERT_EQ(0, bs.GetBit(i));
 }
+TEST(BitString, SetBit0) {
+  BitString<char> bs(3);
+  bs.SetBit(0);
+  ASSERT_EQ(1, bs.GetBit(0));
+}
 TEST(BitStringChar, SetBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {

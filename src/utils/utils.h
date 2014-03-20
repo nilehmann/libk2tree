@@ -20,13 +20,18 @@ namespace utils {
    * Calculates the smallest integer greater or equal to N that is a power of
    * base.
    */
-  int LogCeil(int N, int base);
+  int LogCeil(double N, int base);
 
   /* 
    * Calculates base raised to the power of exp, using approximately log_2(exp)
    * operations. exp bust be non negative.
    */
   int SquaringPow(int base, int exp);
+
+  /* 
+   * Calculates base raised to the power of exp, in exp operations.
+   */
+  int Pow(int base, int exp);
 
 
 }  // namespace utils

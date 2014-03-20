@@ -15,7 +15,7 @@
 namespace k2tree_impl {
 namespace utils {
 
-int LogCeil(int N, int base) {
+int LogCeil(double N, int base) {
   int log, pow;
   for (pow = 1, log = 0; pow < N; pow *= base, ++log) {}
   return log;
@@ -28,6 +28,13 @@ int SquaringPow(int base, int exp) {
   for (pow = 1; exp; base *= base, exp >>= 1)
     if (exp & 1)
       pow *= base;
+  return pow;
+}
+
+int Pow(int base, int exp) {
+  int pow = 1;
+  for (int i = 0; i < exp; ++i)
+    pow *= base;
   return pow;
 }
 

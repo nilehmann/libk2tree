@@ -1,39 +1,64 @@
+HEADERS = $(shell find src tests -name *.h)
 
-
-TESTS = $(shell find tests -name *.cc)
-TESTS_OBJ = $(TESTS:%.cc=obj/%.o) 
+TESTS_SRC = $(shell find tests -name *.cc)
+TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
 GTEST=gtest-1.7.0
 TESTSFLAGS = -g -Wall -Wextra -pthread 
 
-K2TREE = $(shell find src -name *.cc)
-K2TREE_OBJ = $(K2TREE:%.cc=obj/%.o)
+K2TREE_SRC = $(shell find src -name *.cc)
+K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
 HEADERS = $(shell find src -name *.h)
 
-.PHONY: clean
+.PHONY: clean style test all
 
+all: test
 
-test: $(K2TREE_OBJ) $(TESTS_OBJ) 
+# TEST
+test: bin/test
+
+bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_OBJ) 
 	@echo " [LNK] Linking test"
 	@$(CXX) -isystem $(GTEST)/include -lpthread $(TESTS_OBJ) $(K2TREE_OBJ) \
 					$(GTEST)/libgtest.a -o bin/test
 
+$(GTEST)/libgtest.a:
+	@echo " [BLD] Building libgtest"
+	@$(CXX) -isystem ${GTEST}/include -I${GTEST} \
+      -pthread -c ${GTEST}/src/gtest-all.cc -o $(GTEST)/gtest-all.o
+	@ar -rv $(GTEST)/libgtest.a $(GTEST)/gtest-all.o
 
 obj/tests/%.o: tests/%.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) -isystem $(GTEST)/include $(TESTSFLAGS) -c $< -o $@
+# END TEST
 
 
+
+# STYLE
+style:
+	@echo " [CHK] Cheking Code Style"
+	@./cpplint.py --filter=-legal,-runtime/threadsafe_fn $(TESTS_SRC) $(K2TREE_SRC) $(HEADERS)
+# END STYLE
+
+
+
+# K2TREE
 obj/src/%.o: src/%.cc $(HEADERS)
 	@echo " [C++] Compiling $<"
 	@$(CXX) -c $< -o $@
+# END K2TREE
+
+
+# CLEAN
+clean : clean_test clean_k2tree
 
 clean_test:
 	@echo " [CLN] Cleaning test"
 	@rm bin/test
-	@rm $(TESTS_OBJ)
+	@rm $(shell find obj/tests -name *.o)
 
 clean_k2tree:
 	@echo " [CLN] Cleaning k2tree"
-	@rm ${K2TREE_OBJ}
-clean: clean_test clean_k2tree
+	@rm $(shell find obj/src -name *.o)
+# END CLEAN
