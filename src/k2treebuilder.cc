@@ -100,7 +100,6 @@ void K2TreeBuilder::DeleteNode(Node *n, int level) {
   int k = level <= max_level1_ ? k1_ : k2_;
 
   if (level < height_ - 1) {
-    --internal_nodes_;
     for (int i = 0; i < k*k; ++i)
       DeleteNode(n->children_[i], level+1);
     delete n->children_;
@@ -108,6 +107,7 @@ void K2TreeBuilder::DeleteNode(Node *n, int level) {
     leafs_ -= kl_*kl_;
     delete n->data_;
   }
+  --internal_nodes_;
   delete n;
 }
 
