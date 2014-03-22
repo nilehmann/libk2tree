@@ -84,19 +84,21 @@ class K2TreeBuilder {
   // Number of internal nodes.
   int internal_nodes_;
 
-
-
-  class Node {
-   public:
-    explicit Node(int k1);
-    BitString<char> *data_;
-    Node **childs_;
-    int k1_;
-    virtual ~Node();
+  // Struct to store the tree.
+  struct Node {
+    union {
+      // Store the children of the level height_-1 (the leafs)
+      BitString<char> *data_;
+      // Pointers to children of internal nodes.
+      Node **children_;
+    };
   };
-  class Leaf : public Node {
-   public:
-  };
+  // Create a node for the specified level using an appropiate k
+  Node *CreateNode(int level);
+  // Free memory allocated for n assuming it was built for the
+  // specified level. Recursively delete children of internal nodes.
+  void DeleteNode(Node *n, int level);
+
   // Root of the tree
   Node *root;
 };

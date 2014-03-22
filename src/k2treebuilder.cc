@@ -13,6 +13,7 @@
 #include "./k2treebuilder.h"
 #include "utils/utils.h"
 
+
 namespace k2tree_impl {
 
 using utils::LogCeil;
@@ -34,7 +35,7 @@ K2TreeBuilder::K2TreeBuilder(size_t nodes, int k1, int k2, int kl,
   // we extend the size of the matrix to be the multiplication of the arities
   // in all levels (section 5.1). There are k1_levels levels with
   // arity k1, one with arity kl and we must find the numbers of levels with
-  // arity k2, ie, the smallest x that satisfies:
+  // arity k2, ie, the smallest integer x that satisfies:
   // k1^k1_levels * k2^x * kl >= nodes.
   int powk1 = Pow(k1, k1_levels);
   int x = LogCeil(nodes*1.0/powk1/kl, k2);
@@ -46,10 +47,8 @@ K2TreeBuilder::K2TreeBuilder(size_t nodes, int k1, int k2, int kl,
 }
 
 void K2TreeBuilder::InsertEdge(size_t row, size_t col) {
-  if (root == NULL) {
-    root = new Node(k1_*k1_);
-    internal_nodes_ += k1_*k1_;
-  }
+  if (root == NULL)
+    root = CreateNode(0);
   Node *n = root;
   int N = size_, div_level, child;
   int level;
@@ -62,20 +61,13 @@ void K2TreeBuilder::InsertEdge(size_t row, size_t col) {
     col = col % div_level;
     N /= k;
 
-    if (n->childs_[child] == NULL) {
-      k = level + 1 <= max_level1_ ? k1_ : k2_;
-      n->childs_[child] = new Node(k*k);
-      if (level < height_ - 2)
-        internal_nodes_ += k*k;
-    }
-    n = n->childs_[child];
+    if (n->children_[child] == NULL)
+        n->children_[child] = CreateNode(level + 1);
+
+    n = n->children_[child];
   }
-  // n is a node on the level height - 1. In this level
+  // n is a node on the level height_ - 1. In this level
   // we store the children information in a BitString (the leafs)
-  if (n->data_ == NULL) {
-    ++leafs_;
-    n->data_ = new BitString<char>(kl_*kl_);
-  }
   div_level = N/kl_;
   child = row/div_level*kl_ + col/div_level;
   n->data_->SetBit(child);
@@ -83,26 +75,40 @@ void K2TreeBuilder::InsertEdge(size_t row, size_t col) {
 }
 
 K2TreeBuilder::~K2TreeBuilder() {
-  if (root != NULL)
-    delete root;
+  DeleteNode(root, 0);
 }
 
-K2TreeBuilder::Node::Node(int N) :
-    data_(),
-    childs_(new Node*[N]),
-    k1_(N) {
-  for (int i = 0; i < N; ++i)
-    childs_[i] = NULL;
+K2TreeBuilder::Node * K2TreeBuilder::CreateNode(int level) {
+  int k = level <= max_level1_ ? k1_ : k2_;
+
+  Node *n = new Node();
+  if (level < height_ - 1) {
+    n->children_ = new Node*[k*k];
+    for (int i = 0; i < k*k; ++i)
+      n->children_[i] = NULL;
+    internal_nodes_ += k*k;
+  } else {
+    n->data_ = new BitString<char>(kl_*kl_);
+    leafs_ += kl_*kl_;
+  }
+  return n;
 }
 
+void K2TreeBuilder::DeleteNode(Node *n, int level) {
+  if (n == NULL)
+    return;
+  int k = level <= max_level1_ ? k1_ : k2_;
 
-K2TreeBuilder::Node::~Node() {
-  for (int i = 0; i < k1_; ++i)
-    if (childs_[i] != NULL)
-      delete childs_[i];
-  delete [] childs_;
-  if (data_ != NULL)
-    delete data_;
+  if (level < height_ - 1) {
+    --internal_nodes_;
+    for (int i = 0; i < k*k; ++i)
+      DeleteNode(n->children_[i], level+1);
+    delete n->children_;
+  } else {
+    leafs_ -= kl_*kl_;
+    delete n->data_;
+  }
+  delete n;
 }
 
 }  // namespace k2tree_impl
