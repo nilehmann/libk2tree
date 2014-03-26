@@ -1,9 +1,11 @@
-HEADERS = $(shell find src tests -name *.h)
+HEADERS = $(shell find include tests -name *.h)
+INCLUDE = include/
+
 
 TESTS_SRC = $(shell find tests -name *.cc)
 TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
 GTEST=gtest-1.7.0
-TESTSFLAGS = -g -Wall -Wextra -pthread 
+TESTSFLAGS = -g -Wall -Wextra
 
 K2TREE_SRC = $(shell find src -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
@@ -30,7 +32,7 @@ $(GTEST)/libgtest.a:
 
 obj/tests/%.o: tests/%.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -isystem $(GTEST)/include $(TESTSFLAGS) -c $< -o $@
+	@$(CXX) -isystem $(GTEST)/include -I$(INCLUDE) $(TESTSFLAGS) -c $< -o $@
 # END TEST
 
 
@@ -46,7 +48,7 @@ style:
 # K2TREE
 obj/src/%.o: src/%.cc $(HEADERS)
 	@echo " [C++] Compiling $<"
-	@$(CXX) -c $< -o $@
+	@$(CXX) -I$(INCLUDE) -c $< -o $@
 # END K2TREE
 
 

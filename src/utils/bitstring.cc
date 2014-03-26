@@ -10,7 +10,7 @@
  * See bitstring.h for implementation.
  *
  */
-#include "./bitstring.h"
+#include <utils/bitstring.h>
 
 
 

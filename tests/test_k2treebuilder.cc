@@ -8,7 +8,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/k2treebuilder.h"
+#include <k2treebuilder.h>
 
 
 using ::k2tree_impl::K2TreeBuilder;

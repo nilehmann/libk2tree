@@ -10,7 +10,7 @@
  *
  */
 
-#include "./utils.h"
+#include <utils/utils.h>
 
 namespace k2tree_impl {
 namespace utils {

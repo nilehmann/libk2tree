@@ -9,7 +9,7 @@
 
 
 #include <gtest/gtest.h>
-#include "../src/utils/bitstring.h"
+#include <utils/bitstring.h>
 
 using  ::k2tree_impl::utils::BitString;
 

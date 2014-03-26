@@ -9,9 +9,9 @@
  * Refer to k2treebuilder.h for interface information.
  */
 
+#include <k2treebuilder.h>
+#include <utils/utils.h>
 #include <cstdio>
-#include "./k2treebuilder.h"
-#include "utils/utils.h"
 
 
 namespace k2tree_impl {

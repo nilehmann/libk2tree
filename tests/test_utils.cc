@@ -8,7 +8,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/utils/utils.h"
+#include <utils/utils.h>
 
 
 using ::k2tree_impl::utils::LogCeil;
