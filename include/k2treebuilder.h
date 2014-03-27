@@ -31,17 +31,19 @@ class K2TreeBuilder {
    * @param nodes Number of nodes in the graph.
    * @param k1 arity of the first levels.
    * @param k2 arity of the second part.
-   * @param kl arity of the level h-1.
+   * @param kl arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    */
   K2TreeBuilder(size_t nodes, int k1, int k2, int kl, int k1_levels);
-   /* 
+  /* 
    * Insert an edge (1 on the matrix)
    *
    * @param row Starting node of the edge/row in the matrix
    * @param col Ending node of the edge/col in the matrix
    */
   void InsertEdge(size_t row, size_t col);
+
+  void Build() const;
 
   inline int height() const {
     return height_;
@@ -55,8 +57,16 @@ class K2TreeBuilder {
     return edges_;
   }
 
-  inline int internal_nodes() const {
-    return internal_nodes_;
+  inline int nodes_k1() const {
+    return nodes_k1_;
+  }
+  
+  inline int nodes_k2() const {
+    return nodes_k2_;
+  }
+
+  inline int nodes_kl() const {
+    return nodes_kl_;
   }
 
 
@@ -73,7 +83,7 @@ class K2TreeBuilder {
   int k2_;
   // Arity of the level height-1
   int kl_;
-  // Last level with arity k1. Each node in this level has k1 children.
+  // Last level with arity k1. Each node in this level has 0 or k1 children.
   int max_level1_;
   // Height of the tree, also the number of the leaf level.
   int height_;
@@ -81,8 +91,12 @@ class K2TreeBuilder {
   int leafs_;
   // Number of 1s on the matrix.
   int edges_;
-  // Number of internal nodes.
-  int internal_nodes_;
+  // Number of nodes on levels with arity k1
+  int nodes_k1_;
+  // Number of nodes on levels with arity k2
+  int nodes_k2_;
+  // Number of nodes on levels with arity kl, ie, level height_-1
+  int nodes_kl_;
 
   // Struct to store the tree.
   struct Node {
