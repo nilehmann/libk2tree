@@ -14,7 +14,6 @@
 #include <queue>
 #include <cstdio>
 
-
 namespace k2tree_impl {
 
 using utils::LogCeil;
@@ -28,13 +27,11 @@ K2TreeBuilder::K2TreeBuilder(size_t nodes, int k1, int k2, int kl,
     k1_(k1),
     k2_(k2),
     kl_(kl),
-    max_level1_(k1_levels-1),
+    max_level_k1_(k1_levels-1),
     height_(-1),
     leafs_(0),
     edges_(0),
-    nodes_k1_(0),  // we dont consider the root
-    nodes_k2_(0),
-    nodes_kl_(0),
+    internal_nodes_(0),  // we dont consider the root
     root() {
   // we extend the size of the matrix to be the multiplication of the arities
   // in all levels (section 5.1). There are k1_levels levels with
@@ -54,20 +51,19 @@ void K2TreeBuilder::InsertEdge(size_t row, size_t col) {
   if (root == NULL)
     root = CreateNode(0);
   Node *n = root;
-  int N = size_, div_level, child;
+  size_t N = size_, div_level;
+  int child;
   for (int level = 0; level < height_ - 1; level++) {
-    int k = level <= max_level1_ ? k1_ : k2_;
+    int k = level <= max_level_k1_ ? k1_ : k2_;
     div_level = N/k;
 
     child = row/div_level * k + col/div_level;
-    row = row % div_level;
-    col = col % div_level;
-    N /= k;
 
     if (n->children_[child] == NULL)
         n->children_[child] = CreateNode(level + 1);
 
     n = n->children_[child];
+    N /= k, row %= div_level, col %= div_level;
   }
   // n is a node on the level height_ - 1. In this level
   // we store the children information in a BitString (the leafs)
@@ -77,55 +73,47 @@ void K2TreeBuilder::InsertEdge(size_t row, size_t col) {
   edges_++;
 }
 
-void K2TreeBuilder::Build() const {
-  BitString<int> T1(nodes_k1_), T2(nodes_k2_), Tl(nodes_kl_);
-  BitString<int> L(leafs_);
+shared_ptr<K2Tree> K2TreeBuilder::Build() const {
+  BitString<unsigned int> T(internal_nodes_); 
+  BitString<unsigned int> L(leafs_);
   queue<Node*> q;
   q.push(root);
 
-  int cnt_level, level;
+  size_t cnt_level;
+  int level;
 
-  // Position on the bitmap T1
-  int pos = -1;
-  for (level = 0; level <= max_level1_; ++level) {
+  // Position on the bitmap T
+  size_t pos = -1;
+  for (level = 0; level < height_-1; ++level) {
+    int k = level <= max_level_k1_ ? k1_ : k2_;
     cnt_level = q.size();
     for (int i = 0; i < cnt_level; ++i, ++pos) {
       Node *n = q.front(); q.pop();
       if (n != NULL) {
-        if (pos >= 0)  // if not the root
-          T1.SetBit(pos);
+        if (level > 0)  // if not the root
+          T.SetBit(pos);
 
-        for (int child = 0; child < k1_*k1_; ++child)
+        for (int child = 0; child < k*k; ++child)
           q.push(n->children_[child]);
       }
     }
   }
 
-  pos = 0;
-  for (; level < height_ - 1; ++level) {
-    cnt_level = q.size();
-    for (int i = 0; i < cnt_level; ++i, ++pos) {
-      Node *n = q.front(); q.pop();
-      if (n != NULL) {
-        T2.SetBit(pos);
-
-        for (int child = 0; child < k2_*k2_; ++child)
-          q.push(n->children_[child]);
-      }
-    }
-  }
+  // Visiting nodes on level height - 1
   int leaf_pos = 0;
-  pos = 0;
   cnt_level = q.size();
   for (int i = 0; i < cnt_level; ++i, ++pos) {
     Node *n = q.front(); q.pop();
     if (n != NULL) {
-      Tl.SetBit(pos);
+      T.SetBit(pos);
       for (int child = 0; child < kl_*kl_; ++child, ++leaf_pos)
         if (n->data_->GetBit(child))
           L.SetBit(leaf_pos);
     }
   }
+
+  K2Tree *tree = new K2Tree(T, L, k1_, k2_, kl_, max_level_k1_, height_, size_);
+  return shared_ptr<K2Tree>(tree);
 }
 
 K2TreeBuilder::~K2TreeBuilder() {
@@ -133,23 +121,15 @@ K2TreeBuilder::~K2TreeBuilder() {
 }
 
 K2TreeBuilder::Node * K2TreeBuilder::CreateNode(int level) {
-  int *nodes;
-  if (level + 1 <= max_level1_)
-    nodes = &nodes_k1_;
-  else if (level + 1 <  height_ - 1)
-    nodes = &nodes_k2_;
-  else
-    nodes = &nodes_kl_;
-
   Node *n = new Node();
   if (level < height_ - 1) {
-    int k = level <= max_level1_ ? k1_ : k2_;
+    int k = level <= max_level_k1_ ? k1_ : k2_;
     n->children_ = new Node*[k*k];
     for (int i = 0; i < k*k; ++i)
       n->children_[i] = NULL;
-    *nodes += k*k;
+    internal_nodes_ += k*k;
   } else {
-    n->data_ = new BitString<char>(kl_*kl_);
+    n->data_ = new BitString<unsigned char>(kl_*kl_);
     leafs_ += kl_*kl_;
   }
   return n;
@@ -160,11 +140,13 @@ void K2TreeBuilder::DeleteNode(Node *n, int level) {
     return;
 
   if (level < height_ - 1) {
-    int k = level <= max_level1_ ? k1_ : k2_;
+    int k = level <= max_level_k1_ ? k1_ : k2_;
     for (int i = 0; i < k*k; ++i)
       DeleteNode(n->children_[i], level+1);
+    --internal_nodes_;
     delete n->children_;
   } else {
+    leafs_ -= kl_*kl_;
     delete n->data_;
   }
   delete n;

@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef SRC_UTILS_UTILS_H_
-#define SRC_UTILS_UTILS_H_
+#ifndef INCLUDE_UTILS_UTILS_H_
+#define INCLUDE_UTILS_UTILS_H_
 
 namespace k2tree_impl {
 namespace utils {
@@ -37,4 +37,4 @@ namespace utils {
 }  // namespace utils
 }  // namespace k2tree_impl
 
-#endif  // SRC_UTILS_UTILS_H_
+#endif  // INCLUDE_UTILS_UTILS_H_

@@ -48,9 +48,7 @@ void InsertEdges(K2TreeBuilder *tb) {
 TEST(K2TreeBuilder, 1) {
   K2TreeBuilder tb(11, 4, 2, 2, 1);
   InsertEdges(&tb);
-  ASSERT_EQ(0, tb.nodes_k1());
-  ASSERT_EQ(16, tb.nodes_k2());
-  ASSERT_EQ(20, tb.nodes_kl());
+  ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());
   ASSERT_EQ(3, tb.height());
@@ -58,9 +56,7 @@ TEST(K2TreeBuilder, 1) {
 TEST(K2TreeBuilder, 2) {
   K2TreeBuilder tb(11, 3, 2, 2, 1);
   InsertEdges(&tb);
-  ASSERT_EQ(0, tb.nodes_k1());
-  ASSERT_EQ(9, tb.nodes_k2());
-  ASSERT_EQ(20, tb.nodes_kl());
+  ASSERT_EQ(29, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());
   ASSERT_EQ(3, tb.height());
@@ -68,9 +64,7 @@ TEST(K2TreeBuilder, 2) {
 TEST(K2TreeBuilder, 3) {
   K2TreeBuilder tb(11, 3, 2, 3, 1);
   InsertEdges(&tb);
-  ASSERT_EQ(0, tb.nodes_k1());
-  ASSERT_EQ(9, tb.nodes_k2());
-  ASSERT_EQ(8, tb.nodes_kl());
+  ASSERT_EQ(17, tb.internal_nodes());
   ASSERT_EQ(54, tb.leafs());
   ASSERT_EQ(12, tb.edges());
   ASSERT_EQ(3, tb.height());
@@ -78,9 +72,7 @@ TEST(K2TreeBuilder, 3) {
 TEST(K2TreeBuilder, 4) {
   K2TreeBuilder tb(11, 3, 2, 2, 2);
   InsertEdges(&tb);
-  ASSERT_EQ(9, tb.nodes_k1());
-  ASSERT_EQ(0, tb.nodes_k2());
-  ASSERT_EQ(18, tb.nodes_kl());
+  ASSERT_EQ(27, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());
   ASSERT_EQ(3, tb.height());
@@ -88,9 +80,7 @@ TEST(K2TreeBuilder, 4) {
 TEST(K2TreeBuilder, 5) {
   K2TreeBuilder tb(11, 3, 2, 2, 3);
   InsertEdges(&tb);
-  ASSERT_EQ(18, tb.nodes_k1());
-  ASSERT_EQ(0, tb.nodes_k2());
-  ASSERT_EQ(18, tb.nodes_kl());
+  ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());
   ASSERT_EQ(4, tb.height());

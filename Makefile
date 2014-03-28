@@ -10,7 +10,8 @@ TESTSFLAGS = -g -Wall -Wextra
 K2TREE_SRC = $(shell find src -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
-HEADERS = $(shell find src -name *.h)
+FLAGS = -std=c++11
+
 
 .PHONY: clean style test all
 
@@ -21,7 +22,7 @@ test: bin/test
 
 bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_OBJ) 
 	@echo " [LNK] Linking test"
-	@$(CXX) -isystem $(GTEST)/include -lpthread $(TESTS_OBJ) $(K2TREE_OBJ) \
+	@$(CXX) -isystem $(GTEST)/include -lpthread -lcds $(TESTS_OBJ) $(K2TREE_OBJ) \
 					$(GTEST)/libgtest.a -o bin/test
 
 $(GTEST)/libgtest.a:
@@ -30,9 +31,9 @@ $(GTEST)/libgtest.a:
       -pthread -c ${GTEST}/src/gtest-all.cc -o $(GTEST)/gtest-all.o
 	@ar -rv $(GTEST)/libgtest.a $(GTEST)/gtest-all.o
 
-obj/tests/%.o: tests/%.cc
+obj/tests/%.o: tests/%.cc $(HEADERS)
 	@echo " [C++] Compiling $<"
-	@$(CXX) -isystem $(GTEST)/include -I$(INCLUDE) $(TESTSFLAGS) -c $< -o $@
+	@$(CXX) -isystem $(GTEST)/include -I$(INCLUDE) $(FLAGS) $(TESTSFLAGS) -c $< -o $@
 # END TEST
 
 
@@ -48,7 +49,7 @@ style:
 # K2TREE
 obj/src/%.o: src/%.cc $(HEADERS)
 	@echo " [C++] Compiling $<"
-	@$(CXX) -I$(INCLUDE) -c $< -o $@
+	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
 # END K2TREE
 
 

@@ -9,8 +9,8 @@
  * Dynamic bitstring
  */
 
-#ifndef SRC_UTILS_BITSTRING_H_
-#define SRC_UTILS_BITSTRING_H_
+#ifndef INCLUDE_UTILS_BITSTRING_H_
+#define INCLUDE_UTILS_BITSTRING_H_
 
 #include <cstddef>
 
@@ -20,7 +20,7 @@ namespace utils {
 
 /*
  * Dynamic bitstring implementation with an array of T as underlying
- * representation. T should be typically a char or an int.
+ * representation. T should be typically a unsigned char or an unsigned int.
  */
 template<typename T>
 class BitString {
@@ -30,18 +30,28 @@ class BitString {
    */
   explicit BitString(size_t length) :
       bits_(sizeof(T)*8),
-      arr_(0),
+      data_(new T[length/bits_ + 1]),
       length_(length) {
-    this->arr_ = new T[length/bits_ + 1];
     for (size_t i = 0; i < length/bits_ + 1; ++i)
-      this->arr_[i] = 0;
+      this->data_[i] = 0;
+  }
+
+  /* 
+   * Copy constructor
+   */
+  BitString(const BitString<T>& rhs) :
+      bits_(sizeof(T)*8),
+      data_(new T[rhs.length()/bits_ + 1]),
+      length_(rhs.length()) {
+    for (size_t i = 0; i < length_/bits_ + 1; ++i)
+      this->data_[i] = rhs.data_[i];
   }
   /*
    * Set bit p to true.
    * @param p Position to set.
    */
   inline void SetBit(size_t p) {
-    arr_[p/bits_] |= (1 << (p%bits_));
+    data_[p/bits_] |= (1 << (p%bits_));
   }
 
   /*
@@ -49,14 +59,14 @@ class BitString {
    * @param p Position to clean.
    */
   inline void CleanBit(size_t p) {
-    arr_[p/bits_] &= ~(1 << (p%bits_));
+    data_[p/bits_] &= ~(1 << (p%bits_));
   }
 
   /*
    * Return the bit on position p.
    */
   inline bool GetBit(size_t p) const {
-    return (arr_[p/bits_] >> (p%bits_) ) & 1;
+    return (data_[p/bits_] >> (p%bits_) ) & 1;
   }
 
   /*
@@ -66,25 +76,30 @@ class BitString {
     return length_;
   }
 
+  /*
+   * Return the underlying representation
+   */
+  inline T *GetRawData() const {
+    return data_;
+  }
+
   ~BitString() {
-    delete [] arr_;
+    delete [] data_;
   }
 
 
  private:
   /*Number of bits on T */
   int bits_;
-  T * arr_;
+  T * data_;
   size_t length_;
 
   /*
-   * Declaration of methods to prevent the copy constructor
-   * and assignment.
+   * Declaration of methods to prevent the copy assignment.
    */
-  BitString(const BitString&);
   BitString &operator=(const BitString&);
 };
 
 }  // namespace utils
 }  // namespace k2tree_impl
-#endif  // SRC_UTILS_BITSTRING_H_
+#endif  // INCLUDE_UTILS_BITSTRING_H_

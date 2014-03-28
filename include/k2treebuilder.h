@@ -8,16 +8,19 @@
  *
  */
 
-#ifndef SRC_K2TREEBUILDER_H_
-#define SRC_K2TREEBUILDER_H_
+#ifndef INCLUDE_K2TREEBUILDER_H_
+#define INCLUDE_K2TREEBUILDER_H_
 
-#include <cstddef>
+#include <k2tree.h>
+#include <utils/bitstring.h>
 #include <vector>
-#include "utils/bitstring.h"
+#include <memory>
+#include <cstddef>
 
 namespace k2tree_impl {
 
 using utils::BitString;
+using std::shared_ptr;
 
 /*
  * Implement the construction of section 3.3.3, building a regular tree (not compressed)
@@ -43,32 +46,23 @@ class K2TreeBuilder {
    */
   void InsertEdge(size_t row, size_t col);
 
-  void Build() const;
+  shared_ptr<K2Tree> Build() const;
 
   inline int height() const {
     return height_;
   }
 
-  inline int leafs() const {
+  inline size_t leafs() const {
     return leafs_;
   }
 
-  inline int edges() const {
+  inline size_t edges() const {
     return edges_;
   }
 
-  inline int nodes_k1() const {
-    return nodes_k1_;
+  inline size_t internal_nodes() const {
+    return internal_nodes_;
   }
-  
-  inline int nodes_k2() const {
-    return nodes_k2_;
-  }
-
-  inline int nodes_kl() const {
-    return nodes_kl_;
-  }
-
 
   ~K2TreeBuilder();
 
@@ -84,25 +78,21 @@ class K2TreeBuilder {
   // Arity of the level height-1
   int kl_;
   // Last level with arity k1. Each node in this level has 0 or k1 children.
-  int max_level1_;
+  int max_level_k1_;
   // Height of the tree, also the number of the leaf level.
   int height_;
   // Number of nodes on the last level.
-  int leafs_;
+  size_t leafs_;
   // Number of 1s on the matrix.
-  int edges_;
-  // Number of nodes on levels with arity k1
-  int nodes_k1_;
-  // Number of nodes on levels with arity k2
-  int nodes_k2_;
-  // Number of nodes on levels with arity kl, ie, level height_-1
-  int nodes_kl_;
+  size_t edges_;
+  // Number of internal nodes.
+  size_t internal_nodes_;
 
   // Struct to store the tree.
   struct Node {
     union {
       // Store the children of the level height_-1 (the leafs)
-      BitString<char> *data_;
+      BitString<unsigned char> *data_;
       // Pointers to children of internal nodes.
       Node **children_;
     };
@@ -119,4 +109,4 @@ class K2TreeBuilder {
 
 }  // namespace k2tree_impl
 
-#endif  // SRC_K2TREEBUILDER_H_
+#endif  // INCLUDE_K2TREEBUILDER_H_

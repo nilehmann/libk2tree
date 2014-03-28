@@ -72,6 +72,7 @@ TEST(BitStringInt, SetBit) {
   }
 }
 
+
 TEST(BitStringInt, CleanBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
@@ -82,6 +83,23 @@ TEST(BitStringInt, CleanBit) {
       size_t pos = rand()%N;
       bs.CleanBit(pos);
       ASSERT_EQ(0, bs.GetBit(pos));
+    }
+  }
+}
+TEST(BitString, CopyConstructor) {
+  srand(time(NULL));
+  for (int i = 0; i < 100; ++i) {
+    size_t N = rand()%10000 + 1000;
+    BitString<int> bs(N);
+
+    for (int j = 0; j < 100 ; ++j) {
+      size_t pos = rand()%N;
+      bs.SetBit(pos);
+    }
+    BitString<int> bs2(bs);
+    for (int j = 0; j < 100 ; ++j) {
+      size_t pos = rand()%N;
+      ASSERT_EQ(bs.GetBit(pos), bs2.GetBit(pos));
     }
   }
 }
