@@ -41,32 +41,34 @@ K2Tree::K2Tree(const BitString<unsigned int> &T ,
 
 bool K2Tree::CheckEdge(size_t row, size_t col) const {
   size_t N, z, div_level;
-  size_t level_offset;  // number of nodes on the previous levels
-  size_t cnt_level;  // number of nodes on the current level
+  size_t offset;  // number of nodes until current level, inclusive.
+  int k;
 
   N = size_;
-  div_level = N/k1_;
-  z = row/div_level*k1_ + col/div_level;
-  N /= k1_, row %= div_level, col %= div_level;
-  level_offset = 0;
-  cnt_level = k1_*k1_;
-  for (int level = 1; level < height_-1; ++level) {
+  offset = 0;
+  for (int level = 0; level < height_; ++level) {
+    if (level <= max_level_k1_) k = k1_;
+    else if (level < height_ - 1) k = k2_;
+    else k = kl_;
+
     int k = level <= max_level_k1_ ? k1_ : k2_;
     div_level = N/k;
-    if (T_.access(z)) {
-      z = z > 0 ? T_.rank1(z-1) : 0;
-      z = (z - acum_rank_[level-1])*k*k;
-      z += row/div_level*k + col/div_level;
-      z += level_offset + cnt_level;
-    }
+    if (level > 0 && T_.access(z))
+      //child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
+      z = z > 0 ? (T_.rank1(z-1) - acum_rank_[level-1])*k*k : 0;
     else
       return false;
 
-    level_offset += cnt_level;
-    cnt_level = (acum_rank_[level]-acum_rank_[level-1])*k*k;
+    int child = row/div_level*k + col/div_level;
+    z += child + offset;
+
+    if (level > 0)
+      offset += (acum_rank[level] - acum_rank_[level-1])*k*k;
+    else
+      offset = k*k;
 
     N /= k, row %= div_level, col %= div_level;
   }
-  // TODO revisar hojas
+  return L.GetBit(z - T.getLength());
 }
 }  // namespace k2tree_impl
