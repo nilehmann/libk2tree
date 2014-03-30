@@ -7,10 +7,10 @@
  * ----------------------------------------------------------------------------
  * 
  * This file exists to make building in a systematic way.
- * See bitstring.h for implementation.
+ * See bitarray.h for implementation.
  *
  */
-#include <utils/bitstring.h>
+#include <utils/bitarray.h>
 
 
 

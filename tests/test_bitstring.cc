@@ -9,25 +9,25 @@
 
 
 #include <gtest/gtest.h>
-#include <utils/bitstring.h>
+#include <utils/bitarray.h>
 
-using  ::k2tree_impl::utils::BitString;
+using  ::k2tree_impl::utils::BitArray;
 
-TEST(BitStringChar, Constructor) {
-  BitString<char> bs(1000);
+TEST(BitArrayChar, Constructor) {
+  BitArray<char> bs(1000);
   for (int i = 0; i < 1000; ++i)
     ASSERT_EQ(0, bs.GetBit(i));
 }
-TEST(BitString, SetBit0) {
-  BitString<char> bs(3);
+TEST(BitArray, SetBit0) {
+  BitArray<char> bs(3);
   bs.SetBit(0);
   ASSERT_EQ(1, bs.GetBit(0));
 }
-TEST(BitStringChar, SetBit) {
+TEST(BitArrayChar, SetBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitString<char> bs(N);
+    BitArray<char> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -37,11 +37,11 @@ TEST(BitStringChar, SetBit) {
   }
 }
 
-TEST(BitStringChar, CleanBit) {
+TEST(BitArrayChar, CleanBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitString<char> bs(N);
+    BitArray<char> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -52,17 +52,17 @@ TEST(BitStringChar, CleanBit) {
 }
 
 
-TEST(BitStringInt, Constructor) {
-  BitString<int> bs(1000);
+TEST(BitArrayInt, Constructor) {
+  BitArray<int> bs(1000);
 
   for (int i = 0; i < 1000; ++i)
     ASSERT_EQ(0, bs.GetBit(i));
 }
-TEST(BitStringInt, SetBit) {
+TEST(BitArrayInt, SetBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitString<int> bs(N);
+    BitArray<int> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -73,11 +73,11 @@ TEST(BitStringInt, SetBit) {
 }
 
 
-TEST(BitStringInt, CleanBit) {
+TEST(BitArrayInt, CleanBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitString<int> bs(N);
+    BitArray<int> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -86,17 +86,17 @@ TEST(BitStringInt, CleanBit) {
     }
   }
 }
-TEST(BitString, CopyConstructor) {
+TEST(BitArray, CopyConstructor) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitString<int> bs(N);
+    BitArray<int> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
       bs.SetBit(pos);
     }
-    BitString<int> bs2(bs);
+    BitArray<int> bs2(bs);
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
       ASSERT_EQ(bs.GetBit(pos), bs2.GetBit(pos));

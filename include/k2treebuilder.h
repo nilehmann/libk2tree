@@ -12,39 +12,40 @@
 #define INCLUDE_K2TREEBUILDER_H_
 
 #include <k2tree.h>
-#include <utils/bitstring.h>
+#include <utils/bitarray.h>
 #include <vector>
 #include <memory>
 #include <cstddef>
 
 namespace k2tree_impl {
 
-using utils::BitString;
+using utils::BitArray;
 using std::shared_ptr;
 
 /*
  * Implement the construction of section 3.3.3, building a regular tree (not compressed)
- * inserting one edge of the graph (1s in the matrix) at a time.
+ * inserting one link (1 in the matrix) at a time.
  */
 class K2TreeBuilder {
  public:
   /* 
    * Create a builder for a tree with an hybrid aproach.
    *
-   * @param nodes Number of nodes in the graph.
+   * @param cnt Number of object in the relation.
    * @param k1 arity of the first levels.
    * @param k2 arity of the second part.
    * @param kl arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    */
-  K2TreeBuilder(size_t nodes, int k1, int k2, int kl, int k1_levels);
+  K2TreeBuilder(size_t cnt, int k1, int k2, int kl, int k1_levels);
   /* 
-   * Insert an edge (1 on the matrix)
+   * Create a link from object p to q.
+   * Identifiers start with 0.
    *
-   * @param row Starting node of the edge/row in the matrix
-   * @param col Ending node of the edge/col in the matrix
+   * @param p Identifier of the first object.
+   * @param q Identifier of the second object.
    */
-  void InsertEdge(size_t row, size_t col);
+  void AddLink(size_t p, size_t q);
 
   shared_ptr<K2Tree> Build() const;
 
@@ -67,8 +68,8 @@ class K2TreeBuilder {
   ~K2TreeBuilder();
 
  private:
-  // Number of nodes in the original graph
-  size_t nodes_;
+  // Number of objects in the original relation.
+  size_t cnt_;
   // Number of rows (and cols) in the expanded matrix
   size_t size_;
   // Arity of the first part
@@ -92,7 +93,7 @@ class K2TreeBuilder {
   struct Node {
     union {
       // Store the children of the level height_-1 (the leafs)
-      BitString<unsigned char> *data_;
+      BitArray<unsigned char> *data_;
       // Pointers to children of internal nodes.
       Node **children_;
     };

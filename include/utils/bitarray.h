@@ -6,11 +6,11 @@
  * this stuff is worth it, you can buy me a beer in return Nicolás Lehmann
  * ----------------------------------------------------------------------------
  * 
- * Dynamic bitstring
+ * Dynamic bit array
  */
 
-#ifndef INCLUDE_UTILS_BITSTRING_H_
-#define INCLUDE_UTILS_BITSTRING_H_
+#ifndef INCLUDE_UTILS_BITARRAY_H_
+#define INCLUDE_UTILS_BITARRAY_H_
 
 #include <cstddef>
 
@@ -19,16 +19,16 @@ namespace k2tree_impl {
 namespace utils {
 
 /*
- * Dynamic bitstring implementation with an array of T as underlying
+ * Dynamic bit array implementation with an array of T as underlying
  * representation. T should be typically a unsigned char or an unsigned int.
  */
 template<typename T>
-class BitString {
+class BitArray {
  public:
-  /* Create a bitstring to hold up to length bits. The string is initialized
+  /* Create a bit array to hold up to length bits. The array is initialized
    * with all bits to false.
    */
-  explicit BitString(size_t length) :
+  explicit BitArray(size_t length) :
       bits_(sizeof(T)*8),
       data_(new T[length/bits_ + 1]),
       length_(length) {
@@ -39,7 +39,7 @@ class BitString {
   /* 
    * Copy constructor
    */
-  BitString(const BitString<T>& rhs) :
+  BitArray(const BitArray<T>& rhs) :
       bits_(sizeof(T)*8),
       data_(new T[rhs.length()/bits_ + 1]),
       length_(rhs.length()) {
@@ -70,7 +70,7 @@ class BitString {
   }
 
   /*
-   * Return the length of the bitstring.
+   * Return the length of the bit array.
    */
   inline size_t length() const {
     return length_;
@@ -83,7 +83,7 @@ class BitString {
     return data_;
   }
 
-  ~BitString() {
+  ~BitArray() {
     delete [] data_;
   }
 
@@ -97,9 +97,9 @@ class BitString {
   /*
    * Declaration of methods to prevent the copy assignment.
    */
-  BitString &operator=(const BitString&);
+  BitArray &operator=(const BitArray&);
 };
 
 }  // namespace utils
 }  // namespace k2tree_impl
-#endif  // INCLUDE_UTILS_BITSTRING_H_
+#endif  // INCLUDE_UTILS_BITARRAY_H_

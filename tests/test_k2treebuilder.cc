@@ -30,24 +30,24 @@ using ::k2tree_impl::K2TreeBuilder;
  */
 
 
-void InsertEdges(K2TreeBuilder *tb) {
-  tb->InsertEdge(0, 1);
-  tb->InsertEdge(1, 2);
-  tb->InsertEdge(1, 3);
-  tb->InsertEdge(1, 4);
-  tb->InsertEdge(7, 6);
-  tb->InsertEdge(8, 6);
-  tb->InsertEdge(8, 9);
-  tb->InsertEdge(9, 6);
-  tb->InsertEdge(9, 8);
-  tb->InsertEdge(9, 10);
-  tb->InsertEdge(10, 6);
-  tb->InsertEdge(10, 9);
+void AddLinks(K2TreeBuilder *tb) {
+  tb->AddLink(0, 1);
+  tb->AddLink(1, 2);
+  tb->AddLink(1, 3);
+  tb->AddLink(1, 4);
+  tb->AddLink(7, 6);
+  tb->AddLink(8, 6);
+  tb->AddLink(8, 9);
+  tb->AddLink(9, 6);
+  tb->AddLink(9, 8);
+  tb->AddLink(9, 10);
+  tb->AddLink(10, 6);
+  tb->AddLink(10, 9);
 }
 
 TEST(K2TreeBuilder, 1) {
   K2TreeBuilder tb(11, 4, 2, 2, 1);
-  InsertEdges(&tb);
+  AddLinks(&tb);
   ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());
@@ -55,7 +55,7 @@ TEST(K2TreeBuilder, 1) {
 }
 TEST(K2TreeBuilder, 2) {
   K2TreeBuilder tb(11, 3, 2, 2, 1);
-  InsertEdges(&tb);
+  AddLinks(&tb);
   ASSERT_EQ(29, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());
@@ -63,7 +63,7 @@ TEST(K2TreeBuilder, 2) {
 }
 TEST(K2TreeBuilder, 3) {
   K2TreeBuilder tb(11, 3, 2, 3, 1);
-  InsertEdges(&tb);
+  AddLinks(&tb);
   ASSERT_EQ(17, tb.internal_nodes());
   ASSERT_EQ(54, tb.leafs());
   ASSERT_EQ(12, tb.edges());
@@ -71,7 +71,7 @@ TEST(K2TreeBuilder, 3) {
 }
 TEST(K2TreeBuilder, 4) {
   K2TreeBuilder tb(11, 3, 2, 2, 2);
-  InsertEdges(&tb);
+  AddLinks(&tb);
   ASSERT_EQ(27, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());
@@ -79,7 +79,7 @@ TEST(K2TreeBuilder, 4) {
 }
 TEST(K2TreeBuilder, 5) {
   K2TreeBuilder tb(11, 3, 2, 2, 3);
-  InsertEdges(&tb);
+  AddLinks(&tb);
   ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
   ASSERT_EQ(12, tb.edges());

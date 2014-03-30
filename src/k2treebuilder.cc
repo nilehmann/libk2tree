@@ -20,9 +20,9 @@ using utils::LogCeil;
 using utils::Pow;
 using std::queue;
 
-K2TreeBuilder::K2TreeBuilder(size_t nodes, int k1, int k2, int kl,
-            int k1_levels) :
-    nodes_(nodes),
+K2TreeBuilder::K2TreeBuilder(size_t cnt, int k1, int k2, int kl,
+                             int k1_levels) :
+    cnt_(cnt),
     size_(0),
     k1_(k1),
     k2_(k2),
@@ -37,9 +37,9 @@ K2TreeBuilder::K2TreeBuilder(size_t nodes, int k1, int k2, int kl,
   // in all levels (section 5.1). There are k1_levels levels with
   // arity k1, one with arity kl and we must find the numbers of levels with
   // arity k2, ie, the smallest integer x that satisfies:
-  // k1^k1_levels * k2^x * kl >= nodes.
+  // k1^k1_levels * k2^x * kl >= cnt.
   int powk1 = Pow(k1, k1_levels);
-  int x = LogCeil(nodes*1.0/powk1/kl, k2);
+  int x = LogCeil(cnt*1.0/powk1/kl, k2);
   if (x == 0)
     printf("Warning: Ignoring levels with arity k2.\n");
 
@@ -47,7 +47,7 @@ K2TreeBuilder::K2TreeBuilder(size_t nodes, int k1, int k2, int kl,
   size_ = powk1 * Pow(k2, x) * kl;
 }
 
-void K2TreeBuilder::InsertEdge(size_t row, size_t col) {
+void K2TreeBuilder::AddLink(size_t p, size_t q) {
   if (root == NULL)
     root = CreateNode(0);
   Node *n = root;
@@ -57,25 +57,25 @@ void K2TreeBuilder::InsertEdge(size_t row, size_t col) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
     div_level = N/k;
 
-    child = row/div_level * k + col/div_level;
+    child = p/div_level * k + q/div_level;
 
     if (n->children_[child] == NULL)
         n->children_[child] = CreateNode(level + 1);
 
     n = n->children_[child];
-    N /= k, row %= div_level, col %= div_level;
+    N /= k, p %= div_level, q %= div_level;
   }
   // n is a node on the level height_ - 1. In this level
-  // we store the children information in a BitString (the leafs)
+  // we store the children information in a BitArray (the leafs)
   div_level = N/kl_;
-  child = row/div_level*kl_ + col/div_level;
+  child = p/div_level*kl_ + q/div_level;
   n->data_->SetBit(child);
   edges_++;
 }
 
 shared_ptr<K2Tree> K2TreeBuilder::Build() const {
-  BitString<unsigned int> T(internal_nodes_); 
-  BitString<unsigned int> L(leafs_);
+  BitArray<unsigned int> T(internal_nodes_);
+  BitArray<unsigned int> L(leafs_);
   queue<Node*> q;
   q.push(root);
 
@@ -129,7 +129,7 @@ K2TreeBuilder::Node * K2TreeBuilder::CreateNode(int level) {
       n->children_[i] = NULL;
     internal_nodes_ += k*k;
   } else {
-    n->data_ = new BitString<unsigned char>(kl_*kl_);
+    n->data_ = new BitArray<unsigned char>(kl_*kl_);
     leafs_ += kl_*kl_;
   }
   return n;

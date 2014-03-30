@@ -10,25 +10,32 @@
 #ifndef INCLUDE_K2TREE_H_
 #define INCLUDE_K2TREE_H_
 
-#include <utils/bitstring.h>
+#include <utils/bitarray.h>
 #include <BitSequenceRG.h>  // libcds
 #include <vector>
 
 namespace k2tree_impl {
-using utils::BitString;
+using utils::BitArray;
 using cds_static::BitSequenceRG;
 using std::vector;
 
 class K2Tree {
   friend class K2TreeBuilder;
  public:
-  bool CheckEdge(size_t row, size_t col) const;
+  /* Check if exist a link from object p to q.
+   * Identifiers starts with 0.
+   *
+   * @param p Identifier of first object.
+   * @param q Identifier of second object.
+   */
+  bool CheckLink(size_t p, size_t q) const;
   vector<size_t> AdjacencyList(size_t row) const;
   vector<size_t> ReverseList(size_t col) const;
 
  private:
   /* 
-   * Construct a k2tree with and hybrid aproach
+   * Construct a k2tree with and hybrid aproach.
+   *
    * @param T Bit array with the internal nodes
    * @param L Bit array with the leafs
    * @param k1 Arity of the first levels
@@ -38,23 +45,23 @@ class K2Tree {
    * @param height Height of the k2tree
    * @param size Size of the expanded matrix
    */
-  K2Tree(const BitString<unsigned int> &T,const BitString<unsigned int> &L, 
-      int k1, int k2, int kl, int max_level_k1, int height, size_t size);
+  K2Tree(const BitArray<unsigned int> &T, const BitArray<unsigned int> &L,
+         int k1, int k2, int kl, int max_level_k1, int height, size_t size);
   // Bit array containing the nodes of internal nodes
   BitSequenceRG T_;
   // Bit array for the leafs.
-  BitString<unsigned int> L_;
+  BitArray<unsigned int> L_;
   // Arity of the first part.
   int k1_;
   // Arity of the second part.
   int k2_;
   // Arity of the level height-1.
   int kl_;
-  // Las level with arity k1
+  // Last level with arity k1
   int max_level_k1_;
   // height of the tree
   int height_;
-  // Size of the matrix
+  // Size of the expanded matrix
   int size_;
   // Accumulated rank for each level.
   int *acum_rank_;
