@@ -41,7 +41,7 @@ K2TreeBuilder::K2TreeBuilder(size_t cnt, int k1, int k2, int kl,
   int powk1 = Pow(k1, k1_levels);
   int x = LogCeil(cnt*1.0/powk1/kl, k2);
   if (x == 0)
-    printf("Warning: Ignoring levels with arity k2.\n");
+    fprintf(stderr, "Warning: Ignoring levels with arity k2.\n");
 
   height_ = k1_levels + x + 1;
   size_ = powk1 * Pow(k2, x) * kl;

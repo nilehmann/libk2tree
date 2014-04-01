@@ -24,27 +24,19 @@ using std::stack;
 class K2Tree {
   friend class K2TreeBuilder;
  public:
-  /* Check if exist a link from object p to q.
-   * Identifiers starts with 0.
-   *
-   * @param p Identifier of first object.
-   * @param q Identifier of second object.
-   */
-  bool CheckLink(size_t p, size_t q) const;
-
-  class SuccessorsIterator {
+  class DirectIterator {
    public:
-    typedef SuccessorsIterator self_type;
-    SuccessorsIterator(K2Tree *tree, size_t p);
-    SuccessorsIterator operator++();
-    SuccessorsIterator operator++(int);
-    inline int operator*() {return successor_;}
-    bool operator==(const SuccessorsIterator& rhs);
-    bool operator!=(const SuccessorsIterator& rhs);
+    typedef DirectIterator self_type;
+    DirectIterator(const K2Tree *tree, size_t p, bool end);
+    DirectIterator operator++();
+    DirectIterator operator++(int);
+    inline int operator*() {return curr_;}
+    bool operator==(const self_type& rhs);
+    bool operator!=(const self_type& rhs);
    private:
     size_t p_;
-    K2Tree *tree_;
-    size_t successor_;
+    const K2Tree *tree_;
+    size_t curr_;
     struct Frame {
       int j;
       int level;
@@ -55,7 +47,20 @@ class K2Tree {
       size_t z;
     };
     stack<Frame> frames_;
+    bool end_;
   };
+  /* Check if exist a link from object p to q.
+   * Identifiers starts with 0.
+   *
+   * @param p Identifier of first object.
+   * @param q Identifier of second object.
+   */
+  bool CheckLink(size_t p, size_t q) const;
+
+
+  K2Tree::DirectIterator DirectBegin(size_t p) const;
+  K2Tree::DirectIterator DirectEnd(size_t p) const;
+
 
  private:
   /* 

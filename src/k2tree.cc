@@ -33,6 +33,15 @@ K2Tree::K2Tree(const BitArray<unsigned int> &T,
     }
 }
 
+K2Tree::DirectIterator K2Tree::DirectBegin(size_t p) const {
+  return DirectIterator(this, p, false);
+}
+
+K2Tree::DirectIterator K2Tree::DirectEnd(size_t p) const {
+  return DirectIterator(this, p, true);
+}
+
+
 bool K2Tree::CheckLink(size_t p, size_t q) const {
   size_t N, z, div_level;
   size_t offset;  // number of nodes until current level, inclusive.
