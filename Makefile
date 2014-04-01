@@ -31,7 +31,7 @@ $(GTEST)/libgtest.a:
       -pthread -c ${GTEST}/src/gtest-all.cc -o $(GTEST)/gtest-all.o
 	@ar -rv $(GTEST)/libgtest.a $(GTEST)/gtest-all.o
 
-obj/tests/%.o: tests/%.cc $(HEADERS)
+obj/tests/%.o: tests/%.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) -isystem $(GTEST)/include -I$(INCLUDE) $(FLAGS) $(TESTSFLAGS) -c $< -o $@
 # END TEST
@@ -47,7 +47,7 @@ style:
 
 
 # K2TREE
-obj/src/%.o: src/%.cc $(HEADERS)
+obj/src/%.o: src/%.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
 # END K2TREE

@@ -41,11 +41,8 @@ bool K2Tree::CheckLink(size_t p, size_t q) const {
   N = size_;
   z = offset = 0;
   for (int level = 0; level < height_; ++level) {
-    if (level <= max_level_k1_)  k = k1_;
-    else if (level < height_ - 1)  k = k2_;
-    else  k = kl_;
+    k = GetK(level);
 
-    int k = level <= max_level_k1_ ? k1_ : k2_;
     div_level = N/k;
     if (level > 0 && T_.access(z))
       // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;

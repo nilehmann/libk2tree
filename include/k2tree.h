@@ -13,11 +13,13 @@
 #include <utils/bitarray.h>
 #include <BitSequenceRG.h>  // libcds
 #include <vector>
+#include <stack>
 
 namespace k2tree_impl {
 using utils::BitArray;
 using cds_static::BitSequenceRG;
 using std::vector;
+using std::stack;
 
 class K2Tree {
   friend class K2TreeBuilder;
@@ -29,8 +31,31 @@ class K2Tree {
    * @param q Identifier of second object.
    */
   bool CheckLink(size_t p, size_t q) const;
-  vector<size_t> AdjacencyList(size_t row) const;
-  vector<size_t> ReverseList(size_t col) const;
+
+  class SuccessorsIterator {
+   public:
+    typedef SuccessorsIterator self_type;
+    SuccessorsIterator(K2Tree *tree, size_t p);
+    SuccessorsIterator operator++();
+    SuccessorsIterator operator++(int);
+    inline int operator*() {return successor_;}
+    bool operator==(const SuccessorsIterator& rhs);
+    bool operator!=(const SuccessorsIterator& rhs);
+   private:
+    size_t p_;
+    K2Tree *tree_;
+    size_t successor_;
+    struct Frame {
+      int j;
+      int level;
+      size_t offset;
+      size_t N;
+      size_t p;
+      size_t q;
+      size_t z;
+    };
+    stack<Frame> frames_;
+  };
 
  private:
   /* 
@@ -62,10 +87,17 @@ class K2Tree {
   // height of the tree
   int height_;
   // Size of the expanded matrix
-  int size_;
+  size_t size_;
   // Accumulated rank for each level.
   int *acum_rank_;
+
+  inline int GetK(int level) const {
+    if (level <= max_level_k1_)  return k1_;
+    else if (level < height_ - 1)  return k2_;
+    else  return kl_;
+  }
 };
+
 
 }  // namespace k2tree_impl
 
