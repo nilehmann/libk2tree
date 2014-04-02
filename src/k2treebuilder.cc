@@ -9,8 +9,8 @@
  * Refer to k2treebuilder.h for interface information.
  */
 
-#include <k2treebuilder.h>
-#include <utils/utils.h>
+#include <bits/k2treebuilder.h>
+#include <bits/utils/utils.h>
 #include <queue>
 #include <cstdio>
 

@@ -7,8 +7,8 @@
  * ----------------------------------------------------------------------------
  */
 
+#include <bits/utils/utils.h>
 #include <gtest/gtest.h>
-#include <utils/utils.h>
 
 
 using ::k2tree_impl::utils::LogCeil;

@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <k2treebuilder.h>
+#include <k2tree.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>

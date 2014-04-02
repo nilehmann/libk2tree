@@ -54,14 +54,16 @@ obj/src/%.o: src/%.cc
 
 
 # CLEAN
-clean : clean_test clean_k2tree
+clean : clean_k2tree clean_test
 
 clean_test:
 	@echo " [CLN] Cleaning test"
-	@rm bin/test
-	@rm $(shell find obj/tests -name *.o)
+	@touch .dummy
+	@rm $(shell find obj/tests -name *.o) .dummy
+	@rm bin/test -f
 
 clean_k2tree:
 	@echo " [CLN] Cleaning k2tree"
-	@rm $(shell find obj/src -name *.o)
+	@touch .dummy
+	@rm $(shell find obj/src -name *.o) .dummy
 # END CLEAN

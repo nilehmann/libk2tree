@@ -8,11 +8,11 @@
  *
  */
 
-#ifndef INCLUDE_K2TREEBUILDER_H_
-#define INCLUDE_K2TREEBUILDER_H_
+#ifndef INCLUDE_BITS_K2TREEBUILDER_H_
+#define INCLUDE_BITS_K2TREEBUILDER_H_
 
-#include <k2tree.h>
-#include <utils/bitarray.h>
+#include <bits/k2tree.h>
+#include <bits/utils/bitarray.h>
 #include <vector>
 #include <memory>
 #include <cstddef>
@@ -110,4 +110,4 @@ class K2TreeBuilder {
 
 }  // namespace k2tree_impl
 
-#endif  // INCLUDE_K2TREEBUILDER_H_
+#endif  // INCLUDE_BITS_K2TREEBUILDER_H_

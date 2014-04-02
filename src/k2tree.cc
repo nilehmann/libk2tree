@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <k2tree.h>
+#include <bits/k2tree_iterators.h>
 
 namespace k2tree_impl {
 
