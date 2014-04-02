@@ -144,7 +144,7 @@ void K2TreeBuilder::DeleteNode(Node *n, int level) {
     for (int i = 0; i < k*k; ++i)
       DeleteNode(n->children_[i], level+1);
     --internal_nodes_;
-    delete n->children_;
+    delete [] n->children_;
   } else {
     leafs_ -= kl_*kl_;
     delete n->data_;

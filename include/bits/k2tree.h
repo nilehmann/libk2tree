@@ -39,6 +39,7 @@ class K2Tree {
   DirectIterator DirectBegin(size_t p) const;
   DirectIterator DirectEnd(size_t p) const;
 
+  ~K2Tree();
 
  private:
   /* 

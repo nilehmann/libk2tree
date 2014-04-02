@@ -33,6 +33,10 @@ K2Tree::K2Tree(const BitArray<unsigned int> &T,
     }
 }
 
+K2Tree::~K2Tree() {
+  delete [] acum_rank_;
+}
+
 K2Tree::DirectIterator K2Tree::DirectBegin(size_t p) const {
   return DirectIterator(this, p, false);
 }
