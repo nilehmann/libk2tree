@@ -26,6 +26,7 @@ using std::shared_ptr;
  * Implement the construction of section 3.3.3, building a regular tree (not compressed)
  * inserting one link (1 in the matrix) at a time.
  */
+template<class A>
 class K2TreeBuilder {
  public:
   /* 
@@ -37,7 +38,7 @@ class K2TreeBuilder {
    * @param kl arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    */
-  K2TreeBuilder(size_t cnt, int k1, int k2, int kl, int k1_levels);
+  K2TreeBuilder(A cnt, int k1, int k2, int kl, int k1_levels);
   /* 
    * Create a link from object p to q.
    * Identifiers start with 0.
@@ -45,9 +46,9 @@ class K2TreeBuilder {
    * @param p Identifier of the first object.
    * @param q Identifier of the second object.
    */
-  void AddLink(size_t p, size_t q);
+  void AddLink(A p, A q);
 
-  shared_ptr<K2Tree> Build() const;
+  shared_ptr<K2Tree<A>> Build() const;
 
   inline int height() const {
     return height_;
@@ -69,9 +70,9 @@ class K2TreeBuilder {
 
  private:
   // Number of objects in the original relation.
-  size_t cnt_;
+  A cnt_;
   // Number of rows (and cols) in the expanded matrix
-  size_t size_;
+  A size_;
   // Arity of the first part
   int k1_;
   // Arity of the second part

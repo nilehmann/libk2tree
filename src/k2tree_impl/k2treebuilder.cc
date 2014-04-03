@@ -20,8 +20,9 @@ using utils::LogCeil;
 using utils::Pow;
 using std::queue;
 
-K2TreeBuilder::K2TreeBuilder(size_t cnt, int k1, int k2, int kl,
-                             int k1_levels) :
+template<class A>
+K2TreeBuilder<A>::K2TreeBuilder(A cnt, int k1, int k2, int kl,
+                                int k1_levels) :
     cnt_(cnt),
     size_(0),
     k1_(k1),
@@ -47,11 +48,12 @@ K2TreeBuilder::K2TreeBuilder(size_t cnt, int k1, int k2, int kl,
   size_ = powk1 * Pow(k2, x) * kl;
 }
 
-void K2TreeBuilder::AddLink(size_t p, size_t q) {
+template<class A>
+void K2TreeBuilder<A>::AddLink(A p, A q) {
   if (root == NULL)
     root = CreateNode(0);
   Node *n = root;
-  size_t N = size_, div_level;
+  A N = size_, div_level;
   int child;
   for (int level = 0; level < height_ - 1; level++) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
@@ -73,7 +75,8 @@ void K2TreeBuilder::AddLink(size_t p, size_t q) {
   edges_++;
 }
 
-shared_ptr<K2Tree> K2TreeBuilder::Build() const {
+template<class A>
+shared_ptr<K2Tree<A>> K2TreeBuilder<A>::Build() const {
   BitArray<unsigned int> T(internal_nodes_);
   BitArray<unsigned int> L(leafs_);
   queue<Node*> q;
@@ -112,15 +115,17 @@ shared_ptr<K2Tree> K2TreeBuilder::Build() const {
     }
   }
 
-  K2Tree *tree = new K2Tree(T, L, k1_, k2_, kl_, max_level_k1_, height_, size_);
-  return shared_ptr<K2Tree>(tree);
+  K2Tree<A> *tree = new K2Tree<A>(T, L, k1_, k2_, kl_, max_level_k1_, height_, size_);
+  return shared_ptr<K2Tree<A> >(tree);
 }
 
-K2TreeBuilder::~K2TreeBuilder() {
+template<class A>
+K2TreeBuilder<A>::~K2TreeBuilder() {
   DeleteNode(root, 0);
 }
 
-K2TreeBuilder::Node * K2TreeBuilder::CreateNode(int level) {
+template<class A>
+typename K2TreeBuilder<A>::Node * K2TreeBuilder<A>::CreateNode(int level) {
   Node *n = new Node();
   if (level < height_ - 1) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
@@ -135,7 +140,8 @@ K2TreeBuilder::Node * K2TreeBuilder::CreateNode(int level) {
   return n;
 }
 
-void K2TreeBuilder::DeleteNode(Node *n, int level) {
+template<class A>
+void K2TreeBuilder<A>::DeleteNode(Node *n, int level) {
   if (n == NULL)
     return;
 
@@ -150,6 +156,17 @@ void K2TreeBuilder::DeleteNode(Node *n, int level) {
     delete n->data_;
   }
   delete n;
+}
+
+void dummy_unsigned_int() {
+  K2TreeBuilder<unsigned int> tb(0, 0, 0, 0, 0);
+  tb.AddLink(0,0);
+  tb.Build();
+}
+void dummy_size_t() {
+  K2TreeBuilder<size_t> tb(0, 0, 0, 0, 0);
+  tb.AddLink(0,0);
+  tb.Build();
 }
 
 }  // namespace k2tree_impl

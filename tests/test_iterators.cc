@@ -35,7 +35,7 @@ vector<size_t> GetPredecessors(const vector<vector<bool> > &matrix, size_t q) {
 
 void TestDirectIterator(int k1, int k2, int kl, int k1_levels) {
   int n = rand()%100000+1;
-  K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
+  K2TreeBuilder<uint> tb(n, k1, k2, kl, k1_levels);
   vector<vector<bool> > matrix(n, vector<bool>(n, false));
 
   int p = rand()%n;
@@ -50,10 +50,10 @@ void TestDirectIterator(int k1, int k2, int kl, int k1_levels) {
     tb.AddLink(q, r);
   }
 
-  shared_ptr<K2Tree> tree = tb.Build();
+  shared_ptr<K2Tree<uint> > tree = tb.Build();
 
   vector<size_t> v = GetSuccessors(matrix, p);
-  K2Tree::DirectIterator q = tree->DirectBegin(p);
+  K2Tree<uint>::DirectIterator q = tree->DirectBegin(p);
   size_t i;
   for (i = 0; q != tree->DirectEnd(p); ++q, ++i)
     ASSERT_EQ(v[i], *q);
@@ -62,7 +62,7 @@ void TestDirectIterator(int k1, int k2, int kl, int k1_levels) {
 
 void TestInverseIterator(int k1, int k2, int kl, int k1_levels) {
   int n = rand()%100000+1;
-  K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
+  K2TreeBuilder<uint> tb(n, k1, k2, kl, k1_levels);
   vector<vector<bool> > matrix(n, vector<bool>(n, false));
 
   int q = rand()%n;
@@ -76,10 +76,10 @@ void TestInverseIterator(int k1, int k2, int kl, int k1_levels) {
     tb.AddLink(r, p);
   }
 
-  shared_ptr<K2Tree> tree = tb.Build();
+  shared_ptr<K2Tree<uint> > tree = tb.Build();
 
   vector<size_t> v = GetPredecessors(matrix, q);
-  K2Tree::InverseIterator p = tree->InverseBegin(q);
+  K2Tree<uint>::InverseIterator p = tree->InverseBegin(q);
   size_t i;
   for (i = 0; p != tree->InverseEnd(q); ++p, ++i)
     ASSERT_EQ(v[i], *p);

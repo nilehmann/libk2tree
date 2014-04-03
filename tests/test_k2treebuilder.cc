@@ -30,7 +30,7 @@ using ::k2tree_impl::K2TreeBuilder;
  */
 
 
-void AddLinks(K2TreeBuilder *tb) {
+void AddLinks(K2TreeBuilder<unsigned int> *tb) {
   tb->AddLink(0, 1);
   tb->AddLink(1, 2);
   tb->AddLink(1, 3);
@@ -46,7 +46,7 @@ void AddLinks(K2TreeBuilder *tb) {
 }
 
 TEST(K2TreeBuilder, 1) {
-  K2TreeBuilder tb(11, 4, 2, 2, 1);
+  K2TreeBuilder<unsigned int> tb(11, 4, 2, 2, 1);
   AddLinks(&tb);
   ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
@@ -54,7 +54,7 @@ TEST(K2TreeBuilder, 1) {
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 2) {
-  K2TreeBuilder tb(11, 3, 2, 2, 1);
+  K2TreeBuilder<unsigned int> tb(11, 3, 2, 2, 1);
   AddLinks(&tb);
   ASSERT_EQ(29, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
@@ -62,7 +62,7 @@ TEST(K2TreeBuilder, 2) {
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 3) {
-  K2TreeBuilder tb(11, 3, 2, 3, 1);
+  K2TreeBuilder<unsigned int> tb(11, 3, 2, 3, 1);
   AddLinks(&tb);
   ASSERT_EQ(17, tb.internal_nodes());
   ASSERT_EQ(54, tb.leafs());
@@ -70,7 +70,7 @@ TEST(K2TreeBuilder, 3) {
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 4) {
-  K2TreeBuilder tb(11, 3, 2, 2, 2);
+  K2TreeBuilder<unsigned int> tb(11, 3, 2, 2, 2);
   AddLinks(&tb);
   ASSERT_EQ(27, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());
@@ -78,7 +78,7 @@ TEST(K2TreeBuilder, 4) {
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 5) {
-  K2TreeBuilder tb(11, 3, 2, 2, 3);
+  K2TreeBuilder<unsigned int> tb(11, 3, 2, 2, 3);
   AddLinks(&tb);
   ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leafs());

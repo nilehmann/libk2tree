@@ -15,10 +15,10 @@
 
 namespace k2tree_impl {
 
-template<class self_type>
-class K2Tree::K2TreeIterator {
+template<class self_type, class A>
+class K2TreeIterator_ {
  public:
-  K2TreeIterator(const K2Tree *t, size_t object, bool end) :
+  K2TreeIterator_(const K2Tree<A> *t, A object, bool end) :
       tree_(t), object_(object), curr_(0), frames_(), end_(end) {}
 
   bool operator==(const self_type& rhs) {
@@ -51,7 +51,7 @@ class K2Tree::K2TreeIterator {
       Frame &f= frames_.top();
 
       int k = tree_->GetK(f.level);
-      size_t div_level = f.N/k;
+      A div_level = f.N/k;
       if (f.level < tree_->height_) {
         size_t nxt_offset;
         if (f.level > 0)
@@ -103,72 +103,79 @@ class K2Tree::K2TreeIterator {
     int j;
     int level;
     size_t offset;
-    size_t N;
+    A N;
     size_t p;
     size_t q;
     size_t z;
   };
 
-  const K2Tree *tree_;
-  size_t object_;
-  size_t curr_;
+  const K2Tree<A> *tree_;
+  A object_;
+  A curr_;
   stack<Frame> frames_;
   bool end_;
 
   virtual void PushNextFrame(const Frame &frame, size_t nxt_offset, int k,
-      size_t div_leve) = 0;
-  virtual void Rank(Frame *frame, int k, size_t div_level) = 0;
-  virtual size_t Output(const Frame &frame) = 0;
+      A div_level) = 0;
+  virtual void Rank(Frame *frame, int k, A div_level) = 0;
+  virtual A Output(const Frame &frame) = 0;
 };
-class K2Tree::DirectIterator :
-    public K2Tree::K2TreeIterator<K2Tree::DirectIterator> {
+
+template<class A>
+class DirectIterator_ :
+    public K2TreeIterator_<DirectIterator_<A>, A> {
  public:
-  DirectIterator(const K2Tree *tree, size_t p, bool end) :
-         K2TreeIterator(tree, p, end) {
-    frames_.push(Frame{-1, 0, 0, tree_->size_, p, 0, 0});
+  DirectIterator_(const K2Tree<A> *tree, size_t p, bool end) :
+      K2TreeIterator_<DirectIterator_<A>, A>(tree, p, end) {
+    this->frames_.push(Frame{-1, 0, 0, this->tree_->size_, p, 0, 0});
     ++(*this);
   }
 
  private:
+  typedef typename K2TreeIterator_<DirectIterator_, A>::Frame Frame;
   virtual void PushNextFrame(const Frame &f, size_t nxt_offset, int ,
-      size_t div_level) {
-    frames_.push({-1, f.level + 1, nxt_offset,
+      A div_level) {
+    this->frames_.push({-1, f.level + 1, nxt_offset,
         div_level, f.p % div_level, f.q + div_level*f.j, f.z + f.j});
   }
-  virtual void Rank(Frame *f, int k, size_t div_level) {
+  virtual void Rank(Frame *f, int k, A div_level) {
     size_t &z = f->z;
-    z = z > 0 ? (tree_->T_->rank1(z-1) - tree_->acum_rank_[f->level-1])*k*k : 0;
+    const K2Tree<A> *tree = this->tree_;
+    z = z > 0 ? (tree->T_->rank1(z-1) - tree->acum_rank_[f->level-1])*k*k : 0;
     z += f->p/div_level*k + f->offset;
   }
 
-  virtual size_t Output(const Frame &frame) {
+  virtual A Output(const Frame &frame) {
     return frame.q;
   }
 };
 
 
-class K2Tree::InverseIterator :
-    public K2Tree::K2TreeIterator<K2Tree::InverseIterator> {
+template<class A>
+class InverseIterator_ :
+    public K2TreeIterator_<InverseIterator_<A>, A> {
  public:
-  InverseIterator(const K2Tree *tree, size_t q, bool end) :
-         K2TreeIterator(tree, q, end) {
-    frames_.push(Frame{-1, 0, 0, tree_->size_, 0, q, 0});
+  InverseIterator_(const K2Tree<A> *tree, size_t q, bool end) :
+      K2TreeIterator_<InverseIterator_<A>,A>(tree, q, end) {
+    this->frames_.push(Frame{-1, 0, 0, this->tree_->size_, 0, q, 0});
     ++(*this);
   }
 
  private:
+  typedef typename K2TreeIterator_<InverseIterator_, A>::Frame Frame;
   virtual void PushNextFrame(const Frame &f, size_t nxt_offset, int k,
-      size_t div_level) {
-    frames_.push({-1, f.level + 1, nxt_offset,
+      A div_level) {
+    this->frames_.push({-1, f.level + 1, nxt_offset,
         div_level, f.p + div_level*f.j, f.q % div_level, f.z + f.j*k});
   }
-  virtual void Rank(Frame *f, int k, size_t div_level) {
+  virtual void Rank(Frame *f, int k, A div_level) {
     size_t &z = f->z;
-    z = z > 0 ? (tree_->T_->rank1(z-1) - tree_->acum_rank_[f->level-1])*k*k : 0;
+    const K2Tree<A> *tree = this->tree_;
+    z = z > 0 ? (tree->T_->rank1(z-1) - tree->acum_rank_[f->level-1])*k*k : 0;
     z += f->q/div_level + f->offset;
   }
 
-  virtual size_t Output(const Frame &frame) {
+  virtual A Output(const Frame &frame) {
     return frame.p;
   }
 };

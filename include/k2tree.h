@@ -14,5 +14,7 @@
 #include <bits/k2treebuilder.h>
 #include <bits/k2tree_iterators.h>
 
+typedef unsigned int uint;
+
 
 #endif  // INCLUDE_K2TREE_H_

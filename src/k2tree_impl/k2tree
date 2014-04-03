@@ -1,0 +1,53 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <nlehmann@dcc.uchile.cl> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return Nicolás Lehmann
+ * ----------------------------------------------------------------------------
+ */
+
+#include <bits/k2tree_iterators.h>
+#include <bits/utils/utils.h>
+#include <BitSequence.h>
+
+#include <cstdio>
+namespace k2tree_impl {
+using cds_static::BitSequenceRG;
+using utils::SaveValue;
+using utils::LoadValue;
+
+
+template<class A>
+K2Tree<A>::K2Tree(const BitArray<unsigned int> &T,
+                  const BitArray<unsigned int> &L,
+                  int k1, int k2, int kl, int max_level_k1, int height,
+                  A size):
+
+template<class A>
+
+template<class A>
+void K2Tree<A>::Save(ofstream *out) const {
+template<class A>
+K2Tree<A>::~K2Tree() {
+
+template<class A>
+bool K2Tree<A>::operator==(const K2Tree<A> &rhs) const {
+
+template<class A>
+ DirectIterator_<A> K2Tree<A>::DirectBegin(A p) const {
+
+template<class A>
+DirectIterator_<A> K2Tree<A>::DirectEnd(A p) const {
+
+template<class A>
+InverseIterator_<A> K2Tree<A>::InverseBegin(A q) const {
+
+template<class A>
+InverseIterator_<A> K2Tree<A>::InverseEnd(A q) const {
+
+
+template<class A>
+bool K2Tree<A>::CheckLink(A p, A q) const {
+
+}  // namespace k2tree_impl

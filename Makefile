@@ -7,7 +7,7 @@ TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o)
 GTEST=gtest-1.7.0
 TESTSFLAGS = -g -Wall -Wextra
 
-K2TREE_SRC = $(shell find src -name *.cc)
+K2TREE_SRC = $(shell find src/k2tree_impl -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
 FLAGS = -std=c++11
@@ -17,8 +17,9 @@ FLAGS = -std=c++11
 
 all: test
 
+
 # TEST
-test: bin/test
+test: bin/test build_k2tree
 
 bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_OBJ) 
 	@echo " [LNK] Linking test"
@@ -47,6 +48,17 @@ style:
 
 
 # K2TREE
+
+build_k2tree: bin/build_k2tree
+
+bin/build_k2tree: $(K2TREE_OBJ) obj/src/build_k2tree.o
+	@echo " [LNK] Linking build_k2tree"
+	@$(CXX) -lcds $(K2TREE_OBJ) obj/src/build_k2tree.o -o bin/build_k2tree
+
+obj/src/build_k2tree.o: src/build_k2tree.cc
+	@echo " [C++] Compiling $<"
+	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
+
 obj/src/%.o: src/%.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
