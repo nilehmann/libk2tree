@@ -25,9 +25,15 @@ vector<size_t> GetSuccessors(const vector<vector<bool> > &matrix, size_t p) {
     if (matrix[p][i]) v.push_back(i);
   return v;
 }
+vector<size_t> GetPredecessors(const vector<vector<bool> > &matrix, size_t q) {
+  vector<size_t> v;
+  for (size_t i = 0; i < matrix.size(); ++i)
+    if (matrix[i][q]) v.push_back(i);
+  return v;
+}
 
 
-void TestIterator(int k1, int k2, int kl, int k1_levels) {
+void TestDirectIterator(int k1, int k2, int kl, int k1_levels) {
   int n = rand()%100000+1;
   K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
   vector<vector<bool> > matrix(n, vector<bool>(n, false));
@@ -36,10 +42,12 @@ void TestIterator(int k1, int k2, int kl, int k1_levels) {
   int e = n > 100 ? rand()%(n/100) + 1 : 1;
   for (int i = 0; i < e; ++i) {
     int q = rand()%n;
-    int p2 = rand()%n;
+    int r = rand()%n;
     matrix[p][q] = true;
     tb.AddLink(p, q);
-    tb.AddLink(q, p2);
+    // to make noise
+    matrix[q][r] = true;
+    tb.AddLink(q, r);
   }
 
   shared_ptr<K2Tree> tree = tb.Build();
@@ -52,13 +60,51 @@ void TestIterator(int k1, int k2, int kl, int k1_levels) {
   ASSERT_EQ(v.size(), i);
 }
 
+void TestInverseIterator(int k1, int k2, int kl, int k1_levels) {
+  int n = rand()%100000+1;
+  K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
+  vector<vector<bool> > matrix(n, vector<bool>(n, false));
+
+  int q = rand()%n;
+  int e = n > 100 ? rand()%(n/100) + 1 : 1;
+  for (int i = 0; i < e; ++i) {
+    int p = rand()%n;
+    int r = rand()%n;
+    matrix[p][q] = true;
+    tb.AddLink(p, q);
+    matrix[r][p] = true;
+    tb.AddLink(r, p);
+  }
+
+  shared_ptr<K2Tree> tree = tb.Build();
+
+  vector<size_t> v = GetPredecessors(matrix, q);
+  K2Tree::InverseIterator p = tree->InverseBegin(q);
+  size_t i;
+  for (i = 0; p != tree->InverseEnd(q); ++p, ++i)
+    ASSERT_EQ(v[i], *p);
+  ASSERT_EQ(v.size(), i);
+}
+
 TEST(DirectIterator, Iterate1) {
   srand(time(NULL));
-  TestIterator(3, 2, 2, 1);
+  TestDirectIterator(3, 2, 2, 1);
 }
 TEST(DirectIterator, Iterate2) {
-  TestIterator(4, 2, 8, 5);
+  TestDirectIterator(4, 2, 8, 5);
 }
 TEST(DirectIterator, Iterate3) {
-  TestIterator(4, 2, 2, 10);
+  TestDirectIterator(4, 2, 2, 10);
+}
+
+
+TEST(InverseIterator, Iterate1) {
+  srand(time(NULL));
+  TestInverseIterator(3, 2, 2, 1);
+}
+TEST(InverseIterator, Iterate2) {
+  TestInverseIterator(4, 2, 8, 5);
+}
+TEST(InverseIterator, Iterate3) {
+  TestInverseIterator(4, 2, 2, 10);
 }

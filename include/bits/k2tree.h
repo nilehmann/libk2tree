@@ -11,15 +11,18 @@
 #define INCLUDE_BITS_K2TREE_H_
 
 #include <bits/utils/bitarray.h>
-#include <BitSequenceRG.h>  // libcds
+#include <BitSequence.h>  // libcds
 #include <vector>
 #include <stack>
+#include <fstream>
 
 namespace k2tree_impl {
 using utils::BitArray;
-using cds_static::BitSequenceRG;
+using cds_static::BitSequence;
 using std::vector;
 using std::stack;
+using std::ifstream;
+using std::ofstream;
 
 class K2Tree {
   friend class K2TreeBuilder;
@@ -28,6 +31,14 @@ class K2Tree {
   class K2TreeIterator;
   class DirectIterator;
   class InverseIterator;
+
+  /*
+   * Load a K2Tree previously saved with Save()
+   */
+  explicit K2Tree(ifstream *in);
+
+  ~K2Tree();
+
   /* Check if exist a link from object p to q.
    * Identifiers starts with 0.
    *
@@ -40,7 +51,18 @@ class K2Tree {
   DirectIterator DirectBegin(size_t p) const;
   DirectIterator DirectEnd(size_t p) const;
 
-  ~K2Tree();
+  InverseIterator InverseBegin(size_t q) const;
+  InverseIterator InverseEnd(size_t q) const;
+
+  /* 
+   * Save the k2tree to a file
+   */
+  void Save(ofstream *out) const;
+
+  /*
+   * Method implemented for testing reasons
+   */
+  bool operator==(const K2Tree &rhs) const;
 
  private:
   /* 
@@ -58,7 +80,7 @@ class K2Tree {
   K2Tree(const BitArray<unsigned int> &T, const BitArray<unsigned int> &L,
          int k1, int k2, int kl, int max_level_k1, int height, size_t size);
   // Bit array containing the nodes of internal nodes
-  BitSequenceRG T_;
+  BitSequence *T_;
   // Bit array for the leafs.
   BitArray<unsigned int> L_;
   // Arity of the first part.
@@ -74,7 +96,7 @@ class K2Tree {
   // Size of the expanded matrix
   size_t size_;
   // Accumulated rank for each level.
-  int *acum_rank_;
+  size_t *acum_rank_;
 
   inline int GetK(int level) const {
     if (level <= max_level_k1_)  return k1_;

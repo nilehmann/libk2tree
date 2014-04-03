@@ -1,11 +1,11 @@
 /*
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <nlehmann@dcc.uchile.cl> wrote this file. As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return Nicolás Lehmann
- * ----------------------------------------------------------------------------
- */
+* ----------------------------------------------------------------------------
+* "THE BEER-WARE LICENSE" (Revision 42):
+* <nlehmann@dcc.uchile.cl> wrote this file. As long as you retain this notice you
+* can do whatever you want with this stuff. If we meet some day, and you think
+* this stuff is worth it, you can buy me a beer in return Nicolás Lehmann
+* ----------------------------------------------------------------------------
+*/
 
 #ifndef INCLUDE_BITS_K2TREE_ITERATORS_H_
 #define INCLUDE_BITS_K2TREE_ITERATORS_H_
@@ -43,8 +43,8 @@ class K2Tree::K2TreeIterator {
   }
   self_type operator++() {
     bool found = false;
-    int *acum_rank = tree_->acum_rank_;
-    const BitSequenceRG *T = &tree_->T_;
+    size_t *acum_rank = tree_->acum_rank_;
+    const BitSequence *T = tree_->T_;
     const BitArray<unsigned int> *L = &tree_->L_;
 
     while (!found && !end_) {
@@ -59,7 +59,7 @@ class K2Tree::K2TreeIterator {
         else
           nxt_offset = k*k;
 
-        //  Entering first time in frame
+        // Entering first time in frame
         if (f.j == -1) {
           if (f.level == 0 || T->access(f.z)) {
             Rank(&f, k, div_level);
@@ -69,10 +69,10 @@ class K2Tree::K2TreeIterator {
           } else {
             frames_.pop();
           }
-        //  Entering after a return
+        // Entering after a return
         } else {
           f.j += 1;
-          //  No more children on the root
+          // No more children on the root
           if (f.level == 0 && f.j >= k)
             end_ = true;
           else if (f.j < k)
@@ -81,7 +81,7 @@ class K2Tree::K2TreeIterator {
             frames_.pop();
         }
       } else {
-        //  Entering for the first time in the leaf
+        // Entering for the first time in the leaf
         if (f.j == -1) {
           f.j++;
           if (L->GetBit(f.z - T->getLength())) {
@@ -137,7 +137,7 @@ class K2Tree::DirectIterator :
   }
   virtual void Rank(Frame *f, int k, size_t div_level) {
     size_t &z = f->z;
-    z = z > 0 ? (tree_->T_.rank1(z-1) - tree_->acum_rank_[f->level-1])*k*k : 0;
+    z = z > 0 ? (tree_->T_->rank1(z-1) - tree_->acum_rank_[f->level-1])*k*k : 0;
     z += f->p/div_level*k + f->offset;
   }
 
@@ -164,7 +164,7 @@ class K2Tree::InverseIterator :
   }
   virtual void Rank(Frame *f, int k, size_t div_level) {
     size_t &z = f->z;
-    z = z > 0 ? (tree_->T_.rank1(z-1) - tree_->acum_rank_[f->level-1])*k*k : 0;
+    z = z > 0 ? (tree_->T_->rank1(z-1) - tree_->acum_rank_[f->level-1])*k*k : 0;
     z += f->q/div_level + f->offset;
   }
 

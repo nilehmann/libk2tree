@@ -12,6 +12,7 @@
 #ifndef INCLUDE_BITS_UTILS_BITARRAY_H_
 #define INCLUDE_BITS_UTILS_BITARRAY_H_
 
+#include <bits/utils/utils.h>
 #include <cstddef>
 
 
@@ -30,21 +31,38 @@ class BitArray {
    */
   explicit BitArray(size_t length) :
       bits_(sizeof(T)*8),
-      data_(new T[length/bits_ + 1]),
-      length_(length) {
+      length_(length),
+      data_(new T[length/bits_ + 1]) {
     for (size_t i = 0; i < length/bits_ + 1; ++i)
       this->data_[i] = 0;
   }
+
+  /*
+   * Construct a bitarray from a stream
+   */
+  explicit BitArray(ifstream *in) :
+      bits_(LoadValue<int>(in)),
+      length_(LoadValue<size_t>(in)),
+      data_(LoadValue<T>(in, length_)) {}
 
   /* 
    * Copy constructor
    */
   BitArray(const BitArray<T>& rhs) :
       bits_(sizeof(T)*8),
-      data_(new T[rhs.length()/bits_ + 1]),
-      length_(rhs.length()) {
+      length_(rhs.length()),
+      data_(new T[rhs.length()/bits_ + 1]) {
     for (size_t i = 0; i < length_/bits_ + 1; ++i)
       this->data_[i] = rhs.data_[i];
+  }
+
+  /*
+   * Save BitArray to the output file stream.
+   */
+  void Save(ofstream *out) const {
+    SaveValue(out, bits_);
+    SaveValue(out, length_);
+    SaveValue(out, data_, length_);
   }
   /*
    * Set bit p to true.
@@ -91,8 +109,8 @@ class BitArray {
  private:
   /*Number of bits on T */
   int bits_;
-  T * data_;
   size_t length_;
+  T * data_;
 
   /*
    * Declaration of methods to prevent the copy assignment.
