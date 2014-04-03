@@ -11,6 +11,7 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>
+#include <cstdio>
 
 using ::k2tree_impl::K2TreeBuilder;
 using ::k2tree_impl::K2Tree;
@@ -32,7 +33,7 @@ void TestIterator(int k1, int k2, int kl, int k1_levels) {
   vector<vector<bool> > matrix(n, vector<bool>(n, false));
 
   int p = rand()%n;
-  int e = rand()%(n/100) + 1;
+  int e = n > 100 ? rand()%(n/100) + 1 : 1;
   for (int i = 0; i < e; ++i) {
     int q = rand()%n;
     int p2 = rand()%n;

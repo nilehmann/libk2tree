@@ -27,6 +27,7 @@ class K2Tree {
   template<class self_type>
   class K2TreeIterator;
   class DirectIterator;
+  class InverseIterator;
   /* Check if exist a link from object p to q.
    * Identifiers starts with 0.
    *
