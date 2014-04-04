@@ -65,7 +65,7 @@ void K2TreeBuilder<A>::AddLink(A p, A q) {
         n->children_[child] = CreateNode(level + 1);
 
     n = n->children_[child];
-    N /= k, p %= div_level, q %= div_level;
+    N = div_level, p %= div_level, q %= div_level;
   }
   // n is a node on the level height_ - 1. In this level
   // we store the children information in a BitArray (the leafs)
@@ -103,7 +103,7 @@ shared_ptr<K2Tree<A>> K2TreeBuilder<A>::Build() const {
   }
 
   // Visiting nodes on level height - 1
-  int leaf_pos = 0;
+  size_t leaf_pos = 0;
   cnt_level = q.size();
   for (int i = 0; i < cnt_level; ++i, ++pos) {
     Node *n = q.front(); q.pop();
@@ -115,7 +115,8 @@ shared_ptr<K2Tree<A>> K2TreeBuilder<A>::Build() const {
     }
   }
 
-  K2Tree<A> *tree = new K2Tree<A>(T, L, k1_, k2_, kl_, max_level_k1_, height_, size_);
+  K2Tree<A> *tree = new K2Tree<A>(T, L, k1_, k2_, kl_, max_level_k1_,
+                                  height_, size_);
   return shared_ptr<K2Tree<A> >(tree);
 }
 
@@ -160,12 +161,12 @@ void K2TreeBuilder<A>::DeleteNode(Node *n, int level) {
 
 void dummy_unsigned_int() {
   K2TreeBuilder<unsigned int> tb(0, 0, 0, 0, 0);
-  tb.AddLink(0,0);
+  tb.AddLink(0, 0);
   tb.Build();
 }
 void dummy_size_t() {
   K2TreeBuilder<size_t> tb(0, 0, 0, 0, 0);
-  tb.AddLink(0,0);
+  tb.AddLink(0, 0);
   tb.Build();
 }
 

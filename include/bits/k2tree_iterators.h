@@ -156,7 +156,7 @@ class InverseIterator_ :
     public K2TreeIterator_<InverseIterator_<A>, A> {
  public:
   InverseIterator_(const K2Tree<A> *tree, size_t q, bool end) :
-      K2TreeIterator_<InverseIterator_<A>,A>(tree, q, end) {
+      K2TreeIterator_<InverseIterator_<A>, A>(tree, q, end) {
     this->frames_.push(Frame{-1, 0, 0, this->tree_->size_, 0, q, 0});
     ++(*this);
   }

@@ -43,7 +43,7 @@ class BitArray {
   explicit BitArray(ifstream *in) :
       bits_(LoadValue<int>(in)),
       length_(LoadValue<size_t>(in)),
-      data_(LoadValue<T>(in, length_)) {}
+      data_(LoadValue<T>(in, length_/bits_ + 1)) {}
 
   /* 
    * Copy constructor
@@ -62,7 +62,7 @@ class BitArray {
   void Save(ofstream *out) const {
     SaveValue(out, bits_);
     SaveValue(out, length_);
-    SaveValue(out, data_, length_);
+    SaveValue(out, data_, length_/bits_ + 1);
   }
   /*
    * Set bit p to true.

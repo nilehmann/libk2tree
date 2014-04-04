@@ -16,6 +16,8 @@
 #include <vector>
 #include <stack>
 #include <fstream>
+#include <iostream>
+using namespace std;
 
 
 namespace k2tree_impl {
@@ -56,7 +58,7 @@ class K2Tree {
       kl_(LoadValue<int>(in)),
       max_level_k1_(LoadValue<int>(in)),
       height_(LoadValue<int>(in)),
-      size_(LoadValue<size_t>(in)),
+      size_(LoadValue<A>(in)),
       acum_rank_(LoadValue<size_t>(in, height_)) {}
 
   ~K2Tree() {
@@ -136,17 +138,23 @@ class K2Tree {
    */
   bool operator==(const K2Tree &rhs) const {
     if (T_->getLength() != rhs.T_->getLength()) return false;
+    cerr << "1" << endl;
     for (size_t i = 0; i < T_->getLength(); ++i)
       if (T_->access(i) != rhs.T_->access(i)) return false;
+    cerr << "2" << endl;
 
     if (L_.length() != rhs.L_.length()) return false;
+    cerr << "3" << endl;
     for (size_t i = 0; i < L_.length(); ++i)
       if (L_.GetBit(i) != rhs.L_.GetBit(i)) return false;
+    cerr << "4" << endl;
 
     if (height_ != rhs.height_) return false;
+    cerr << "5" << endl;
 
     for (int i = 0; i < height_; ++i)
       if (acum_rank_[i] != acum_rank_[i]) return false;
+    cerr << "6" << endl;
 
     return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kl_ == rhs.kl_ &&
            max_level_k1_ == rhs.max_level_k1_ && size_ == rhs.size_;
