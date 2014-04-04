@@ -10,7 +10,7 @@ TESTSFLAGS = -g -Wall -Wextra
 K2TREE_SRC = $(shell find src/k2tree_impl -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
-FLAGS = -std=c++11
+FLAGS = -std=c++11 -O9
 
 
 .PHONY: clean style test all
