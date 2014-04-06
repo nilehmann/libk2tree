@@ -8,7 +8,7 @@
 */
 
 #include <bits/k2tree_iterators.h>
-#include <bits/k2tree.h>
+#include <bits/basic_k2tree.h>
 
 namespace libk2tree {
 

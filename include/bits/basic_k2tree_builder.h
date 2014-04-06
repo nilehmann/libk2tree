@@ -8,10 +8,10 @@
  *
  */
 
-#ifndef INCLUDE_BITS_K2TREE_BUILDER_H_
-#define INCLUDE_BITS_K2TREE_BUILDER_H_
+#ifndef INCLUDE_BITS_BASIC_K2TREE_BUILDER_H_
+#define INCLUDE_BITS_BASIC_K2TREE_BUILDER_H_
 
-#include <bits/k2tree.h>
+#include <bits/basic_k2tree.h>
 #include <bits/utils/bitarray.h>
 #include <bits/utils/utils.h>
 #include <vector>
@@ -112,8 +112,7 @@ class basic_k2tree_builder {
   // Root of the tree
   Node *root;
 };
-typedef basic_k2tree_builder<unsigned int> K2TreeBuilder;
 
 }  // namespace libk2tree
 
-#endif  // INCLUDE_BITS_K2TREE_BUILDER_H_
+#endif  // INCLUDE_BITS_BASIC_K2TREE_BUILDER_H_

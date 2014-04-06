@@ -7,8 +7,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef INCLUDE_BITS_K2TREE_H_
-#define INCLUDE_BITS_K2TREE_H_
+#ifndef INCLUDE_BITS_BASIC_K2TREE_H_
+#define INCLUDE_BITS_BASIC_K2TREE_H_
 
 #include <bits/utils/bitarray.h>
 #include <bits/utils/utils.h>
@@ -136,8 +136,7 @@ class basic_k2tree {
     else  return kl_;
   }
 };
-typedef basic_k2tree<unsigned int> K2Tree;
 
 }  // namespace libk2tree
 
-#endif  // INCLUDE_BITS_K2TREE_H_
+#endif  // INCLUDE_BITS_BASIC_K2TREE_H_

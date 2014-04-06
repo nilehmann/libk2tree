@@ -8,7 +8,7 @@
  *
  */
 
-#include <bits/k2tree_builder.h>
+#include <bits/basic_k2tree_builder.h>
 
 namespace libk2tree {
 
