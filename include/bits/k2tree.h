@@ -35,6 +35,7 @@ template<class A> class K2TreeBuilder;
 template<class self_type, class A> class K2TreeIterator_;
 template<class A> class DirectIterator_;
 template<class A> class InverseIterator_;
+template<class A> class RangeIterator_;
 
 template<class A>
 class K2Tree {
@@ -43,9 +44,11 @@ class K2Tree {
   friend class K2TreeIterator_;
   friend class DirectIterator_<A>;
   friend class InverseIterator_<A>;
+  friend class RangeIterator_<A>;
  public:
   typedef DirectIterator_<A> DirectIterator;
   typedef InverseIterator_<A> InverseIterator;
+  typedef RangeIterator_<A> RangeIterator;
 
   /*
    * Load a K2Tree previously saved with Save()
@@ -116,6 +119,14 @@ class K2Tree {
   }
   InverseIterator_<A> InverseEnd(A q) const {
     return InverseIterator(this, q, true);
+  }
+
+  RangeIterator RangeBegin(A p1, A p2, A q1, A q2) const {
+    return RangeIterator(this, p1, p2, q1, q2, false);
+  }
+
+  RangeIterator RangeEnd(A p1, A p2, A q1, A q2) const {
+    return RangeIterator(this, p1, p2, q1, q2, true);
   }
 
   /* 

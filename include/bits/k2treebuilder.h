@@ -96,8 +96,9 @@ class K2TreeBuilder {
     // we store the children information in a BitArray (the leafs)
     div_level = N/kl_;
     child = p/div_level*kl_ + q/div_level;
+    if (!n->data_->GetBit(child))
+      edges_++;
     n->data_->SetBit(child);
-    edges_++;
   }
 
   shared_ptr<K2Tree<A>> Build() const {
