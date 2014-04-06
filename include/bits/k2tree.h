@@ -16,11 +16,9 @@
 #include <vector>
 #include <stack>
 #include <fstream>
-#include <iostream>
-using namespace std;
 
 
-namespace k2tree_impl {
+namespace libk2tree {
 using utils::BitArray;
 using cds_static::BitSequence;
 using cds_static::BitSequenceRG;
@@ -31,43 +29,31 @@ using std::ofstream;
 using utils::LoadValue;
 using utils::SaveValue;
 
-template<class A> class K2TreeBuilder;
-template<class self_type, class A> class K2TreeIterator_;
-template<class A> class DirectIterator_;
-template<class A> class InverseIterator_;
-template<class A> class RangeIterator_;
+template<class _Obj> class basic_k2tree_builder;
+template<class self_type, class _Obj> class K2TreeIterator_;
+template<class _Obj> class DirectIterator_;
+template<class _Obj> class InverseIterator_;
+template<class _Obj> class RangeIterator_;
 
-template<class A>
-class K2Tree {
-  friend class K2TreeBuilder<A>;
+template<class _Obj>
+class basic_k2tree {
+  friend class basic_k2tree_builder<_Obj>;
   template<typename self_type, typename B>
   friend class K2TreeIterator_;
-  friend class DirectIterator_<A>;
-  friend class InverseIterator_<A>;
-  friend class RangeIterator_<A>;
+  friend class DirectIterator_<_Obj>;
+  friend class InverseIterator_<_Obj>;
+  friend class RangeIterator_<_Obj>;
  public:
-  typedef DirectIterator_<A> DirectIterator;
-  typedef InverseIterator_<A> InverseIterator;
-  typedef RangeIterator_<A> RangeIterator;
+  typedef DirectIterator_<_Obj> DirectIterator;
+  typedef InverseIterator_<_Obj> InverseIterator;
+  typedef RangeIterator_<_Obj> RangeIterator;
 
   /*
    * Load a K2Tree previously saved with Save()
    */
-  explicit K2Tree(ifstream *in) :
-      T_(BitSequence::load(*in)),
-      L_(in),
-      k1_(LoadValue<int>(in)),
-      k2_(LoadValue<int>(in)),
-      kl_(LoadValue<int>(in)),
-      max_level_k1_(LoadValue<int>(in)),
-      height_(LoadValue<int>(in)),
-      size_(LoadValue<A>(in)),
-      acum_rank_(LoadValue<size_t>(in, height_)) {}
+  explicit basic_k2tree(ifstream *in);
 
-  ~K2Tree() {
-    delete [] acum_rank_;
-    delete T_;
-  }
+  ~basic_k2tree();
 
   /* Check if exist a link from object p to q.
    * Identifiers starts with 0.
@@ -75,95 +61,40 @@ class K2Tree {
    * @param p Identifier of first object.
    * @param q Identifier of second object.
    */
-  bool CheckLink(A p, A q) const {
-    A N, div_level;
-    size_t z;
-    size_t offset;  // number of nodes until current level, inclusive.
-    int k;
-
-    N = size_;
-    z = offset = 0;
-    for (int level = 0; level < height_; ++level) {
-      k = GetK(level);
-
-      div_level = N/k;
-      if (level > 0 && T_->access(z))
-        // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
-        z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
-      else if (level > 0)
-        return false;
-
-      int child = p/div_level*k + q/div_level;
-      z += child + offset;
-
-      if (level > 0)
-        offset += (acum_rank_[level] - acum_rank_[level-1])*k*k;
-      else
-        offset = k*k;
-
-      N /= k, p %= div_level, q %= div_level;
-    }
-    return L_.GetBit(z - T_->getLength());
-  }
-
-
-  DirectIterator_<A> DirectBegin(A p) const {
-    return DirectIterator(this, p, false);
-  }
-  DirectIterator_<A> DirectEnd(A p) const {
-    return DirectIterator(this, p, true);
-  }
-
-  InverseIterator_<A> InverseBegin(A q) const {
-    return InverseIterator(this, q, false);
-  }
-  InverseIterator_<A> InverseEnd(A q) const {
-    return InverseIterator(this, q, true);
-  }
-
-  RangeIterator RangeBegin(A p1, A p2, A q1, A q2) const {
-    return RangeIterator(this, p1, p2, q1, q2, false);
-  }
-
-  RangeIterator RangeEnd(A p1, A p2, A q1, A q2) const {
-    return RangeIterator(this, p1, p2, q1, q2, true);
-  }
+  bool CheckLink(_Obj p, _Obj q) const;
 
   /* 
    * Save the k2tree to a file
    */
-  void Save(ofstream *out) const {
-    T_->save(*out);
-    L_.Save(out);
-    SaveValue(out, k1_);
-    SaveValue(out, k2_);
-    SaveValue(out, kl_);
-    SaveValue(out, max_level_k1_);
-    SaveValue(out, height_);
-    SaveValue(out, size_);
-    SaveValue(out, acum_rank_, height_);
-  }
+  void Save(ofstream *out) const;
 
   /*
    * Method implemented for testing reasons
    */
-  bool operator==(const K2Tree &rhs) const {
-    if (T_->getLength() != rhs.T_->getLength()) return false;
-    for (size_t i = 0; i < T_->getLength(); ++i)
-      if (T_->access(i) != rhs.T_->access(i)) return false;
+  bool operator==(const basic_k2tree &rhs) const;
 
-    if (L_.length() != rhs.L_.length()) return false;
-    for (size_t i = 0; i < L_.length(); ++i)
-      if (L_.GetBit(i) != rhs.L_.GetBit(i)) return false;
-
-    if (height_ != rhs.height_) return false;
-
-    for (int i = 0; i < height_; ++i)
-      if (acum_rank_[i] != acum_rank_[i]) return false;
-
-    return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kl_ == rhs.kl_ &&
-           max_level_k1_ == rhs.max_level_k1_ && size_ == rhs.size_;
+  DirectIterator DirectBegin(_Obj p) const {
+    return DirectIterator(this, p, false);
   }
+  DirectIterator DirectEnd() const {
+    return DirectIterator(this, 0, true);
+  }
+
+  InverseIterator InverseBegin(_Obj q) const {
+    return InverseIterator(this, q, false);
+  }
+  InverseIterator InverseEnd() const {
+    return InverseIterator(this, 0, true);
+  }
+
+  RangeIterator RangeBegin(_Obj p1, _Obj p2, _Obj q1, _Obj q2) const {
+    return RangeIterator(this, p1, p2, q1, q2, false);
+  }
+
+  RangeIterator RangeEnd() const {
+    return RangeIterator(this, 0, 0, 0, 0, true);
+  }
+
 
  private:
   /* 
@@ -178,25 +109,8 @@ class K2Tree {
    * @param height Height of the k2tree
    * @param size Size of the expanded matrix
    */
-  K2Tree(const BitArray<unsigned int> &T, const BitArray<unsigned int> &L,
-         int k1, int k2, int kl, int max_level_k1, int height, A size) :
-      T_(new BitSequenceRG(T.GetRawData(), T.length(), 20)),
-      L_(L),
-      k1_(k1),
-      k2_(k2),
-      kl_(kl),
-      max_level_k1_(max_level_k1),
-      height_(height),
-      size_(size),
-      acum_rank_(new size_t[height]) {
-    acum_rank_[0] = 0;
-    size_t acum_nodes = k1*k1;
-    for (int level = 1; level < height; ++level) {
-      int k = level <= max_level_k1? k1 : k2;
-      acum_rank_[level] = T_->rank1(acum_nodes-1);
-      acum_nodes += (acum_rank_[level]-acum_rank_[level-1])*k*k;
-    }
-  }
+  basic_k2tree(const BitArray<unsigned int> &T, const BitArray<unsigned int> &L,
+               int k1, int k2, int kl, int max_level_k1, int height, _Obj size);
   // Bit array containing the nodes of internal nodes
   BitSequence *T_;
   // Bit array for the leafs.
@@ -212,18 +126,18 @@ class K2Tree {
   // height of the tree
   int height_;
   // Size of the expanded matrix
-  A size_;
+  _Obj size_;
   // Accumulated rank for each level.
   size_t *acum_rank_;
 
-  inline int GetK(int level) const {
+  int GetK(int level) const {
     if (level <= max_level_k1_)  return k1_;
     else if (level < height_ - 1)  return k2_;
     else  return kl_;
   }
 };
+typedef basic_k2tree<unsigned int> K2Tree;
 
-
-}  // namespace k2tree_impl
+}  // namespace libk2tree
 
 #endif  // INCLUDE_BITS_K2TREE_H_

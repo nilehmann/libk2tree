@@ -11,9 +11,9 @@
 #include <gtest/gtest.h>
 
 
-using ::k2tree_impl::utils::LogCeil;
-using ::k2tree_impl::utils::SquaringPow;
-using ::k2tree_impl::utils::Pow;
+using ::libk2tree::utils::LogCeil;
+using ::libk2tree::utils::SquaringPow;
+using ::libk2tree::utils::Pow;
 
 TEST(LogCeil, 1) {
   ASSERT_EQ(4, LogCeil(1234567, 53));

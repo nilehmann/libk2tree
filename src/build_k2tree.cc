@@ -18,10 +18,10 @@
 using ::std::ifstream;
 using ::std::ofstream;
 using ::std::stoi;
-using ::k2tree_impl::utils::LoadValue;
+using ::libk2tree::utils::LoadValue;
 using ::std::shared_ptr;
-using ::k2tree_impl::K2Tree;
-using ::k2tree_impl::K2TreeBuilder;
+using ::libk2tree::K2Tree;
+using ::libk2tree::K2TreeBuilder;
 
 /* Time meassuring */
 double ticks;
@@ -62,7 +62,7 @@ int main(int arc, char *argv[]) {
   printf("nodes: %d, edges: %ld\n", nodes, edges);
   ticks = (double)sysconf(_SC_CLK_TCK);
   start_clock();
-  K2TreeBuilder<uint> tb(nodes, k1, k2, kl, k1_levels);
+  K2TreeBuilder tb(nodes, k1, k2, kl, k1_levels);
   int p;
   for (int i = 0; i < nodes + edges; ++i) {
     //int read = LoadValue<int>(&in);
@@ -81,7 +81,7 @@ int main(int arc, char *argv[]) {
   fprintf(stderr, "%d seconds to insert.\n", t);
 
   start_clock(); 
-  shared_ptr<K2Tree<uint> > tree = tb.Build();
+  shared_ptr<K2Tree> tree = tb.Build();
   t = stop_clock();
   fprintf(stderr, "%d seconds to build.\n", t);
 

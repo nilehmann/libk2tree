@@ -11,7 +11,7 @@
 #include <gtest/gtest.h>
 #include <bits/utils/bitarray.h>
 
-using  ::k2tree_impl::utils::BitArray;
+using  ::libk2tree::utils::BitArray;
 
 TEST(BitArrayChar, Constructor) {
   BitArray<char> bs(1000);

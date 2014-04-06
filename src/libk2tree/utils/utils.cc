@@ -12,7 +12,7 @@
 
 #include <bits/utils/utils.h>
 
-namespace k2tree_impl {
+namespace libk2tree {
 namespace utils {
 
 int LogCeil(double N, int base) {
@@ -39,4 +39,4 @@ int Pow(int base, int exp) {
 }
 
 }  // namespace utils
-}  // namespace k2tree_impl
+}  // namespace libk2tree

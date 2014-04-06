@@ -11,7 +11,7 @@
 #define INCLUDE_K2TREE_H_
 
 #include <bits/k2tree.h>
-#include <bits/k2treebuilder.h>
+#include <bits/k2tree_builder.h>
 #include <bits/k2tree_iterators.h>
 
 typedef unsigned int uint;

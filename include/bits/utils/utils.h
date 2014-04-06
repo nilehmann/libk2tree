@@ -15,7 +15,7 @@
 
 #include <fstream>
 
-namespace k2tree_impl {
+namespace libk2tree {
 namespace utils {
 using std::ifstream;
 using std::ofstream;
@@ -70,6 +70,6 @@ T *LoadValue(ifstream *in, size_t length) {
 }
 
 }  // namespace utils
-}  // namespace k2tree_impl
+}  // namespace libk2tree
 
 #endif  // INCLUDE_BITS_UTILS_UTILS_H_

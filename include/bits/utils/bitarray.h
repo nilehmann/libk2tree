@@ -16,7 +16,7 @@
 #include <cstddef>
 
 
-namespace k2tree_impl {
+namespace libk2tree {
 namespace utils {
 
 /*
@@ -119,5 +119,5 @@ class BitArray {
 };
 
 }  // namespace utils
-}  // namespace k2tree_impl
+}  // namespace libk2tree
 #endif  // INCLUDE_BITS_UTILS_BITARRAY_H_

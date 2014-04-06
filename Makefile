@@ -1,3 +1,4 @@
+CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = include/
 
@@ -7,10 +8,10 @@ TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o)
 GTEST=gtest-1.7.0
 TESTSFLAGS = -g -Wall -Wextra
 
-K2TREE_SRC = $(shell find src/k2tree_impl -name *.cc)
+K2TREE_SRC = $(shell find src/libk2tree -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
-FLAGS = -std=c++11 -O1
+FLAGS = -std=c++11 -O3
 
 
 .PHONY: clean style test all

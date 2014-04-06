@@ -14,8 +14,8 @@
 
 #include <fstream>
 
-using ::k2tree_impl::K2TreeBuilder;
-using ::k2tree_impl::K2Tree;
+using ::libk2tree::K2TreeBuilder;
+using ::libk2tree::K2Tree;
 using ::std::shared_ptr;
 using ::std::vector;
 using ::std::ifstream;
@@ -26,7 +26,7 @@ using ::std::ofstream;
 
 void TestCheckLink(int k1, int k2, int kl, int k1_levels) {
   int n = rand()%10000+1;
-  K2TreeBuilder<uint> tb(n, k1, k2, kl, k1_levels);
+  K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
   vector<vector<bool> > matrix(n, vector<bool>(n, false));
   int e = rand()%(n*10) + 1;
   for (int i = 0; i < e; ++i) {
@@ -35,7 +35,7 @@ void TestCheckLink(int k1, int k2, int kl, int k1_levels) {
     matrix[p][q] = true;
     tb.AddLink(p, q);
   }
-  shared_ptr<K2Tree<uint> > tree = tb.Build();
+  shared_ptr<K2Tree > tree = tb.Build();
 
   for (int i = 0; i < e; ++i) {
     int p = rand()%n;
@@ -45,14 +45,14 @@ void TestCheckLink(int k1, int k2, int kl, int k1_levels) {
 }
 void TestSave(int k1, int k2, int kl, int k1_levels) {
   int n = rand()%100000+1;
-  K2TreeBuilder<uint> tb(n, k1, k2, kl, k1_levels);
+  K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
   int e = n > 10 ? rand()%(n/10) + 1 : 1;
   for (int i = 0; i < e; ++i) {
     int p = rand()%n;
     int q = rand()%n;
     tb.AddLink(p, q);
   }
-  shared_ptr<K2Tree<uint> > tree = tb.Build();
+  shared_ptr<K2Tree > tree = tb.Build();
 
   ofstream out;
   out.open("k2tree_test", ofstream::out);
@@ -61,7 +61,7 @@ void TestSave(int k1, int k2, int kl, int k1_levels) {
 
   ifstream in;
   in.open("k2tree_test", ifstream::in);
-  K2Tree<uint> tree2(&in);
+  K2Tree tree2(&in);
   in.close();
   ASSERT_TRUE(tree->operator==(tree2));
   remove("k2tree_test");
