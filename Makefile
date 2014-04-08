@@ -1,4 +1,4 @@
-CXX = clang++
+#CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = include/
 
@@ -16,11 +16,11 @@ FLAGS = -std=c++11 -O3
 
 .PHONY: clean style test all
 
-all: test
+all: test build_k2tree time qry_gen
 
 
 # TEST
-test: bin/test build_k2tree
+test: bin/test
 
 bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_OBJ) 
 	@echo " [LNK] Linking test"
@@ -51,6 +51,16 @@ style:
 # K2TREE
 
 build_k2tree: bin/build_k2tree
+time: bin/time
+qry_gen: bin/qry_gen
+
+bin/qry_gen: $(K2TREE_OBJ) obj/src/qry_gen.o
+	@echo " [LNK] Linking time"
+	@$(CXX) -lcds $(K2TREE_OBJ) obj/src/qry_gen.o -o bin/qry_gen
+
+bin/time: $(K2TREE_OBJ) obj/src/time.o
+	@echo " [LNK] Linking time"
+	@$(CXX) -lcds $(K2TREE_OBJ) obj/src/time.o -o bin/time
 
 bin/build_k2tree: $(K2TREE_OBJ) obj/src/build_k2tree.o
 	@echo " [LNK] Linking build_k2tree"
@@ -60,6 +70,13 @@ obj/src/build_k2tree.o: src/build_k2tree.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
 
+obj/src/time.o: src/time.cc
+	@echo " [C++] Compiling $<"
+	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
+
+obj/src/qry_gen.o: src/queries_generator.cc
+	@echo " [C++] Compiling $<"
+	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
 obj/src/%.o: src/%.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@

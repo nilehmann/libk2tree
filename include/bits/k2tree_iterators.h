@@ -63,7 +63,10 @@ class K2TreeIterator_ {
     ++(*static_cast<self_type*>(this));
     return i;
   }
-  self_type operator++();
+  bool HasNext() {
+    return !end_;
+  }
+  void operator++();
 
  protected:
   const basic_k2tree<_Obj> *tree_;

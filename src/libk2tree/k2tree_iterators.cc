@@ -19,7 +19,7 @@ K2TreeIterator_<self_type, _Obj>::K2TreeIterator_(const basic_k2tree<_Obj> *t,
     tree_(t), object_(object), curr_(0), frames_(), end_(end) {}
 
 template<class self_type, class _Obj>
-self_type K2TreeIterator_<self_type, _Obj>::operator++() {
+void K2TreeIterator_<self_type, _Obj>::operator++() {
   bool found = false;
   size_t *acum_rank = tree_->acum_rank_;
   const BitSequence *T = tree_->T_;
@@ -32,11 +32,6 @@ self_type K2TreeIterator_<self_type, _Obj>::operator++() {
     int k = tree_->GetK(f.level);
     _Obj div_level = f.N/k;
     if (f.level < tree_->height_) {
-      size_t nxt_offset;
-      if (f.level > 0)
-        nxt_offset = f.offset+(acum_rank[f.level] - acum_rank[f.level-1])*k*k;
-      else
-        nxt_offset = k*k;
 
       // Entering first time in frame
       if (f.j == -1) {
@@ -50,6 +45,12 @@ self_type K2TreeIterator_<self_type, _Obj>::operator++() {
 
       f.j++;
       if (f.j < k) {
+        size_t nxt_offset;
+        if (f.level > 0)
+          nxt_offset = f.offset+(acum_rank[f.level] - acum_rank[f.level-1])*k*k;
+        else
+          nxt_offset = k*k;
+
         PushNextFrame(f, nxt_offset, k, div_level);
       } else {
         // No more children on the root
@@ -66,7 +67,7 @@ self_type K2TreeIterator_<self_type, _Obj>::operator++() {
       frames_.pop();
     }
   }
-  return *static_cast<self_type*>(this);
+  //return *static_cast<self_type*>(this);
 }
 
 template<class _Obj>
@@ -213,6 +214,8 @@ RangeIterator_<_Obj> RangeIterator_<_Obj>::operator++() {
 
 template class DirectIterator_<unsigned int>;
 template class InverseIterator_<unsigned int>;
+template class K2TreeIterator_<DirectIterator_<unsigned int>, unsigned int>;
+template class K2TreeIterator_<InverseIterator_<unsigned int>, unsigned int>;
 template class RangeIterator_<unsigned int>;
 
 }  // namespace libk2tree
