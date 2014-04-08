@@ -9,34 +9,41 @@
 
 #include <bits/k2tree_iterators.h>
 #include <bits/basic_k2tree.h>
+#include <cstdio>
 
 namespace libk2tree {
 
-template<class self_type, class _Obj>
-K2TreeIterator_<self_type, _Obj>::K2TreeIterator_(const basic_k2tree<_Obj> *t,
-                                                 _Obj object,
-                                                 bool end) :
-    tree_(t), object_(object), curr_(0), frames_(), end_(end) {}
+template<class _Impl, class _Size>
+K2TreeIterator_<_Impl, _Size>::K2TreeIterator_(const basic_k2tree<_Size> *t,
+                                               _Size object,
+                                               bool end) :
+    tree_(t), object_(object), curr_(0), frames_(), end_(end) {
+  frames_.push(_Impl::FirstFrame(object, t->size_));
+  ++(*this);
+}
 
-template<class self_type, class _Obj>
-void K2TreeIterator_<self_type, _Obj>::operator++() {
+template<class _Impl, class _Size>
+void K2TreeIterator_<_Impl, _Size>::operator++() {
   bool found = false;
   size_t *acum_rank = tree_->acum_rank_;
   const BitSequence *T = tree_->T_;
   const BitArray<unsigned int> *L = &tree_->L_;
 
   while (!found && !end_) {
-    Frame_<_Obj> &f= frames_.top();
-
+    Frame_<_Size> &f= frames_.top();
 
     int k = tree_->GetK(f.level);
-    _Obj div_level = f.N/k;
+    _Size div_level = f.N/k;
     if (f.level < tree_->height_) {
 
       // Entering first time in frame
       if (f.j == -1) {
         if (f.level == 0 || T->access(f.z)) {
-          f.z = Rank(f, k, div_level);
+          f.z = _Impl::Rank(f, k, div_level, tree_);
+          if (f.level > 0)
+            f.nxt_offset = f.offset+(acum_rank[f.level] - acum_rank[f.level-1])*k*k;
+          else
+            f.nxt_offset = k*k;
         } else {
           frames_.pop();
           continue;
@@ -45,13 +52,7 @@ void K2TreeIterator_<self_type, _Obj>::operator++() {
 
       f.j++;
       if (f.j < k) {
-        size_t nxt_offset;
-        if (f.level > 0)
-          nxt_offset = f.offset+(acum_rank[f.level] - acum_rank[f.level-1])*k*k;
-        else
-          nxt_offset = k*k;
-
-        PushNextFrame(f, nxt_offset, k, div_level);
+        frames_.push(_Impl::PushNextFrame(f, k, div_level));
       } else {
         // No more children on the root
         if (f.level == 0)
@@ -61,83 +62,82 @@ void K2TreeIterator_<self_type, _Obj>::operator++() {
     } else {
       // We enter and exit the leaf
       if (L->GetBit(f.z - T->getLength())) {
-        curr_ = Output(f);
+        curr_ = _Impl::Output(f);
         found = true;
       }
       frames_.pop();
     }
   }
-  //return *static_cast<self_type*>(this);
+  //return *this;
 }
 
-template<class _Obj>
-DirectIterator_<_Obj>::DirectIterator_(const basic_k2tree<_Obj> *tree,
-                                       _Obj p, bool end) :
-    K2TreeIterator_<DirectIterator_<_Obj>, _Obj>(tree, p, end) {
-  this->frames_.push({-1, 0, 0, tree->size_, p, 0, 0});
-  ++(*this);
+/*
+ * Implementation for direct adjacency list
+ */
+template<class _Size>
+Frame_<_Size> DirectImpl<_Size>::FirstFrame(_Size p, _Size size) {
+  return {-1, 0, 0, 0, size, p, 0, 0};
 }
 
-template<class _Obj>
-void DirectIterator_<_Obj>::PushNextFrame(const Frame_<_Obj> &f,
-                                          size_t nxt_offset, int ,
-                                          _Obj div_level) {
-  this->frames_.push({-1, f.level + 1, nxt_offset,
-      div_level, f.p % div_level, f.q + div_level*f.j, f.z + f.j});
+template<class _Size>
+Frame_<_Size> DirectImpl<_Size>::PushNextFrame(const Frame_<_Size> &f,
+                                                    int k,
+                                                    _Size div_level) {
+  return {-1, f.level + 1, f.nxt_offset, 0,
+          div_level, f.p % div_level, f.q + div_level*f.j, f.z + f.j};
 }
 
-template<class _Obj>
-size_t DirectIterator_<_Obj>::Rank(const Frame_<_Obj> &f, int k,
-                                   _Obj div_level) {
+template<class _Size>
+size_t DirectImpl<_Size>::Rank(const Frame_<_Size> &f, int k,
+                                   _Size div_level,
+                                   const basic_k2tree<_Size> *tree) {
   size_t z;
-  const basic_k2tree<_Obj> *tree = this->tree_;
   z = f.z > 0 ? (tree->T_->rank1(f.z-1)-tree->acum_rank_[f.level-1])*k*k : 0;
   z += f.p/div_level*k + f.offset;
   return z;
 }
 
-template<class _Obj>
-_Obj DirectIterator_<_Obj>::Output(const Frame_<_Obj> &frame) {
+template<class _Size>
+_Size DirectImpl<_Size>::Output(const Frame_<_Size> &frame) {
   return frame.q;
 }
 
-
-template<class _Obj>
-InverseIterator_<_Obj>::InverseIterator_(const basic_k2tree<_Obj> *tree,
-                                         _Obj q, bool end) :
-    K2TreeIterator_<InverseIterator_<_Obj>, _Obj>(tree, q, end) {
-  this->frames_.push({-1, 0, 0, tree->size_, 0, q, 0});
-  ++(*this);
+/* 
+ * Implementation for inverse adjacency list
+ */
+template<class _Size>
+Frame_<_Size> InverseImpl<_Size>::FirstFrame(_Size q, _Size size) {
+  return {-1, 0, 0, 0, size, 0, q, 0};
 }
 
-template<class _Obj>
-void InverseIterator_<_Obj>::PushNextFrame(const Frame_<_Obj> &f,
-                                           size_t nxt_offset, int k,
-                                           _Obj div_level) {
-  this->frames_.push({-1, f.level + 1, nxt_offset,
-      div_level, f.p + div_level*f.j, f.q % div_level, f.z + f.j*k});
+template<class _Size>
+Frame_<_Size> InverseImpl<_Size>::PushNextFrame(const Frame_<_Size> &f,
+                                            int k,
+                                           _Size div_level) {
+  return {-1, f.level + 1, f.nxt_offset, 0,
+      div_level, f.p + div_level*f.j, f.q % div_level, f.z + f.j*k};
 }
-template<class _Obj>
-size_t InverseIterator_<_Obj>::Rank(const Frame_<_Obj> &f, int k,
-                                    _Obj div_level) {
+template<class _Size>
+size_t InverseImpl<_Size>::Rank(const Frame_<_Size> &f, int k,
+                                    _Size div_level,
+                                    const basic_k2tree<_Size> *tree) {
   size_t z;
-  const basic_k2tree<_Obj> *tree = this->tree_;
   z = f.z > 0 ? (tree->T_->rank1(f.z-1)-tree->acum_rank_[f.level-1])*k*k : 0;
   z += f.q/div_level + f.offset;
   return z;
 }
 
-template<class _Obj>
-_Obj InverseIterator_<_Obj>::Output(const Frame_<_Obj> &frame) {
+template<class _Size>
+_Size InverseImpl<_Size>::Output(const Frame_<_Size> &frame) {
   return frame.p;
 }
 
 
 
-template<class _Obj>
-RangeIterator_<_Obj>::RangeIterator_(const basic_k2tree<_Obj> *tree,
-                                     _Obj p1, _Obj p2,
-                                     _Obj q1, _Obj q2,
+template<class _Size>
+RangeIterator_<_Size>::RangeIterator_(const basic_k2tree<_Size> *tree,
+                                     _Size p1, _Size p2,
+                                     _Size q1, _Size q2,
                                      bool end) :
     tree_(tree), p1_(p1), p2_(p2), q1_(q1), q2_(q2),
     frames_(), curr_(), end_(end) {
@@ -147,20 +147,20 @@ RangeIterator_<_Obj>::RangeIterator_(const basic_k2tree<_Obj> *tree,
 }
 
 
-template<class _Obj>
-RangeIterator_<_Obj> RangeIterator_<_Obj>::operator++() {
-  _Obj pp1, pp2, qq1, qq2;
+template<class _Size>
+RangeIterator_<_Size> RangeIterator_<_Size>::operator++() {
+  _Size pp1, pp2, qq1, qq2;
   bool found = false;
   size_t *acum_rank = tree_->acum_rank_;
   const BitSequence *T = tree_->T_;
   const BitArray<unsigned int> *L = &tree_->L_;
 
   while (!found && !end_) {
-    RangeFrame_<_Obj> &f= frames_.top();
+    RangeFrame_<_Size> &f= frames_.top();
     size_t &z = f.z;
 
     int k = tree_->GetK(f.level);
-    _Obj div_level = f.N/k;
+    _Size div_level = f.N/k;
     if (f.level < tree_->height_) {
       size_t nxt_offset;
       if (f.level > 0)
@@ -212,10 +212,8 @@ RangeIterator_<_Obj> RangeIterator_<_Obj>::operator++() {
   return *(this);
 }
 
-template class DirectIterator_<unsigned int>;
-template class InverseIterator_<unsigned int>;
-template class K2TreeIterator_<DirectIterator_<unsigned int>, unsigned int>;
-template class K2TreeIterator_<InverseIterator_<unsigned int>, unsigned int>;
+template class K2TreeIterator_<DirectImpl<unsigned int>, unsigned int>;
+template class K2TreeIterator_<InverseImpl<unsigned int>, unsigned int>;
 template class RangeIterator_<unsigned int>;
 
 }  // namespace libk2tree

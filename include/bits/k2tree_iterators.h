@@ -17,50 +17,51 @@
 namespace libk2tree {
 using ::std::pair;
 
-template<class _Obj>
+template<class _Size>
 struct Frame_ {
   int j;
   int level;
-  size_t offset;
-  _Obj N;
-  _Obj p, q;
+  size_t offset, nxt_offset;
+  _Size N;
+  _Size p, q;
   size_t z;
 };
-template<class _Obj>
+
+template<class _Size>
 struct RangeFrame_ {
   bool first;
   unsigned int i, j;
   int level;
   size_t offset;
-  _Obj N;
-  _Obj p1, p2, q1, q2;
-  _Obj dp, dq;
+  _Size N;
+  _Size p1, p2, q1, q2;
+  _Size dp, dq;
   size_t z;
 };
 
-template<class self_type, class _Obj>
+template<class _Impl, class _Size>
 class K2TreeIterator_ {
  public:
-  K2TreeIterator_(const basic_k2tree<_Obj> *t, _Obj object, bool end);
+  K2TreeIterator_(const basic_k2tree<_Size> *t, _Size object, bool end);
 
-  bool operator==(const self_type& rhs) {
+  bool operator==(const K2TreeIterator_<_Impl, _Size> & rhs) {
     if (end_ || rhs.end_)
       return end_ == rhs.end_;
     else
       return object_ == rhs.object_ && curr_ == rhs.curr_;
   }
 
-  bool operator!=(const self_type& rhs) {
-    return !(*static_cast<self_type*>(this) == rhs);
+  bool operator!=(const K2TreeIterator_<_Impl, _Size> & rhs) {
+    return !((*this) == rhs);
   }
 
   int operator*() {
     return curr_;
   }
 
-  self_type operator++(int) {
-    self_type i = *static_cast<self_type*>(this);
-    ++(*static_cast<self_type*>(this));
+  K2TreeIterator_<_Impl, _Size> operator++(int) {
+    K2TreeIterator_<_Impl, _Size> i = *this;
+    ++(*this);
     return i;
   }
   bool HasNext() {
@@ -69,58 +70,57 @@ class K2TreeIterator_ {
   void operator++();
 
  protected:
-  const basic_k2tree<_Obj> *tree_;
-  _Obj object_;
-  _Obj curr_;
-  stack<Frame_<_Obj>> frames_;
+  const basic_k2tree<_Size> *tree_;
+  _Size object_;
+  _Size curr_;
+  stack<Frame_<_Size>> frames_;
   bool end_;
-
-  virtual void PushNextFrame(const Frame_<_Obj> &frame,
+/*
+  virtual void PushNextFrame(const Frame_<_Size> &frame,
                              size_t nxt_offset, int k,
-                             _Obj div_level) = 0;
-  virtual size_t Rank(const Frame_<_Obj> &frame, int k, _Obj div_level) = 0;
-  virtual _Obj Output(const Frame_<_Obj> &frame) = 0;
+                             _Size div_level) = 0;
+  virtual size_t Rank(const Frame_<_Size> &frame, int k, _Size div_level) = 0;
+  virtual _Size Output(const Frame_<_Size> &frame) = 0;*/
 };
 
-template<class _Obj>
-class DirectIterator_ :
-    public K2TreeIterator_<DirectIterator_<_Obj>, _Obj> {
+template<class _Size>
+class DirectImpl {
  public:
-  DirectIterator_(const basic_k2tree<_Obj> *tree, _Obj p, bool end);
 
- private:
-  virtual void PushNextFrame(const Frame_<_Obj> &f, size_t nxt_offset, int ,
-      _Obj div_level);
-  virtual size_t Rank(const Frame_<_Obj> &f, int k, _Obj div_level);
+ //private:
+  inline static Frame_<_Size> FirstFrame(_Size p, _Size size);
+  inline static Frame_<_Size> PushNextFrame(const Frame_<_Size> &f,
+                                             int ,
+                                            _Size div_level);
+  inline static size_t Rank(const Frame_<_Size> &f, int k, _Size div_level,
+                     const basic_k2tree<_Size> *tree);
 
-  virtual _Obj Output(const Frame_<_Obj> &frame);
+  inline static _Size Output(const Frame_<_Size> &frame);
 };
 
 
-template<class _Obj>
-class InverseIterator_ :
-    public K2TreeIterator_<InverseIterator_<_Obj>, _Obj> {
+template<class _Size>
+class InverseImpl {
  public:
-  InverseIterator_(const basic_k2tree<_Obj> *tree, _Obj q, bool end);
-
- private:
-  virtual void PushNextFrame(const Frame_<_Obj> &f, size_t nxt_offset, int k,
-      _Obj div_level);
-  virtual size_t Rank(const Frame_<_Obj> &f, int k, _Obj div_level);
-
-  virtual _Obj Output(const Frame_<_Obj> &frame);
+  inline static Frame_<_Size> FirstFrame(_Size q, _Size size);
+  inline static Frame_<_Size> PushNextFrame(const Frame_<_Size> &f, 
+                                            int k,
+                                            _Size div_level);
+  inline static size_t Rank(const Frame_<_Size> &f, int k, _Size div_level,
+                     const basic_k2tree<_Size> *tree);
+  inline static _Size Output(const Frame_<_Size> &frame);
 };
 
 
 
-template<class _Obj>
+template<class _Size>
 class RangeIterator_ {
  public:
-  RangeIterator_(const basic_k2tree<_Obj> *tree,
-                 _Obj p1, _Obj p2,
-                 _Obj q1, _Obj q2,
+  RangeIterator_(const basic_k2tree<_Size> *tree,
+                 _Size p1, _Size p2,
+                 _Size q1, _Size q2,
                  bool end);
-  bool operator==(const RangeIterator_<_Obj> &rhs) {
+  bool operator==(const RangeIterator_<_Size> &rhs) {
     if (end_ || rhs.end_)
       return end_ == rhs.end_;
     else
@@ -128,24 +128,24 @@ class RangeIterator_ {
              q1_ && rhs.q1_ && q2_ == rhs.q2_ &&
              curr_ == rhs.curr_;
   }
-  bool operator!=(const RangeIterator_<_Obj> &rhs) {
+  bool operator!=(const RangeIterator_<_Size> &rhs) {
     return !((*this) == rhs);
   }
-  pair<_Obj, _Obj> operator*() {
+  pair<_Size, _Size> operator*() {
     return curr_;
   }
-  RangeIterator_<_Obj> operator++(int) {
-    RangeIterator_<_Obj> i = *this;
+  RangeIterator_<_Size> operator++(int) {
+    RangeIterator_<_Size> i = *this;
     ++(*this);
     return i;
   }
-  RangeIterator_<_Obj> operator++();
+  RangeIterator_<_Size> operator++();
 
  private:
-  const basic_k2tree<_Obj> *tree_;
-  _Obj p1_, p2_, q1_, q2_;
-  stack<RangeFrame_<_Obj>> frames_;
-  pair<_Obj, _Obj> curr_;
+  const basic_k2tree<_Size> *tree_;
+  _Size p1_, p2_, q1_, q2_;
+  stack<RangeFrame_<_Size>> frames_;
+  pair<_Size, _Size> curr_;
   bool end_;
 };
 }  // namespace libk2tree

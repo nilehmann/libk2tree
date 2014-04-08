@@ -29,24 +29,24 @@ using std::ofstream;
 using utils::LoadValue;
 using utils::SaveValue;
 
-template<class _Obj> class basic_k2tree_builder;
-template<class self_type, class _Obj> class K2TreeIterator_;
-template<class _Obj> class DirectIterator_;
-template<class _Obj> class InverseIterator_;
-template<class _Obj> class RangeIterator_;
+template<class _Size> class basic_k2tree_builder;
+template<class self_type, class _Size> class K2TreeIterator_;
+template<class _Size> class DirectImpl;
+template<class _Size> class InverseImpl;
+template<class _Size> class RangeIterator_;
 
-template<class _Obj>
+template<class _Size>
 class basic_k2tree {
-  friend class basic_k2tree_builder<_Obj>;
+  friend class basic_k2tree_builder<_Size>;
   template<typename self_type, typename B>
   friend class K2TreeIterator_;
-  friend class DirectIterator_<_Obj>;
-  friend class InverseIterator_<_Obj>;
-  friend class RangeIterator_<_Obj>;
+  friend class DirectImpl<_Size>;
+  friend class InverseImpl<_Size>;
+  friend class RangeIterator_<_Size>;
  public:
-  typedef DirectIterator_<_Obj> DirectIterator;
-  typedef InverseIterator_<_Obj> InverseIterator;
-  typedef RangeIterator_<_Obj> RangeIterator;
+  typedef K2TreeIterator_<DirectImpl<_Size>, _Size> DirectIterator;
+  typedef K2TreeIterator_<InverseImpl<_Size>, _Size> InverseIterator;
+  typedef RangeIterator_<_Size> RangeIterator;
 
   /*
    * Load a K2Tree previously saved with Save()
@@ -61,7 +61,7 @@ class basic_k2tree {
    * @param p Identifier of first object.
    * @param q Identifier of second object.
    */
-  bool CheckLink(_Obj p, _Obj q) const;
+  bool CheckLink(_Size p, _Size q) const;
 
   /* 
    * Save the k2tree to a file
@@ -73,21 +73,21 @@ class basic_k2tree {
    */
   bool operator==(const basic_k2tree &rhs) const;
 
-  DirectIterator DirectBegin(_Obj p) const {
+  DirectIterator DirectBegin(_Size p) const {
     return DirectIterator(this, p, false);
   }
   DirectIterator DirectEnd() const {
     return DirectIterator(this, 0, true);
   }
 
-  InverseIterator InverseBegin(_Obj q) const {
+  InverseIterator InverseBegin(_Size q) const {
     return InverseIterator(this, q, false);
   }
   InverseIterator InverseEnd() const {
     return InverseIterator(this, 0, true);
   }
 
-  RangeIterator RangeBegin(_Obj p1, _Obj p2, _Obj q1, _Obj q2) const {
+  RangeIterator RangeBegin(_Size p1, _Size p2, _Size q1, _Size q2) const {
     return RangeIterator(this, p1, p2, q1, q2, false);
   }
 
@@ -110,7 +110,7 @@ class basic_k2tree {
    * @param size Size of the expanded matrix
    */
   basic_k2tree(const BitArray<unsigned int> &T, const BitArray<unsigned int> &L,
-               int k1, int k2, int kl, int max_level_k1, int height, _Obj size);
+               int k1, int k2, int kl, int max_level_k1, int height, _Size size);
   // Bit array containing the nodes of internal nodes
   BitSequence *T_;
   // Bit array for the leafs.
@@ -126,7 +126,7 @@ class basic_k2tree {
   // height of the tree
   int height_;
   // Size of the expanded matrix
-  _Obj size_;
+  _Size size_;
   // Accumulated rank for each level.
   size_t *acum_rank_;
 
