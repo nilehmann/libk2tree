@@ -63,8 +63,7 @@ int main(int argc, char* argv[]){
   uint recovered = 0;
   for(i=0;i<cnt_qry;i++) {
     K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
-    //K2Tree::DirectIterator end = tree.DirectEnd();
-    for (; q.HasNext(); ++recovered) ++q;
+    for (; q != tree.DirectEnd(); ++q,++recovered);
   }
   t += stop_clock(); 
   t *= 1000; // to milliseconds

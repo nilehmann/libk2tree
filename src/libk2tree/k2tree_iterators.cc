@@ -14,16 +14,18 @@
 namespace libk2tree {
 
 template<class _Impl, class _Size>
-K2TreeIterator_<_Impl, _Size>::K2TreeIterator_(const basic_k2tree<_Size> *t,
+K2TreeIterator<_Impl, _Size>::K2TreeIterator(const basic_k2tree<_Size> *t,
                                                _Size object,
                                                bool end) :
     tree_(t), object_(object), curr_(0), frames_(), end_(end) {
-  frames_.push(_Impl::FirstFrame(object, t->size_));
-  ++(*this);
+  if (!end) {
+    frames_.push(_Impl::FirstFrame(object, t->size_));
+    ++(*this);
+  }
 }
 
 template<class _Impl, class _Size>
-void K2TreeIterator_<_Impl, _Size>::operator++() {
+void K2TreeIterator<_Impl, _Size>::operator++() {
   bool found = false;
   size_t *acum_rank = tree_->acum_rank_;
   const BitSequence *T = tree_->T_;
@@ -41,7 +43,7 @@ void K2TreeIterator_<_Impl, _Size>::operator++() {
         if (f.level == 0 || T->access(f.z)) {
           f.z = _Impl::Rank(f, k, div_level, tree_);
           if (f.level > 0)
-            f.nxt_offset = f.offset+(acum_rank[f.level] - acum_rank[f.level-1])*k*k;
+            f.nxt_offset=f.offset+(acum_rank[f.level]-acum_rank[f.level-1])*k*k;
           else
             f.nxt_offset = k*k;
         } else {
@@ -68,7 +70,6 @@ void K2TreeIterator_<_Impl, _Size>::operator++() {
       frames_.pop();
     }
   }
-  //return *this;
 }
 
 /*
@@ -81,16 +82,16 @@ Frame_<_Size> DirectImpl<_Size>::FirstFrame(_Size p, _Size size) {
 
 template<class _Size>
 Frame_<_Size> DirectImpl<_Size>::PushNextFrame(const Frame_<_Size> &f,
-                                                    int k,
-                                                    _Size div_level) {
+                                               int k,
+                                               _Size div_level) {
   return {-1, f.level + 1, f.nxt_offset, 0,
           div_level, f.p % div_level, f.q + div_level*f.j, f.z + f.j};
 }
 
 template<class _Size>
 size_t DirectImpl<_Size>::Rank(const Frame_<_Size> &f, int k,
-                                   _Size div_level,
-                                   const basic_k2tree<_Size> *tree) {
+                               _Size div_level,
+                               const basic_k2tree<_Size> *tree) {
   size_t z;
   z = f.z > 0 ? (tree->T_->rank1(f.z-1)-tree->acum_rank_[f.level-1])*k*k : 0;
   z += f.p/div_level*k + f.offset;
@@ -141,9 +142,11 @@ RangeIterator_<_Size>::RangeIterator_(const basic_k2tree<_Size> *tree,
                                      bool end) :
     tree_(tree), p1_(p1), p2_(p2), q1_(q1), q2_(q2),
     frames_(), curr_(), end_(end) {
-  frames_.push({true, 0, 0, 0, 0,
-      tree->size_, p1, p2, q1, q2, 0, 0, 0});
-  ++(*this);
+  if (!end) {
+    frames_.push({true, 0, 0, 0, 0,
+        tree->size_, p1, p2, q1, q2, 0, 0, 0});
+    ++(*this);
+  }
 }
 
 
@@ -212,8 +215,8 @@ RangeIterator_<_Size> RangeIterator_<_Size>::operator++() {
   return *(this);
 }
 
-template class K2TreeIterator_<DirectImpl<unsigned int>, unsigned int>;
-template class K2TreeIterator_<InverseImpl<unsigned int>, unsigned int>;
+template class K2TreeIterator<DirectImpl<unsigned int>, unsigned int>;
+template class K2TreeIterator<InverseImpl<unsigned int>, unsigned int>;
 template class RangeIterator_<unsigned int>;
 
 }  // namespace libk2tree

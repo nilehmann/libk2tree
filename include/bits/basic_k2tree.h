@@ -16,6 +16,7 @@
 #include <vector>
 #include <stack>
 #include <fstream>
+#include <cstdlib>
 
 
 namespace libk2tree {
@@ -30,22 +31,22 @@ using utils::LoadValue;
 using utils::SaveValue;
 
 template<class _Size> class basic_k2tree_builder;
-template<class self_type, class _Size> class K2TreeIterator_;
-template<class _Size> class DirectImpl;
-template<class _Size> class InverseImpl;
+template<class self_type, class _Size> class K2TreeIterator;
+template<class _Size> struct DirectImpl;
+template<class _Size> struct InverseImpl;
 template<class _Size> class RangeIterator_;
 
 template<class _Size>
 class basic_k2tree {
   friend class basic_k2tree_builder<_Size>;
-  template<typename self_type, typename B>
-  friend class K2TreeIterator_;
-  friend class DirectImpl<_Size>;
-  friend class InverseImpl<_Size>;
+  template<typename _Impl, typename A>
+  friend class K2TreeIterator;
+  friend struct DirectImpl<_Size>;
+  friend struct InverseImpl<_Size>;
   friend class RangeIterator_<_Size>;
  public:
-  typedef K2TreeIterator_<DirectImpl<_Size>, _Size> DirectIterator;
-  typedef K2TreeIterator_<InverseImpl<_Size>, _Size> InverseIterator;
+  typedef K2TreeIterator<DirectImpl<_Size>, _Size> DirectIterator;
+  typedef K2TreeIterator<InverseImpl<_Size>, _Size> InverseIterator;
   typedef RangeIterator_<_Size> RangeIterator;
 
   /*
@@ -77,14 +78,14 @@ class basic_k2tree {
     return DirectIterator(this, p, false);
   }
   DirectIterator DirectEnd() const {
-    return DirectIterator(this, 0, true);
+    return direct_end_;
   }
 
   InverseIterator InverseBegin(_Size q) const {
     return InverseIterator(this, q, false);
   }
   InverseIterator InverseEnd() const {
-    return InverseIterator(this, 0, true);
+    return inverse_end_;
   }
 
   RangeIterator RangeBegin(_Size p1, _Size p2, _Size q1, _Size q2) const {
@@ -92,7 +93,7 @@ class basic_k2tree {
   }
 
   RangeIterator RangeEnd() const {
-    return RangeIterator(this, 0, 0, 0, 0, true);
+    return range_end_;
   }
 
 
@@ -135,7 +136,22 @@ class basic_k2tree {
     else if (level < height_ - 1)  return k2_;
     else  return kl_;
   }
+
+  static const DirectIterator direct_end_;
+  static const InverseIterator inverse_end_;
+  static const RangeIterator range_end_;
 };
+template<class _Size>
+const K2TreeIterator<DirectImpl<_Size>, _Size>
+basic_k2tree<_Size>::direct_end_ = {NULL, 0, true};
+
+template<class _Size>
+const K2TreeIterator<InverseImpl<_Size>, _Size>
+basic_k2tree<_Size>::inverse_end_ = {NULL, 0, true};
+
+template<class _Size>
+const RangeIterator_<_Size>
+basic_k2tree<_Size>::range_end_ = {NULL, 0, 0, 0, 0, true};
 
 }  // namespace libk2tree
 

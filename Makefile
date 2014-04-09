@@ -6,7 +6,8 @@ INCLUDE = include/
 TESTS_SRC = $(shell find tests -name *.cc)
 TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
 GTEST=gtest-1.7.0
-TESTSFLAGS = -g -Wall -Wextra -Winline
+//TESTSFLAGS = -g -Wall -Wextra -Winline
+TESTSFLAGS =  -Wall -Wextra -Winline
 
 K2TREE_SRC = $(shell find src/libk2tree -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)

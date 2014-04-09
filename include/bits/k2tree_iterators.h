@@ -40,18 +40,22 @@ struct RangeFrame_ {
 };
 
 template<class _Impl, class _Size>
-class K2TreeIterator_ {
+class K2TreeIterator {
  public:
-  K2TreeIterator_(const basic_k2tree<_Size> *t, _Size object, bool end);
+  K2TreeIterator(const basic_k2tree<_Size> *t, _Size object, bool end);
 
-  bool operator==(const K2TreeIterator_<_Impl, _Size> & rhs) {
+  bool operator==(const K2TreeIterator<_Impl, _Size> & rhs) {
     if (end_ || rhs.end_)
       return end_ == rhs.end_;
     else
       return object_ == rhs.object_ && curr_ == rhs.curr_;
   }
 
-  bool operator!=(const K2TreeIterator_<_Impl, _Size> & rhs) {
+  bool HasNext() {
+    return !end_;
+  }
+
+  bool operator!=(const K2TreeIterator<_Impl, _Size> & rhs) {
     return !((*this) == rhs);
   }
 
@@ -59,14 +63,6 @@ class K2TreeIterator_ {
     return curr_;
   }
 
-  K2TreeIterator_<_Impl, _Size> operator++(int) {
-    K2TreeIterator_<_Impl, _Size> i = *this;
-    ++(*this);
-    return i;
-  }
-  bool HasNext() {
-    return !end_;
-  }
   void operator++();
 
  protected:
@@ -75,22 +71,13 @@ class K2TreeIterator_ {
   _Size curr_;
   stack<Frame_<_Size>> frames_;
   bool end_;
-/*
-  virtual void PushNextFrame(const Frame_<_Size> &frame,
-                             size_t nxt_offset, int k,
-                             _Size div_level) = 0;
-  virtual size_t Rank(const Frame_<_Size> &frame, int k, _Size div_level) = 0;
-  virtual _Size Output(const Frame_<_Size> &frame) = 0;*/
 };
 
 template<class _Size>
-class DirectImpl {
- public:
-
- //private:
+struct DirectImpl {
   inline static Frame_<_Size> FirstFrame(_Size p, _Size size);
   inline static Frame_<_Size> PushNextFrame(const Frame_<_Size> &f,
-                                             int ,
+                                            int k,
                                             _Size div_level);
   inline static size_t Rank(const Frame_<_Size> &f, int k, _Size div_level,
                      const basic_k2tree<_Size> *tree);
@@ -100,8 +87,7 @@ class DirectImpl {
 
 
 template<class _Size>
-class InverseImpl {
- public:
+struct InverseImpl {
   inline static Frame_<_Size> FirstFrame(_Size q, _Size size);
   inline static Frame_<_Size> PushNextFrame(const Frame_<_Size> &f, 
                                             int k,
