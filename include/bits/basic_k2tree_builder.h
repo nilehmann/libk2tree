@@ -98,16 +98,16 @@ class basic_k2tree_builder {
   struct Node {
     union {
       // Store the children of the level height_-1 (the leafs)
-      BitArray<unsigned char> *data_;
+      BitArray<unsigned char, unsigned int> *data_;
       // Pointers to children of internal nodes.
       Node **children_;
     };
   };
   // Create a node for the specified level using an appropiate k
-  Node *CreateNode(int level);
+  inline Node *CreateNode(int level);
   // Free memory allocated for n assuming it was built for the
   // specified level. Recursively delete children of internal nodes.
-  void DeleteNode(Node *n, int level);
+  inline void DeleteNode(Node *n, int level);
 
   // Root of the tree
   Node *root;
