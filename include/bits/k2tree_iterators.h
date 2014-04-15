@@ -32,10 +32,7 @@ struct Frame_ {
 template<class _Size>
 struct RangeFrame_ {
   //bool first;
-  unsigned int i, j;
-  int level;
-  _Size N;
-  _Size p1, p2, q1, q2;
+  _Size p1, p2;
   _Size dp, dq;
   _Size z;
 };
@@ -140,29 +137,20 @@ template<class _Size>
 class RangeIterator_ {
  public:
   RangeIterator_(const basic_k2tree<_Size> *tree,
-                 _Size p1, _Size p2,
-                 _Size q1, _Size q2,
-                 bool end);
-  bool operator==(const RangeIterator_<_Size> &rhs) {
+                 _Size p1, _Size p2);
+  inline bool operator==(const RangeIterator_<_Size> &rhs) {
     if (end_ || rhs.end_)
       return end_ == rhs.end_;
     else
       return p1_ == rhs.p1_ && p2_ == rhs.p2_ &&
-             q1_ && rhs.q1_ && q2_ == rhs.q2_ &&
              curr_ == rhs.curr_;
   }
-  bool operator!=(const RangeIterator_<_Size> &rhs) {
+  inline bool operator!=(const RangeIterator_<_Size> &rhs) {
     return !((*this) == rhs);
   }
-  pair<_Size, _Size> operator*() {
+  inline pair<_Size, _Size> operator*() {
     return curr_;
   }
-  RangeIterator_<_Size> operator++(int) {
-    RangeIterator_<_Size> i = *this;
-    ++(*this);
-    return i;
-  }
-  //void operator++();
   inline void operator++() {
     const BitSequence *T = tree_->T_;
     const BitArray<unsigned int, _Size> &L = tree_->L_;
@@ -180,26 +168,27 @@ class RangeIterator_ {
   const static RangeIterator_ end;
 
  private:
+  RangeIterator_();
+
   const basic_k2tree<_Size> *tree_;
-  _Size p1_, p2_, q1_, q2_;
-  stack<RangeFrame_<_Size>> frames_;
+  _Size p1_, p2_;
   pair<_Size, _Size> curr_;
   bool end_;
   queue<RangeFrame_<_Size>> queue_;
 
-  inline RangeFrame_<_Size> FirstFrame(_Size p1, _Size p2, _Size q1, _Size q2) {
-    return {0, 0, 0, tree_->size_, p1, p2, q1, q2, 0, 0, 0};
+  inline RangeFrame_<_Size> FirstFrame(_Size p1, _Size p2) {
+    return {p1, p2, 0, 0, 0};
   }
-  inline _Size Rank(const RangeFrame_<_Size> f, int k) {
+  inline _Size Rank(const RangeFrame_<_Size> f, int level, int k) {
     const BitSequence *T = tree_->T_;
     _Size *acum_rank = tree_->acum_rank_;
     _Size z;
-    z = f.z > 0 ? (T->rank1(f.z-1) - acum_rank[f.level-1])*k*k : 0;
-    z += tree_->offset_[f.level];
+    z = f.z > 0 ? (T->rank1(f.z-1) - acum_rank[level-1])*k*k : 0;
+    z += tree_->offset_[level];
     return z;
   }
 
-  inline RangeFrame_<_Size> NextFrame(const RangeFrame_<_Size> f, int k,
+/*  inline RangeFrame_<_Size> NextFrame(const RangeFrame_<_Size> f, int k,
                                       _Size div_level) {
       _Size pp1 = f.i == f.p1/div_level ? f.p1 % div_level : 0;
       _Size pp2 = f.i == f.p2/div_level ? f.p2 % div_level : div_level - 1;
@@ -208,7 +197,7 @@ class RangeIterator_ {
       return {0, 0, f.level + 1,
           div_level, pp1, pp2, qq1, qq2,
           f.dp + div_level*f.i, f.dq + div_level*f.j, f.z + k*f.i+f.j};
-  }
+  }*/
   inline pair<_Size, _Size> Output(const RangeFrame_<_Size> f) {
     return make_pair(f.dp, f.dq);
   }

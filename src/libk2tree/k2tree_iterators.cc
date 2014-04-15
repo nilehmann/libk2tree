@@ -101,18 +101,15 @@ void K2TreeIterator<_Impl, _Size>::operator++() {
 
 template<class _Size>
 RangeIterator_<_Size>::RangeIterator_(const basic_k2tree<_Size> *tree,
-                                     _Size p1, _Size p2,
-                                     _Size q1, _Size q2,
-                                     bool end) :
-    tree_(tree), p1_(p1), p2_(p2), q1_(q1), q2_(q2),
-    frames_(), curr_(), end_(end), queue_() {
-  if (!end) {
-    //frames_.push(FirstFrame(p1,p2,q1,q2));
-
-    traverse();
-    ++(*this);
-  }
+                                     _Size p1, _Size p2) :
+    tree_(tree), p1_(p1), p2_(p2), curr_(), end_(false), queue_() {
+  traverse();
+  ++(*this);
 }
+
+template<class _Size>
+RangeIterator_<_Size>::RangeIterator_() :
+  tree_(NULL), p1_(0), p2_(0), curr_(), end_(true), queue_() {}
 
 template<class _Size>
 void RangeIterator_<_Size>::traverse() {
@@ -121,27 +118,41 @@ void RangeIterator_<_Size>::traverse() {
   int k;
   const BitSequence  *T = tree_->T_;
 
-  queue_.push(FirstFrame(p1_, p2_, q1_, q2_));
+  queue_.push(FirstFrame(p1_, p2_));
+  _Size N = tree_->size_;
   for (int level = 0; level < tree_->height_; ++level) {
     k = tree_->GetK(level);
+    div_level = N/k;
 
     cnt_level = queue_.size();
-    for (_Size i = 0; i < cnt_level; ++i) {
+    for (_Size q = 0; q < cnt_level; ++q) {
       RangeFrame_<_Size> &f = queue_.front();
       if (level == 0 || T->access(f.z)) {
-        div_level = f.N/k;
-        f.z = Rank(f, k);
-        for (f.i  = f.p1/div_level; f.i <= f.p2/div_level; ++f.i)
-          for (f.j  = f.q1/div_level; f.j <= f.q2/div_level; ++f.j)
-            queue_.push(NextFrame(f, k , div_level));
+        f.z = Rank(f, level, k);
+
+        _Size start = f.p1/div_level;
+        _Size end = f.p2/div_level;
+        for (_Size i = start; i <= end; ++i) {
+          _Size z = f.z + k*i;
+          _Size dp = f.dp + div_level*i;
+          _Size pp1 = i == start ? f.p1 % div_level : 0;
+          _Size pp2 = i == end ? f.p2 % div_level : div_level - 1;
+
+          for (_Size j  = 0; j < k; ++j) {
+            queue_.push({
+                pp1, pp2,
+                dp, f.dq + div_level*j, z + j});
+          }
+        }
       }
       queue_.pop();
     }
+    N = div_level;
   }
 }
 template<class _Size>
 const RangeIterator_<_Size>
-RangeIterator_<_Size>::end = {NULL, 0 ,0 ,0 ,0, true};
+RangeIterator_<_Size>::end = {};
 /*
 template<class _Size>
 void RangeIterator_<_Size>::operator++() {

@@ -92,8 +92,8 @@ class basic_k2tree {
     return InverseIterator::end;
   }
 
-  RangeIterator RangeBegin(_Size p1, _Size p2, _Size q1, _Size q2) const {
-    return RangeIterator(this, p1, p2, q1, q2, false);
+  RangeIterator RangeBegin(_Size p1, _Size p2) const {
+    return RangeIterator(this, p1, p2);
   }
 
   RangeIterator RangeEnd() const {

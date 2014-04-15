@@ -114,12 +114,12 @@ void TestRangeIterator(int k1, int k2, int kl, int k1_levels) {
 
   int p1 = rand()%(n/2);
   int p2 = rand()%(n/2) + n/2;
-  int q1 = rand()%(n/2);
-  int q2 = rand()%(n/2) + n/2;
+  int q1 = 0;
+  int q2 = n-1;
 
 
   vector<pair<uint, uint> > v = GetEdges(matrix, p1, p2, q1, q2);
-  K2Tree::RangeIterator p = tree->RangeBegin(p1, p2, q1, q2);
+  K2Tree::RangeIterator p = tree->RangeBegin(p1, p2);
   uint i;
   vector<pair<uint, uint> > v1;
   for (i = 0; p != tree->RangeEnd(); ++p, ++i) {
