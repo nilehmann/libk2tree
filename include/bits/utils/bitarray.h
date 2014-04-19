@@ -23,17 +23,17 @@ namespace utils {
  * Dynamic bit array implementation with an array of T as underlying
  * representation. T should be typically a unsigned char or an unsigned int.
  */
-template<typename T>
+template<typename T, class _Size>
 class BitArray {
  public:
   /* Create a bit array to hold up to length bits. The array is initialized
    * with all bits to false.
    */
-  explicit BitArray(size_t length) :
+  explicit BitArray(_Size length) :
       bits_(sizeof(T)*8),
       length_(length),
       data_(new T[length/bits_ + 1]) {
-    for (size_t i = 0; i < length/bits_ + 1; ++i)
+    for (_Size i = 0; i < length/bits_ + 1; ++i)
       this->data_[i] = 0;
   }
 
@@ -42,17 +42,17 @@ class BitArray {
    */
   explicit BitArray(ifstream *in) :
       bits_(LoadValue<int>(in)),
-      length_(LoadValue<size_t>(in)),
+      length_(LoadValue<_Size>(in)),
       data_(LoadValue<T>(in, length_/bits_ + 1)) {}
 
   /* 
    * Copy constructor
    */
-  BitArray(const BitArray<T>& rhs) :
+  BitArray(const BitArray<T, _Size>& rhs) :
       bits_(sizeof(T)*8),
       length_(rhs.length()),
       data_(new T[rhs.length()/bits_ + 1]) {
-    for (size_t i = 0; i < length_/bits_ + 1; ++i)
+    for (_Size i = 0; i < length_/bits_ + 1; ++i)
       this->data_[i] = rhs.data_[i];
   }
 
@@ -68,7 +68,7 @@ class BitArray {
    * Set bit p to true.
    * @param p Position to set.
    */
-  inline void SetBit(size_t p) {
+  inline void SetBit(_Size p) {
     data_[p/bits_] |= (1 << (p%bits_));
   }
 
@@ -76,21 +76,21 @@ class BitArray {
    * Clean bit p to false.
    * @param p Position to clean.
    */
-  inline void CleanBit(size_t p) {
+  inline void CleanBit(_Size p) {
     data_[p/bits_] &= ~(1 << (p%bits_));
   }
 
   /*
    * Return the bit on position p.
    */
-  inline bool GetBit(size_t p) const {
+  inline bool GetBit(_Size p) const {
     return (data_[p/bits_] >> (p%bits_) ) & 1;
   }
 
   /*
    * Return the length of the bit array.
    */
-  inline size_t length() const {
+  inline _Size length() const {
     return length_;
   }
 
@@ -109,7 +109,7 @@ class BitArray {
  private:
   /*Number of bits on T */
   int bits_;
-  size_t length_;
+  _Size length_;
   T * data_;
 
   /*

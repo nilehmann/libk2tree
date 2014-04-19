@@ -12,8 +12,8 @@
 
 namespace libk2tree {
 
-template<class _Obj>
-basic_k2tree_builder<_Obj>::basic_k2tree_builder(_Obj cnt,
+template<class _Size>
+basic_k2tree_builder<_Size>::basic_k2tree_builder(_Size cnt,
                                                  int k1, int k2, int kl,
                                                  int k1_levels):
     cnt_(cnt),
@@ -41,12 +41,12 @@ basic_k2tree_builder<_Obj>::basic_k2tree_builder(_Obj cnt,
   size_ = powk1 * Pow(k2, x) * kl;
 }
 
-template<class _Obj>
-void basic_k2tree_builder<_Obj>::AddLink(_Obj p, _Obj q) {
+template<class _Size>
+void basic_k2tree_builder<_Size>::AddLink(_Size p, _Size q) {
   if (root == NULL)
     root = CreateNode(0);
   Node *n = root;
-  _Obj N = size_, div_level;
+  _Size N = size_, div_level;
   int child;
   for (int level = 0; level < height_ - 1; level++) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
@@ -69,10 +69,10 @@ void basic_k2tree_builder<_Obj>::AddLink(_Obj p, _Obj q) {
   n->data_->SetBit(child);
 }
 
-template<class _Obj>
-shared_ptr<basic_k2tree<_Obj>> basic_k2tree_builder<_Obj>::Build() const {
-  BitArray<unsigned int> T(internal_nodes_);
-  BitArray<unsigned int> L(leafs_);
+template<class _Size>
+shared_ptr<basic_k2tree<_Size>> basic_k2tree_builder<_Size>::Build() const {
+  BitArray<unsigned int, _Size> T(internal_nodes_);
+  BitArray<unsigned int, _Size> L(leafs_);
   queue<Node*> q;
   q.push(root);
 
@@ -109,22 +109,22 @@ shared_ptr<basic_k2tree<_Obj>> basic_k2tree_builder<_Obj>::Build() const {
     }
   }
 
-  basic_k2tree<_Obj> *tree = new basic_k2tree<_Obj>(T, L, k1_, k2_, kl_,
-                                                    max_level_k1_,
-                                                    height_, size_);
-  return shared_ptr<basic_k2tree<_Obj> >(tree);
+  basic_k2tree<_Size> *tree = new basic_k2tree<_Size>(T, L, k1_, k2_, kl_,
+                                                      max_level_k1_,
+                                                      height_, cnt_, size_);
+  return shared_ptr<basic_k2tree<_Size> >(tree);
 }
 
 
-template<class _Obj>
-basic_k2tree_builder<_Obj>::~basic_k2tree_builder() {
+template<class _Size>
+basic_k2tree_builder<_Size>::~basic_k2tree_builder() {
   DeleteNode(root, 0);
 }
 
-template<class _Obj>
-typename basic_k2tree_builder<_Obj>::Node
-*basic_k2tree_builder<_Obj>::CreateNode(int level) {
-  basic_k2tree_builder<_Obj>::Node *n = new basic_k2tree_builder<_Obj>::Node();
+template<class _Size>
+typename basic_k2tree_builder<_Size>::Node
+*basic_k2tree_builder<_Size>::CreateNode(int level) {
+  basic_k2tree_builder<_Size>::Node *n = new basic_k2tree_builder<_Size>::Node();
   if (level < height_ - 1) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
     n->children_ = new Node*[k*k];
@@ -132,14 +132,14 @@ typename basic_k2tree_builder<_Obj>::Node
       n->children_[i] = NULL;
     internal_nodes_ += k*k;
   } else {
-    n->data_ = new BitArray<unsigned char>(kl_*kl_);
+    n->data_ = new BitArray<unsigned char, unsigned int>(kl_*kl_);
     leafs_ += kl_*kl_;
   }
   return n;
 }
 
-template<class _Obj>
-void basic_k2tree_builder<_Obj>::DeleteNode(basic_k2tree_builder<_Obj>::Node *n,
+template<class _Size>
+void basic_k2tree_builder<_Size>::DeleteNode(basic_k2tree_builder<_Size>::Node *n,
                                             int level) {
   if (n == NULL)
     return;

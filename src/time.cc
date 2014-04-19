@@ -61,16 +61,18 @@ int main(int argc, char* argv[]){
   start_clock();
   uint i;
   uint recovered = 0;
-  for(i=0;i<cnt_qry;i++) {
-    K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
-    for (; q != tree.DirectEnd(); ++q,++recovered);
+  for(i=0;i< cnt_qry;i++) {
+    //K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
+    K2Tree::RangeIterator q = tree.RangeBegin(qry[i], qry[i]+8); 
+    //for (; q != tree.DirectEnd(); ++q,++recovered);
+    for (; q != tree.RangeEnd(); ++q,++recovered);
   }
   t += stop_clock(); 
   t *= 1000; // to milliseconds
 
   fprintf(stderr,"Recovered Nodes: %d\n",recovered);
   fprintf(stderr,"Queries: %d\n",cnt_qry);
-  fprintf(stderr,"Total time(ms): %f",t);
+  fprintf(stderr,"Total time(ms): %f\n",t);
   fprintf(stderr,"Time per query: %f\n",t/cnt_qry);
   fprintf(stderr,"Time per link: %f\n",t/recovered);
 
