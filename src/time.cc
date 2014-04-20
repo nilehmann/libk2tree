@@ -38,7 +38,7 @@ double stop_clock() {
 int main(int argc, char* argv[]){
 
   if(argc<2){
-    fprintf(stderr,"USAGE: %s <GRAPH>\n",argv[0]);
+    fprintf(stderr,"USAGE: %s <GRAPH> <QUERIES>\n",argv[0]);
     return(-1);
   }
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
     //K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
-    K2Tree::RangeIterator q = tree.RangeBegin(qry[i], qry[i]+8); 
+    K2Tree::RangeIterator q = tree.RangeBegin(qry[i], qry[i]+10); 
     //for (; q != tree.DirectEnd(); ++q,++recovered);
     for (; q != tree.RangeEnd(); ++q,++recovered);
   }

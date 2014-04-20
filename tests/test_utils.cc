@@ -54,14 +54,15 @@ TEST(SquaringPow, 4) {
 }
 
 TEST(Pow, 1) {
-  ASSERT_EQ(16777216, Pow(64, 4));
+  ASSERT_EQ(16777216, Pow<unsigned int>(64, 4));
 }
 TEST(Pow, 2) {
-  ASSERT_EQ(5153632, Pow(22, 5));
+  ASSERT_EQ(5153632, Pow<unsigned int>(22, 5));
 }
 TEST(Pow, 4) {
-  ASSERT_EQ(1, Pow(4542121, 0));
+  ASSERT_EQ(1, Pow<unsigned int>(4542121, 0));
 }
-TEST(Pow, 5) {
-  ASSERT_EQ(-27, Pow(-3, 3));
+TEST(Pow, 6) {
+  ASSERT_EQ(17179869184, Pow<size_t>(4, 17));
 }
+

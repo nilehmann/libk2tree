@@ -17,7 +17,9 @@
 #include <vector>
 #include <memory>
 #include <queue>
+#include <exception>
 #include <cstddef>
+#include <cstdio>
 
 namespace libk2tree {
 
@@ -26,11 +28,15 @@ using utils::Pow;
 using utils::LogCeil;
 using std::shared_ptr;
 
+class size_overflow : public logic_error {
+ public:
+  explicit size_overflow(const string& what_arg) : logic_error(what_arg) {}
+};
 /*
  * Implement the construction of section 3.3.3, building a regular tree (not compressed)
  * inserting one link (1 in the matrix) at a time.
  */
-template<class _Obj>
+template<class _Size>
 class basic_k2tree_builder {
  public:
   /* 
@@ -42,7 +48,7 @@ class basic_k2tree_builder {
    * @param kl arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    */
-  basic_k2tree_builder(_Obj cnt, int k1, int k2, int kl, int k1_levels);
+  basic_k2tree_builder(_Size cnt, int k1, int k2, int kl, int k1_levels);
   /* 
    * Create a link from object p to q.
    * Identifiers start with 0.
@@ -50,23 +56,23 @@ class basic_k2tree_builder {
    * @param p Identifier of the first object.
    * @param q Identifier of the second object.
    */
-  void AddLink(_Obj p, _Obj q);
+  void AddLink(_Size p, _Size q);
 
-  shared_ptr<basic_k2tree<_Obj>> Build() const;
+  shared_ptr<basic_k2tree<_Size>> Build() const;
 
   inline int height() const {
     return height_;
   }
 
-  inline size_t leafs() const {
+  inline _Size leafs() const {
     return leafs_;
   }
 
-  inline size_t edges() const {
+  inline _Size edges() const {
     return edges_;
   }
 
-  inline size_t internal_nodes() const {
+  inline _Size internal_nodes() const {
     return internal_nodes_;
   }
 
@@ -74,9 +80,9 @@ class basic_k2tree_builder {
 
  private:
   // Number of objects in the original relation.
-  _Obj cnt_;
+  _Size cnt_;
   // Number of rows (and cols) in the expanded matrix
-  _Obj size_;
+  _Size size_;
   // Arity of the first part
   int k1_;
   // Arity of the second part
@@ -88,11 +94,11 @@ class basic_k2tree_builder {
   // Height of the tree, also the number of the leaf level.
   int height_;
   // Number of nodes on the last level.
-  size_t leafs_;
+  _Size leafs_;
   // Number of 1s on the matrix.
-  size_t edges_;
+  _Size edges_;
   // Number of internal nodes.
-  size_t internal_nodes_;
+  _Size internal_nodes_;
 
   // Struct to store the tree.
   struct Node {
@@ -104,14 +110,15 @@ class basic_k2tree_builder {
     };
   };
   // Create a node for the specified level using an appropiate k
-  inline Node *CreateNode(int level);
+  Node *CreateNode(int level);
   // Free memory allocated for n assuming it was built for the
   // specified level. Recursively delete children of internal nodes.
-  inline void DeleteNode(Node *n, int level);
+  void DeleteNode(Node *n, int level);
 
   // Root of the tree
   Node *root;
 };
+
 
 }  // namespace libk2tree
 

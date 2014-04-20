@@ -89,7 +89,7 @@ struct DirectImpl {
     return {-1, 0, size, p, 0, 0};
   }
   inline static Frame_<_Size> NextFrame(const Frame_<_Size> &f,
-                                        int k,
+                                        int,
                                          _Size div_level) {
     return {-1, f.level + 1,
             div_level, f.p % div_level, f.q + div_level*f.j, f.z + f.j};

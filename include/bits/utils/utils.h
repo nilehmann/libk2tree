@@ -35,7 +35,13 @@ int SquaringPow(int base, int exp);
 /* 
  * Calculates base raised to the power of exp, in exp operations.
  */
-int Pow(int base, int exp);
+template<typename _Size>
+_Size Pow(unsigned int base, unsigned int exp) {
+  _Size pow = 1;
+  for (unsigned int i = 0; i < exp; ++i)
+    pow *= base;
+  return pow;
+}
 
 /** Saves a value into an ofstream.
 */

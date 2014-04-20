@@ -32,13 +32,13 @@ basic_k2tree_builder<_Size>::basic_k2tree_builder(_Size cnt,
   // arity k1, one with arity kl and we must find the numbers of levels with
   // arity k2, ie, the smallest integer x that satisfies:
   // k1^k1_levels * k2^x * kl >= cnt.
-  int powk1 = Pow(k1, k1_levels);
-  int x = LogCeil(cnt*1.0/powk1/kl, k2);
+  _Size powk1 = Pow<_Size>(k1, k1_levels);
+  unsigned int x = LogCeil(cnt*1.0/powk1/kl, k2);
   if (x == 0)
     fprintf(stderr, "Warning: Ignoring levels with arity k2.\n");
 
   height_ = k1_levels + x + 1;
-  size_ = powk1 * Pow(k2, x) * kl;
+  size_ = powk1 * Pow<_Size>(k2, x) * kl;
 }
 
 template<class _Size>
@@ -76,15 +76,15 @@ shared_ptr<basic_k2tree<_Size>> basic_k2tree_builder<_Size>::Build() const {
   queue<Node*> q;
   q.push(root);
 
-  size_t cnt_level;
+  _Size cnt_level;
   int level;
 
   // Position on the bitmap T
-  size_t pos = -1;
+  _Size pos = 0;
   for (level = 0; level < height_-1; ++level) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
     cnt_level = q.size();
-    for (size_t i = 0; i < cnt_level; ++i, ++pos) {
+    for (_Size i = 0; i < cnt_level; ++i) {
       Node *n = q.front(); q.pop();
       if (n != NULL) {
         if (level > 0)  // if not the root
@@ -93,20 +93,25 @@ shared_ptr<basic_k2tree<_Size>> basic_k2tree_builder<_Size>::Build() const {
         for (int child = 0; child < k*k; ++child)
           q.push(n->children_[child]);
       }
+      if (level > 0)
+        ++pos;
     }
   }
 
   // Visiting nodes on level height - 1
-  size_t leaf_pos = 0;
+  _Size leaf_pos = 0;
   cnt_level = q.size();
-  for (size_t i = 0; i < cnt_level; ++i, ++pos) {
+  for (_Size i = 0; i < cnt_level; ++i) {
     Node *n = q.front(); q.pop();
     if (n != NULL) {
       T.SetBit(pos);
-      for (int child = 0; child < kl_*kl_; ++child, ++leaf_pos)
+      for (int child = 0; child < kl_*kl_; ++child) {
         if (n->data_->GetBit(child))
           L.SetBit(leaf_pos);
+        ++leaf_pos;
+      }
     }
+    ++pos;
   }
 
   basic_k2tree<_Size> *tree = new basic_k2tree<_Size>(T, L, k1_, k2_, kl_,
@@ -124,7 +129,7 @@ basic_k2tree_builder<_Size>::~basic_k2tree_builder() {
 template<class _Size>
 typename basic_k2tree_builder<_Size>::Node
 *basic_k2tree_builder<_Size>::CreateNode(int level) {
-  basic_k2tree_builder<_Size>::Node *n = new basic_k2tree_builder<_Size>::Node();
+  basic_k2tree_builder<_Size>::Node *n = new basic_k2tree_builder<_Size>::Node;
   if (level < height_ - 1) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
     n->children_ = new Node*[k*k];

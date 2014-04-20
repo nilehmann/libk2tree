@@ -16,7 +16,8 @@ namespace libk2tree {
 namespace utils {
 
 int LogCeil(double N, int base) {
-  int log, pow;
+  int log;
+  double pow;
   for (pow = 1, log = 0; pow < N; pow *= base, ++log) {}
   return log;
 }
@@ -31,12 +32,6 @@ int SquaringPow(int base, int exp) {
   return pow;
 }
 
-int Pow(int base, int exp) {
-  int pow = 1;
-  for (int i = 0; i < exp; ++i)
-    pow *= base;
-  return pow;
-}
 
 }  // namespace utils
 }  // namespace libk2tree

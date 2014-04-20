@@ -6,13 +6,13 @@ INCLUDE = include/
 TESTS_SRC = $(shell find tests -name *.cc)
 TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
 GTEST=gtest-1.7.0
-//TESTSFLAGS = -g -Wall -Wextra -Winline
-TESTSFLAGS =  -Wall -Wextra -Winline
 
 K2TREE_SRC = $(shell find src/libk2tree -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
-FLAGS = -std=c++11 -O3
+//FLAGS = -std=c++11 -O3 -Wall -Wextra -Winline
+FLAGS = -std=c++11 -O0 -g -Wall -Wextra -Winline
+
 
 
 .PHONY: clean style test all
@@ -36,7 +36,7 @@ $(GTEST)/libgtest.a:
 
 obj/tests/%.o: tests/%.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -isystem $(GTEST)/include -I$(INCLUDE) $(FLAGS) $(TESTSFLAGS) -c $< -o $@
+	@$(CXX) -isystem $(GTEST)/include -I$(INCLUDE) $(FLAGS) -c $< -o $@
 # END TEST
 
 

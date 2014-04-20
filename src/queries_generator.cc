@@ -9,6 +9,7 @@
 
 #include <bits/utils/utils.h>
 #include <fstream>
+#include <cstdio>
 #include <string>
 
 using ::std::ofstream;
@@ -17,6 +18,10 @@ using libk2tree::utils::SaveValue;
 typedef unsigned int uint;
 
 int main(int argc, char *argv[]) {
+  if (argc < 4) {
+    printf("Usage: %s file cnt_qry nodes\n", argv[0]);
+    exit(0);
+  }
   srand(time(NULL));
 
   uint cnt_qry = stoi(argv[2]);
