@@ -8,12 +8,12 @@
  *
  */
 
-#include <bits/basic_k2tree_builder.h>
+#include <bits/basic_k2treebuilder.h>
 
 namespace libk2tree {
 
 template<class _Size>
-basic_k2tree_builder<_Size>::basic_k2tree_builder(_Size cnt,
+basic_k2treebuilder<_Size>::basic_k2treebuilder(_Size cnt,
                                                  int k1, int k2, int kl,
                                                  int k1_levels):
     cnt_(cnt),
@@ -27,10 +27,10 @@ basic_k2tree_builder<_Size>::basic_k2tree_builder(_Size cnt,
     edges_(0),
     internal_nodes_(0),  // we dont consider the root
     root() {
-  // we extend the size of the matrix to be the multiplication of the arities
-  // in all levels (section 5.1). There are k1_levels levels with
-  // arity k1, one with arity kl and we must find the numbers of levels with
-  // arity k2, ie, the smallest integer x that satisfies:
+  // we extend the size of the matrix to be the product of the arities in all
+  // levels (section 5.1). There are k1_levels levels with arity k1, one with 
+  // arity kl and we must find the numbers of levels with arity k2, ie, the 
+  // smallest integer x that satisfies:
   // k1^k1_levels * k2^x * kl >= cnt.
   _Size powk1 = Pow<_Size>(k1, k1_levels);
   unsigned int x = LogCeil(cnt*1.0/powk1/kl, k2);
@@ -42,7 +42,7 @@ basic_k2tree_builder<_Size>::basic_k2tree_builder(_Size cnt,
 }
 
 template<class _Size>
-void basic_k2tree_builder<_Size>::AddLink(_Size p, _Size q) {
+void basic_k2treebuilder<_Size>::AddLink(_Size p, _Size q) {
   if (root == NULL)
     root = CreateNode(0);
   Node *n = root;
@@ -70,7 +70,7 @@ void basic_k2tree_builder<_Size>::AddLink(_Size p, _Size q) {
 }
 
 template<class _Size>
-shared_ptr<basic_k2tree<_Size>> basic_k2tree_builder<_Size>::Build() const {
+shared_ptr<basic_k2tree<_Size>> basic_k2treebuilder<_Size>::Build() const {
   BitArray<unsigned int, _Size> T(internal_nodes_);
   BitArray<unsigned int, _Size> L(leafs_);
   queue<Node*> q;
@@ -122,14 +122,20 @@ shared_ptr<basic_k2tree<_Size>> basic_k2tree_builder<_Size>::Build() const {
 
 
 template<class _Size>
-basic_k2tree_builder<_Size>::~basic_k2tree_builder() {
+void basic_k2treebuilder<_Size>::Clear() {
   DeleteNode(root, 0);
+  root = NULL;
 }
 
 template<class _Size>
-typename basic_k2tree_builder<_Size>::Node
-*basic_k2tree_builder<_Size>::CreateNode(int level) {
-  basic_k2tree_builder<_Size>::Node *n = new basic_k2tree_builder<_Size>::Node;
+basic_k2treebuilder<_Size>::~basic_k2treebuilder() {
+  Clear();
+}
+
+template<class _Size>
+typename basic_k2treebuilder<_Size>::Node
+*basic_k2treebuilder<_Size>::CreateNode(int level) {
+  basic_k2treebuilder<_Size>::Node *n = new basic_k2treebuilder<_Size>::Node;
   if (level < height_ - 1) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
     n->children_ = new Node*[k*k];
@@ -144,7 +150,7 @@ typename basic_k2tree_builder<_Size>::Node
 }
 
 template<class _Size>
-void basic_k2tree_builder<_Size>::DeleteNode(basic_k2tree_builder<_Size>::Node *n,
+void basic_k2treebuilder<_Size>::DeleteNode(basic_k2treebuilder<_Size>::Node *n,
                                             int level) {
   if (n == NULL)
     return;
@@ -162,6 +168,7 @@ void basic_k2tree_builder<_Size>::DeleteNode(basic_k2tree_builder<_Size>::Node *
   delete n;
 }
 
-template class basic_k2tree_builder<unsigned int>;
+template class basic_k2treebuilder<unsigned int>;
+template class basic_k2treebuilder<size_t>;
 
 }  // namespace libk2tree

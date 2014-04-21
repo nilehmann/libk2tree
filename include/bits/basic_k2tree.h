@@ -30,31 +30,35 @@ using std::ofstream;
 using utils::LoadValue;
 using utils::SaveValue;
 
-template<class _Size> class basic_k2tree_builder;
-template<class self_type, class _Size> class K2TreeIterator;
+template<class _Size> class basic_k2treebuilder;
+namespace iterators {
+template<class _Impl, class _Size> class K2TreeIterator;
 template<class _Size> struct DirectImpl;
 template<class _Size> struct InverseImpl;
-template<class _Size> class RangeIterator_;
+template<class _Size> class RangeIterator;
+}  // namespace iterators
 
 template<class _Size>
 class basic_k2tree {
-  friend class basic_k2tree_builder<_Size>;
   template<typename _Impl, typename A>
-  friend class K2TreeIterator;
-  friend struct DirectImpl<_Size>;
-  friend struct InverseImpl<_Size>;
-  friend class RangeIterator_<_Size>;
+  friend class iterators::K2TreeIterator;
+  friend struct iterators::DirectImpl<_Size>;
+  friend struct iterators::InverseImpl<_Size>;
+  friend class iterators::RangeIterator<_Size>;
+  friend class basic_k2treebuilder<_Size>;
+
  public:
-  typedef K2TreeIterator<DirectImpl<_Size>, _Size> DirectIterator;
-  typedef K2TreeIterator<InverseImpl<_Size>, _Size> InverseIterator;
-  typedef RangeIterator_<_Size> RangeIterator;
+  typedef iterators::K2TreeIterator<iterators::DirectImpl<_Size>, _Size>
+  DirectIterator;
+  typedef iterators::K2TreeIterator<iterators::InverseImpl<_Size>, _Size>
+  InverseIterator;
+  typedef iterators::RangeIterator<_Size>
+  RangeIterator;
 
   /*
-   * Load a K2Tree previously saved with Save()
+   * Load a K2Tree previously saved with Save(ofstream)
    */
   explicit basic_k2tree(ifstream *in);
-
-  ~basic_k2tree();
 
   /* Check if exist a link from object p to q.
    * Identifiers starts with 0.
@@ -73,52 +77,55 @@ class basic_k2tree {
    * Method implemented for testing reasons
    */
   bool operator==(const basic_k2tree &rhs) const;
-  
+
   inline _Size cnt() {
     return cnt_;
   }
 
-  DirectIterator DirectBegin(_Size p) const {
-    return DirectIterator(this, p, false);
+  inline DirectIterator DirectBegin(_Size p) const {
+    return DirectIterator(this, p);
   }
-  DirectIterator DirectEnd() const {
+  inline DirectIterator DirectEnd() const {
     return DirectIterator::end;
   }
 
-  InverseIterator InverseBegin(_Size q) const {
-    return InverseIterator(this, q, false);
+  inline InverseIterator InverseBegin(_Size q) const {
+    return InverseIterator(this, q);
   }
-  InverseIterator InverseEnd() const {
+  inline InverseIterator InverseEnd() const {
     return InverseIterator::end;
   }
 
-  RangeIterator RangeBegin(_Size p1, _Size p2) const {
+  inline RangeIterator RangeBegin(_Size p1, _Size p2) const {
     return RangeIterator(this, p1, p2);
   }
 
-  RangeIterator RangeEnd() const {
+  inline RangeIterator RangeEnd() const {
     return RangeIterator::end;
   }
 
+  ~basic_k2tree();
 
  private:
   /* 
-   * Construct a k2tree with and hybrid aproach.
+   * Construct a k2tree with and hybrid aproach. This construtor should
+   * be called from a proper builder.
    *
-   * @param T Bit array with the internal nodes
-   * @param L Bit array with the leafs
-   * @param k1 Arity of the first levels
-   * @param k2 Arity of the second part
-   * @param kl Arity of the level height-1
-   * @param max_level_k1 Las level with arity k1
-   * @param height Height of the k2tree
-   * @param size Size of the expanded matrix
+   * @param T Bit array with the internal nodes.
+   * @param L Bit array with the leafs.
+   * @param k1 Arity of the first levels.
+   * @param k2 Arity of the second part.
+   * @param kl Arity of the level height-1.
+   * @param max_level_k1 Last level with arity k1.
+   * @param height Height of the tree.
+   * @param cnt Number of object in the relation.
+   * @param size Size of the expanded matrix.
    */
   basic_k2tree(const BitArray<unsigned int, _Size> &T,
                const BitArray<unsigned int, _Size> &L,
                int k1, int k2, int kl, int max_level_k1, int height,
                _Size cnt, _Size size);
-  // Bit array containing the nodes of internal nodes
+  // Bit array with rank capability containing internal nodes.
   BitSequence *T_;
   // Bit array for the leafs.
   BitArray<unsigned int, _Size> L_;
@@ -128,13 +135,13 @@ class basic_k2tree {
   int k2_;
   // Arity of the level height-1.
   int kl_;
-  // Last level with arity k1
+  // Last level with arity k1.
   int max_level_k1_;
-  // height of the tree
+  // Height of the tree.
   int height_;
-  // Number of object
+  // Number of object.
   _Size cnt_;
-  // Size of the expanded matrix
+  // Size of the expanded matrix.
   _Size size_;
   // Accumulated rank for each level.
   _Size *acum_rank_;
@@ -146,7 +153,6 @@ class basic_k2tree {
     else if (level < height_ - 1)  return k2_;
     else  return kl_;
   }
-
 };
 
 

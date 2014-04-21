@@ -11,14 +11,14 @@
 #define INCLUDE_K2TREE_H_
 
 #include <bits/basic_k2tree.h>
-#include <bits/basic_k2tree_builder.h>
+#include <bits/basic_k2treebuilder.h>
 #include <bits/k2tree_iterators.h>
 namespace libk2tree {
 
 typedef basic_k2tree<unsigned int> K2Tree;
 typedef basic_k2tree<size_t> LongK2Tree;
-typedef basic_k2tree_builder<unsigned int> K2TreeBuilder;
-typedef basic_k2tree_builder<size_t> LongK2TreeBuilder;
+typedef basic_k2treebuilder<unsigned int> K2TreeBuilder;
+typedef basic_k2treebuilder<size_t> LongK2TreeBuilder;
 
 }  // namespace libk2tree
 #endif  // INCLUDE_K2TREE_H_

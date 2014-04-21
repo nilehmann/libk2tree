@@ -12,46 +12,49 @@
 #include <cstdio>
 
 namespace libk2tree {
+namespace iterators {
 
 template<class _Impl, class _Size>
 K2TreeIterator<_Impl, _Size>::K2TreeIterator(const basic_k2tree<_Size> *t,
-                                             _Size object,
-                                             bool end) :
-    tree_(t), object_(object), curr_(0), end_(end), queue_() {
-  if (!end) {
-    //frames_.push(_Impl::FirstFrame(object, t->size_));
-    traverse();
-    ++(*this);
-  }
+                                             _Size object) :
+    tree_(t), object_(object), curr_(0), end_(false), queue_() {
+  traverse();
+  ++(*this);
 }
+template<class _Impl, class _Size>
+K2TreeIterator<_Impl, _Size>::K2TreeIterator() :
+    tree_(NULL), object_(), curr_(), end_(true), queue_() {}
+
 template<class _Impl, class _Size>
 void K2TreeIterator<_Impl, _Size>::traverse() {
   _Size div_level;
   _Size cnt_level;
   int k;
-  const BitSequence  *T = tree_->T_;
+  const BitSequence *T = tree_->T_;
 
-  queue_.push(_Impl::FirstFrame(object_, tree_->size_));
+  queue_.push(_Impl::FirstFrame(object_));
+  _Size N = tree_->size_;
   for (int level = 0; level < tree_->height_; ++level) {
     k = tree_->GetK(level);
+    div_level = N/k;
 
     cnt_level = queue_.size();
     for (_Size i = 0; i < cnt_level; ++i) {
-      Frame_<_Size> &f = queue_.front();
+      Frame<_Size> &f = queue_.front();
       if (level == 0 || T->access(f.z)) {
-        div_level = f.N/k;
         f.z = _Impl::Rank(f, k, div_level, tree_);
         for (f.j  = 0; f.j < k; ++f.j)
           queue_.push(_Impl::NextFrame(f, k , div_level));
       }
       queue_.pop();
     }
+    N = div_level;
   }
 }
 
 template<class _Impl, class _Size>
 const K2TreeIterator<_Impl, _Size>
-K2TreeIterator<_Impl, _Size>::end = {NULL, 0, true};
+K2TreeIterator<_Impl, _Size>::end = {};
 /*
 template<class _Impl, class _Size>
 void K2TreeIterator<_Impl, _Size>::operator++() {
@@ -61,7 +64,7 @@ void K2TreeIterator<_Impl, _Size>::operator++() {
   const BitSequence *T = tree_->T_;
   const BitArray<unsigned int> *L = &tree_->L_;
   while (!found && !end_) {
-    Frame_<_Size> &f= frames_.top();
+    Frame<_Size> &f= frames_.top();
 
     int k = tree_->GetK(f.level);
     div_level = f.N/k;
@@ -100,7 +103,7 @@ void K2TreeIterator<_Impl, _Size>::operator++() {
 
 
 template<class _Size>
-RangeIterator_<_Size>::RangeIterator_(const basic_k2tree<_Size> *tree,
+RangeIterator<_Size>::RangeIterator(const basic_k2tree<_Size> *tree,
                                      _Size p1, _Size p2) :
     tree_(tree), p1_(p1), p2_(p2), curr_(), end_(false), queue_() {
   traverse();
@@ -108,11 +111,11 @@ RangeIterator_<_Size>::RangeIterator_(const basic_k2tree<_Size> *tree,
 }
 
 template<class _Size>
-RangeIterator_<_Size>::RangeIterator_() :
+RangeIterator<_Size>::RangeIterator() :
   tree_(NULL), p1_(0), p2_(0), curr_(), end_(true), queue_() {}
 
 template<class _Size>
-void RangeIterator_<_Size>::traverse() {
+void RangeIterator<_Size>::traverse() {
   _Size div_level;
   _Size cnt_level;
   int k;
@@ -126,7 +129,7 @@ void RangeIterator_<_Size>::traverse() {
 
     cnt_level = queue_.size();
     for (_Size q = 0; q < cnt_level; ++q) {
-      RangeFrame_<_Size> &f = queue_.front();
+      RangeFrame<_Size> &f = queue_.front();
       if (level == 0 || T->access(f.z)) {
         f.z = Rank(f, level, k);
 
@@ -138,7 +141,7 @@ void RangeIterator_<_Size>::traverse() {
           _Size pp1 = i == start ? f.p1 % div_level : 0;
           _Size pp2 = i == end ? f.p2 % div_level : div_level - 1;
 
-          for (_Size j  = 0; j < k; ++j) {
+          for (int j  = 0; j < k; ++j) {
             queue_.push({
                 pp1, pp2,
                 dp, f.dq + div_level*j, z + j});
@@ -151,18 +154,18 @@ void RangeIterator_<_Size>::traverse() {
   }
 }
 template<class _Size>
-const RangeIterator_<_Size>
-RangeIterator_<_Size>::end = {};
+const RangeIterator<_Size>
+RangeIterator<_Size>::end = {};
 /*
 template<class _Size>
-void RangeIterator_<_Size>::operator++() {
+void RangeIterator<_Size>::operator++() {
   _Size pp1, pp2, qq1, qq2;
   bool found = false;
   const BitSequence *T = tree_->T_;
   const BitArray<unsigned int, _Size> *L = &tree_->L_;
 
   while (!found && !end_) {
-    RangeFrame_<_Size> &f= frames_.top();
+    RangeFrame<_Size> &f= frames_.top();
 
     int k = tree_->GetK(f.level);
     _Size div_level = f.N/k;
@@ -206,6 +209,11 @@ void RangeIterator_<_Size>::operator++() {
 
 template class K2TreeIterator<DirectImpl<unsigned int>, unsigned int>;
 template class K2TreeIterator<InverseImpl<unsigned int>, unsigned int>;
-template class RangeIterator_<unsigned int>;
+template class RangeIterator<unsigned int>;
 
+template class K2TreeIterator<DirectImpl<size_t>, size_t>;
+template class K2TreeIterator<InverseImpl<size_t>, size_t>;
+template class RangeIterator<size_t>;
+
+}  // namespace iterators
 }  // namespace libk2tree

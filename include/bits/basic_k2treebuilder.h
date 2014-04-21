@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef INCLUDE_BITS_BASIC_K2TREE_BUILDER_H_
-#define INCLUDE_BITS_BASIC_K2TREE_BUILDER_H_
+#ifndef INCLUDE_BITS_BASIC_K2TREEBUILDER_H_
+#define INCLUDE_BITS_BASIC_K2TREEBUILDER_H_
 
 #include <bits/basic_k2tree.h>
 #include <bits/utils/bitarray.h>
@@ -28,16 +28,12 @@ using utils::Pow;
 using utils::LogCeil;
 using std::shared_ptr;
 
-class size_overflow : public logic_error {
- public:
-  explicit size_overflow(const string& what_arg) : logic_error(what_arg) {}
-};
 /*
  * Implement the construction of section 3.3.3, building a regular tree (not compressed)
  * inserting one link (1 in the matrix) at a time.
  */
 template<class _Size>
-class basic_k2tree_builder {
+class basic_k2treebuilder {
  public:
   /* 
    * Create a builder for a tree with an hybrid aproach.
@@ -48,17 +44,25 @@ class basic_k2tree_builder {
    * @param kl arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    */
-  basic_k2tree_builder(_Size cnt, int k1, int k2, int kl, int k1_levels);
+  basic_k2treebuilder(_Size cnt, int k1, int k2, int kl, int k1_levels);
   /* 
-   * Create a link from object p to q.
-   * Identifiers start with 0.
+   * Create a link from object p to q. Creating a link out of the range of
+   * the matrix causes an undefined behavior.
    *
    * @param p Identifier of the first object.
    * @param q Identifier of the second object.
    */
   void AddLink(_Size p, _Size q);
 
+  /*
+   * Builds a k2tree with the current structure.
+   */
   shared_ptr<basic_k2tree<_Size>> Build() const;
+
+  /*
+   * Clear the builder deleting the current structure
+   */
+  void Clear();
 
   inline int height() const {
     return height_;
@@ -76,7 +80,7 @@ class basic_k2tree_builder {
     return internal_nodes_;
   }
 
-  ~basic_k2tree_builder();
+  ~basic_k2treebuilder();
 
  private:
   // Number of objects in the original relation.
@@ -122,4 +126,4 @@ class basic_k2tree_builder {
 
 }  // namespace libk2tree
 
-#endif  // INCLUDE_BITS_BASIC_K2TREE_BUILDER_H_
+#endif  // INCLUDE_BITS_BASIC_K2TREEBUILDER_H_

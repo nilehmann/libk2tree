@@ -123,6 +123,7 @@ bool basic_k2tree<_Size>::operator==(const basic_k2tree &rhs) const {
 }
 
 template class basic_k2tree<unsigned int>;
+template class basic_k2tree<size_t>;
 
 }  // namespace libk2tree
 

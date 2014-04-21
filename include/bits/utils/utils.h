@@ -21,6 +21,14 @@ using std::ifstream;
 using std::ofstream;
 
 /*
+ * Calculates the smalles integer gretear or equal to x/y
+ */
+template<typename T>
+inline T Ceil(T x, T y) {
+  return (x % y) ? x / y + 1 : x / y;
+}
+
+/*
  * Calculates the smallest integer greater or equal to N that is a power of
  * base.
  */
