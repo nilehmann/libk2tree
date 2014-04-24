@@ -125,6 +125,12 @@ class basic_k2tree {
                const BitArray<unsigned int, _Size> &L,
                int k1, int k2, int kl, int max_level_k1, int height,
                _Size cnt, _Size size);
+
+  inline _Size GetFirstChild(_Size z, int level, int k) const {
+    // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
+    z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
+    return z + offset_[level];
+  }
   // Bit array with rank capability containing internal nodes.
   BitSequence *T_;
   // Bit array for the leafs.

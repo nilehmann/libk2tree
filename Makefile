@@ -1,4 +1,4 @@
-CXX = clang++
+//CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = include/
 
@@ -11,7 +11,7 @@ K2TREE_SRC = $(shell find src/libk2tree -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
 //FLAGS = -std=c++11 -O3 -Wall -Wextra -Winline -Wpedantic
-FLAGS = -std=c++11 -O0 -g -Wall -Wextra -Winline -Wpedantic
+FLAGS = -std=c++11 -O3 -pg -Wall -Wextra -Winline -Wpedantic
 LIBRARIES = -lcds -lboost_filesystem -lboost_system
 
 
@@ -63,7 +63,7 @@ bin/qry_gen: $(K2TREE_OBJ) obj/src/qry_gen.o
 
 bin/time: $(K2TREE_OBJ) obj/src/time.o
 	@echo " [LNK] Linking time"
-	@$(CXX) -lcds $(K2TREE_OBJ) obj/src/time.o $(LIBRARIES) -o bin/time
+	@$(CXX) -lcds $(K2TREE_OBJ) $(FLAGS) obj/src/time.o $(LIBRARIES) -o bin/time
 
 bin/build_k2tree: $(K2TREE_OBJ) obj/src/build_k2tree.o
 	@echo " [LNK] Linking build_k2tree"

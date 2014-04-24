@@ -25,6 +25,22 @@ template<class _Impl, class _Size>
 K2TreeIterator<_Impl, _Size>::K2TreeIterator() :
     tree_(NULL), object_(), curr_(), end_(true), queue_() {}
 
+
+template<class _Impl, class _Size>
+void K2TreeIterator<_Impl, _Size>::operator++() {
+  const BitSequence *T = tree_->T_;
+  const BitArray<unsigned int, _Size> &L = tree_->L_;
+  while (!queue_.empty()) {
+    const Frame<_Size> &f = queue_.front();
+    if (L.GetBit(f.z - T->getLength())) {
+      curr_ = _Impl::Output(f);
+      queue_.pop();
+      return;
+    }
+    queue_.pop();
+  }
+  end_ = true;
+}
 template<class _Impl, class _Size>
 void K2TreeIterator<_Impl, _Size>::traverse() {
   _Size div_level;
@@ -42,9 +58,10 @@ void K2TreeIterator<_Impl, _Size>::traverse() {
     for (_Size i = 0; i < cnt_level; ++i) {
       Frame<_Size> &f = queue_.front();
       if (level == 0 || T->access(f.z)) {
-        f.z = _Impl::Rank(f, k, div_level, tree_);
-        for (f.j  = 0; f.j < k; ++f.j)
-          queue_.push(_Impl::NextFrame(f, k , div_level));
+        f.z = tree_->GetFirstChild(f.z, level, k);
+        f.z += _Impl::Offset(f, k, div_level);
+        for (int j  = 0; j < k; ++j)
+          queue_.push(_Impl::NextFrame(f, j, k, div_level));
       }
       queue_.pop();
     }
@@ -55,51 +72,6 @@ void K2TreeIterator<_Impl, _Size>::traverse() {
 template<class _Impl, class _Size>
 const K2TreeIterator<_Impl, _Size>
 K2TreeIterator<_Impl, _Size>::end = {};
-/*
-template<class _Impl, class _Size>
-void K2TreeIterator<_Impl, _Size>::operator++() {
-  bool found = false;
-  size_t *acum_rank = tree_->acum_rank_;
-  _Size div_level;
-  const BitSequence *T = tree_->T_;
-  const BitArray<unsigned int> *L = &tree_->L_;
-  while (!found && !end_) {
-    Frame<_Size> &f= frames_.top();
-
-    int k = tree_->GetK(f.level);
-    div_level = f.N/k;
-    if (f.level < tree_->height_) {
-
-      // Entering first time in frame
-      if (f.j == -1) {
-        if (f.level == 0 || T->access(f.z)) {
-          f.z = _Impl::Rank(f, k, div_level, tree_);
-        } else {
-          frames_.pop();
-          continue;
-        }
-      }
-
-      f.j++;
-      if (f.j < k) {
-        frames_.push(_Impl::NextFrame(f, k, div_level));
-      } else {
-        // No more children on the root
-        if (f.level == 0)
-          end_ = true;
-        frames_.pop();
-      }
-    } else {
-      // We enter and exit the leaf
-      if (L->GetBit(f.z - T->getLength())) {
-        curr_ = _Impl::Output(f);
-        found = true;
-      }
-      frames_.pop();
-    }
-  }
-}*/
-
 
 
 template<class _Size>
@@ -119,9 +91,9 @@ void RangeIterator<_Size>::traverse() {
   _Size div_level;
   _Size cnt_level;
   int k;
-  const BitSequence  *T = tree_->T_;
+  const BitSequence *T = tree_->T_;
 
-  queue_.push(FirstFrame(p1_, p2_));
+  queue_.push({p1_, p2_, 0, 0, 0});
   _Size N = tree_->size_;
   for (int level = 0; level < tree_->height_; ++level) {
     k = tree_->GetK(level);
@@ -131,7 +103,7 @@ void RangeIterator<_Size>::traverse() {
     for (_Size q = 0; q < cnt_level; ++q) {
       RangeFrame<_Size> &f = queue_.front();
       if (level == 0 || T->access(f.z)) {
-        f.z = Rank(f, level, k);
+        f.z = tree_->GetFirstChild(f.z, level, k);
 
         _Size start = f.p1/div_level;
         _Size end = f.p2/div_level;
@@ -156,56 +128,6 @@ void RangeIterator<_Size>::traverse() {
 template<class _Size>
 const RangeIterator<_Size>
 RangeIterator<_Size>::end = {};
-/*
-template<class _Size>
-void RangeIterator<_Size>::operator++() {
-  _Size pp1, pp2, qq1, qq2;
-  bool found = false;
-  const BitSequence *T = tree_->T_;
-  const BitArray<unsigned int, _Size> *L = &tree_->L_;
-
-  while (!found && !end_) {
-    RangeFrame<_Size> &f= frames_.top();
-
-    int k = tree_->GetK(f.level);
-    _Size div_level = f.N/k;
-    if (f.level < tree_->height_) {
-
-      // Entering first time in frame
-      if (f.first) {
-        f.first = false;
-        if (f.level == 0 || T->access(f.z)) {
-          f.z = Rank(f,k);
-          f.i = f.p1/div_level - 1;
-          f.j = f.q2/div_level;  // so f.j++ goes out of range
-        } else {
-          frames_.pop();
-          continue;
-        }
-      }
-      // Entering after a return
-      f.j++;
-      if (f.j > f.q2/div_level) {
-        f.i++;
-        f.j = f.q1/div_level;
-      }
-      if (f.i <= f.p2/div_level) {
-        frames_.push(NextFrame(f, k, div_level));
-      } else {
-        if (f.level == 0)
-          end_ = true;
-        frames_.pop();
-      }
-    } else {
-      // We enter and exit the leaf
-      if (L->GetBit(f.z - T->getLength())) {
-        curr_ = make_pair(f.dp, f.dq);
-        found = true;
-      }
-      frames_.pop();
-    }
-  }
-}*/
 
 template class K2TreeIterator<DirectImpl<unsigned int>, unsigned int>;
 template class K2TreeIterator<InverseImpl<unsigned int>, unsigned int>;

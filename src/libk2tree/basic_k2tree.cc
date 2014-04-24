@@ -71,19 +71,17 @@ bool basic_k2tree<_Size>::CheckLink(_Size p, _Size q) const {
 
     div_level = N/k;
     if (level > 0 && T_->access(z))
-      // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
-      z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
+      z = GetFirstChild(z, level, k);
     else if (level > 0)
       return false;
 
     int child = p/div_level*k + q/div_level;
-    z += child + offset_[level];
+    z += child;
 
     N /= k, p %= div_level, q %= div_level;
   }
   return L_.GetBit(z - T_->getLength());
 }
-
 
 template<class _Size>
 void basic_k2tree<_Size>::Save(ofstream *out) const {
