@@ -17,6 +17,7 @@
 #include <stack>
 #include <fstream>
 #include <cstdlib>
+#include <queue>
 
 
 namespace libk2tree {
@@ -29,6 +30,14 @@ using std::ifstream;
 using std::ofstream;
 using utils::LoadValue;
 using utils::SaveValue;
+using std::queue;
+
+template<class _Size>
+struct RangeFrame {
+  _Size p1, p2, q1, q2;
+  _Size dp, dq;
+  _Size z;
+};
 
 template<class _Size> class basic_k2treebuilder;
 namespace iterators {
@@ -78,7 +87,7 @@ class basic_k2tree {
    */
   bool operator==(const basic_k2tree &rhs) const;
 
-  inline _Size cnt() {
+  inline _Size cnt() const {
     return cnt_;
   }
 
@@ -106,6 +115,9 @@ class basic_k2tree {
 
   ~basic_k2tree();
 
+  void Range(_Size p1, _Size p2, _Size q1, _Size q2,
+             vector<pair<_Size, _Size>> *vec) const;
+
  private:
   /* 
    * Construct a k2tree with and hybrid aproach. This construtor should
@@ -126,7 +138,7 @@ class basic_k2tree {
                int k1, int k2, int kl, int max_level_k1, int height,
                _Size cnt, _Size size);
 
-  inline _Size GetFirstChild(_Size z, int level, int k) const {
+  inline _Size  GetFirstChild(_Size z, int level, int k) const {
     // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
     z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
     return z + offset_[level];
@@ -159,6 +171,7 @@ class basic_k2tree {
     else if (level < height_ - 1)  return k2_;
     else  return kl_;
   }
+
 };
 
 

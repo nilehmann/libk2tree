@@ -26,21 +26,7 @@ K2TreeIterator<_Impl, _Size>::K2TreeIterator() :
     tree_(NULL), object_(), curr_(), end_(true), queue_() {}
 
 
-template<class _Impl, class _Size>
-void K2TreeIterator<_Impl, _Size>::operator++() {
-  const BitSequence *T = tree_->T_;
-  const BitArray<unsigned int, _Size> &L = tree_->L_;
-  while (!queue_.empty()) {
-    const Frame<_Size> &f = queue_.front();
-    if (L.GetBit(f.z - T->getLength())) {
-      curr_ = _Impl::Output(f);
-      queue_.pop();
-      return;
-    }
-    queue_.pop();
-  }
-  end_ = true;
-}
+
 template<class _Impl, class _Size>
 void K2TreeIterator<_Impl, _Size>::traverse() {
   _Size div_level;
@@ -86,7 +72,7 @@ template<class _Size>
 RangeIterator<_Size>::RangeIterator() :
   tree_(NULL), p1_(0), p2_(0), curr_(), end_(true), queue_() {}
 
-template<class _Size>
+/*template<class _Size>
 void RangeIterator<_Size>::traverse() {
   _Size div_level;
   _Size cnt_level;
@@ -124,7 +110,98 @@ void RangeIterator<_Size>::traverse() {
     }
     N = div_level;
   }
+}*/
+template<class _Size>
+void RangeIterator<_Size>::traverse() {
+  _Size div_level;
+  const BitSequence *T = tree_->T_;
+  int kl=tree_->kl_;
+  _Size p1, p2, q1, q2, pp1, pp2, qq1, qq2, dp, dq;
+
+  queue_.push({p1_, p2_, 0, tree_->size_-1, 0, 0, 0});
+  _Size N = tree_->size_;
+  int level;
+  for (level = 0; level < tree_->height_-1; ++level) {
+    int k = tree_->GetK(level);
+    div_level = N/k;
+
+    _Size cnt_level = queue_.size();
+    for (_Size q = 0; q < cnt_level; ++q) {
+      RangeFrame<_Size> &f = queue_.front();
+      f.z = tree_->GetFirstChild(f.z, level, k);
+
+      p1 = f.p1;
+      p2 = f.p2;
+      q1 = f.q1;
+      q2 = f.q2;
+
+      for (_Size i = p1/div_level; i <= p2/div_level; ++i) {
+        _Size z = f.z + k*i;
+        dp = f.dp + div_level*i;
+        pp1 = i == p1/div_level ? p1 % div_level : 0;
+        pp2 = i == p2/div_level ? p2 % div_level : div_level - 1;
+
+        for (_Size j = q1/div_level; j <= q2/div_level; ++j) {
+          dq = f.dq + div_level*j;
+          qq1 = j == q1/div_level ? q1 % div_level : 0;
+          qq2 = j == q2/div_level ? q2 % div_level : div_level-1;
+          if ( T->access(z+j))
+            queue_.push({pp1, pp2, qq1, qq2, dp, dq, z + j});
+        }
+      }
+      queue_.pop();
+    }
+    N = div_level;
+  }
+
+  div_level = N/kl;
+
+  _Size cnt_level = queue_.size();
+  for (_Size q = 0; q < cnt_level; ++q) {
+    RangeFrame<_Size> &f = queue_.front();
+    f.z = tree_->GetFirstChild(f.z, level, kl);
+    p1 = f.p1;
+    p2 = f.p2;
+    q1 = f.q1;
+    q2 = f.q2;
+
+    for (_Size i = p1/div_level; i <= p2/div_level; ++i) {
+      _Size z = f.z + kl*i;
+      dp = f.dp + div_level*i;
+      pp1 = i == p1/div_level ? p1 % div_level : 0;
+      pp2 = i == p2/div_level ? p2 % div_level : div_level - 1;
+
+      for (_Size j = q1/div_level; j <= q2/div_level; ++j) {
+        dq = f.dq + div_level*j;
+        qq1 = j == q1/div_level ? q1 % div_level : 0;
+        qq2 = j == q2/div_level ? q2 % div_level : 0;
+        if ( tree_->L_.GetBit(z+j - T->getLength())) 
+          queue_.push({
+              pp1, pp2, qq1, qq2, 
+              dp, dq, z + j});
+      }
+    }
+    queue_.pop();
+  }
+
+ // RangeIterator::vec.reserve(100000);
+  vector<pair<_Size, _Size> > vec;
+  //vec.reserve(100000);
+  //_Size i = 0;
+  while (!queue_.empty()) {
+    const RangeFrame<_Size> &f = queue_.front();
+    //RangeIterator::vec.assign(i, make_pair(f.dp, f.dq));
+    vec.emplace_back(f.dp, f.dq);
+    queue_.pop();
+  }
+
+  end_ = true;
 }
+
+template<class _Size>
+vector<pair<_Size, _Size> > RangeIterator<_Size>::vec = {};
+
+
 template<class _Size>
 const RangeIterator<_Size>
 RangeIterator<_Size>::end = {};

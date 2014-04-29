@@ -15,11 +15,13 @@
 #include <queue>
 #include <list>
 #include <utility>
+#include <array>
 
 namespace libk2tree {
 namespace iterators {
 using ::std::pair;
 using ::std::queue;
+using ::std::array;
 
 
 template<class _Size>
@@ -30,7 +32,7 @@ struct Frame {
 
 template<class _Size>
 struct RangeFrame {
-  _Size p1, p2;
+  _Size p1, p2, q1, q2;
   _Size dp, dq;
   _Size z;
 };
@@ -57,8 +59,9 @@ class K2TreeIterator {
     return curr_;
   }
 
-  void operator++();//: {
-/*    const BitSequence *T = tree_->T_;
+
+  inline void operator++() {
+    const BitSequence *T = tree_->T_;
     const BitArray<unsigned int, _Size> &L = tree_->L_;
     while (!queue_.empty()) {
       const Frame<_Size> &f = queue_.front();
@@ -70,7 +73,7 @@ class K2TreeIterator {
       queue_.pop();
     }
     end_ = true;
-  }*/
+  }
 
  protected:
   K2TreeIterator();
@@ -141,7 +144,7 @@ class RangeIterator {
   inline pair<_Size, _Size> operator*() {
     return curr_;
   }
-  void operator++() {
+  /*void operator++() {
     const BitSequence *T = tree_->T_;
     const BitArray<unsigned int, _Size> &L = tree_->L_;
     while (!queue_.empty()) {
@@ -152,6 +155,15 @@ class RangeIterator {
         return;
       }
       queue_.pop();
+    }
+    end_ = true;
+  }*/
+  inline void operator++() {
+    if (!queue_.empty()) {
+      const RangeFrame<_Size> &f = queue_.front();
+      curr_ = make_pair(f.dp, f.dq);
+      queue_.pop();
+      return;
     }
     end_ = true;
   }
@@ -165,6 +177,7 @@ class RangeIterator {
   bool end_;
   queue<RangeFrame<_Size>> queue_;
 
+  static vector<pair<_Size, _Size> > vec;
 
   void traverse();
 };

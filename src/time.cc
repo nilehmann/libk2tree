@@ -14,8 +14,10 @@
 #include <cstring>
 #include <fstream>
 #include <memory>
+#include <vector>
 using std::ifstream;
 using std::shared_ptr;
+using std::vector;
 using libk2tree::K2Tree;
 using libk2tree::utils::LoadValue;
 
@@ -34,6 +36,9 @@ double stop_clock() {
   return (t2.tms_utime-t1.tms_utime)/ticks;
 }
 /* end Time meassuring */
+
+uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree);
+uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree);
 
 int main(int argc, char* argv[]){
 
@@ -59,14 +64,8 @@ int main(int argc, char* argv[]){
   double t = 0;
   ticks= (double)sysconf(_SC_CLK_TCK);
   start_clock();
-  uint i;
-  uint recovered = 0;
-  for(i=0;i< cnt_qry;i++) {
-    K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
-    //K2Tree::RangeIterator q = tree.RangeBegin(qry[i], qry[i]+10); 
-    for (; q != tree.DirectEnd(); ++q,++recovered);
-    //for (; q != tree.RangeEnd(); ++q,++recovered);
-  }
+  //uint recovered = TimeDirect(qry, cnt_qry, tree);
+  uint recovered = TimeRange(qry, cnt_qry, tree);
   t += stop_clock(); 
   t *= 1000; // to milliseconds
 
@@ -81,4 +80,28 @@ int main(int argc, char* argv[]){
 
   return 0;
 }
+
+uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
+  uint i;
+  uint recovered = 0;
+  vector<pair<uint, uint>> vec;
+  for(i=0;i< cnt_qry;i++) {
+    //K2Tree::RangeIterator q = tree.RangeBegin(qry[i], qry[i]+10); 
+    //for (; q != tree.RangeEnd(); ++q,++recovered);
+    vec.clear();
+    tree.Range(qry[i], qry[i]+1, 0, tree.cnt() - 1, &vec);
+  }
+  return recovered;
+}
+
+uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree) {
+  uint i;
+  uint recovered = 0;
+  for(i=0;i< cnt_qry;i++) {
+    K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
+    for (; q != tree.DirectEnd(); ++q, ++recovered);
+  }
+  return recovered;
+}
+
 

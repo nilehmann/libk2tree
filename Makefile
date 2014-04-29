@@ -10,8 +10,8 @@ GTEST=gtest-1.7.0
 K2TREE_SRC = $(shell find src/libk2tree -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
-//FLAGS = -std=c++11 -O3 -Wall -Wextra -Winline -Wpedantic
-FLAGS = -std=c++11 -O3 -pg -Wall -Wextra -Winline -Wpedantic
+FLAGS = -std=c++11 -O3 -Wall -Wextra -Winline -Wpedantic
+//FLAGS = -std=c++11 -O3 -pg -g -Wall -Wextra -Winline -Wpedantic
 LIBRARIES = -lcds -lboost_filesystem -lboost_system
 
 
