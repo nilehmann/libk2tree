@@ -111,8 +111,8 @@ class basic_k2tree {
    * Iterates over all links in the given column.
    *
    * @parm q Column in the matrix.
-   * @param fun Pointer to function, functor or lambda to be called for each object 
-   * related to q.
+   * @param fun Pointer to function, functor or lambda to be called for each 
+   * object related to q.
    * The function expect a parameter of type _Size.
    */
   template<class Function>
@@ -121,14 +121,14 @@ class basic_k2tree {
   }
 
   /*
-   * Iterates over all links in the given submatrix.
+   * Iterates over all links in the specified submatrix.
    *
    * @parm p1 Starting row in the matrix.
    * @parm p2 Ending row in the matrix.
    * @parm q1 Starting column in the matrix.
    * @parm q2 Ending column in the matrix.
-   * @param fun Pointer to function, functor or lambda to be called for each pair o
-   * objects. The function expect two parameters of type _Size
+   * @param fun Pointer to function, functor or lambda to be called for each 
+   * pair of objects. The function expect two parameters of type _Size
    */
   template<class Function>
   void RangeQuery(_Size p1, _Size p2, _Size q1, _Size q2, Function fun) const {
