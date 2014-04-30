@@ -10,8 +10,8 @@
 #include <gtest/gtest.h>
 #include <k2treepartition_builder.h>
 #include <bits/utils/utils.h>
-#include <cstdio>
 #include <boost/filesystem.hpp>
+#include <cstdio>
 
 using ::libk2tree::K2TreePartitionBuilder;
 using ::libk2tree::utils::Ceil;

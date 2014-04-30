@@ -75,7 +75,6 @@ int main(int argc, char* argv[]){
   fprintf(stderr,"Time per query: %f\n",t/cnt_qry);
   fprintf(stderr,"Time per link: %f\n",t/recovered);
 
-  // destroyTreeRepresentation(trep);
 
 
   return 0;
@@ -85,10 +84,8 @@ uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
-    //K2Tree::RangeIterator q = tree.RangeBegin(qry[i], qry[i]+10); 
-    //for (; q != tree.RangeEnd(); ++q,++recovered);
     vector<vector<uint> > vec(21);
-    tree.Range(qry[i], qry[i]+20, 0, tree.cnt() - 1,
+    tree.RangeQuery(qry[i], qry[i]+20, 0, tree.cnt() - 1,
     [=, &vec, &qry] (uint p, uint q) {
       vec[p-qry[i]].push_back(q);
     });
@@ -100,11 +97,9 @@ uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree) {
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
-    //K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
-    //for (; q != tree.DirectEnd(); ++q, ++recovered);
     vector<uint> vec;
-    tree.Direct(qry[i], [&] (uint q){
-      //vec.push_back(q); 
+    tree.DirectLinks(qry[i], [&] (uint q){
+      vec.push_back(q); 
     });
     
   }

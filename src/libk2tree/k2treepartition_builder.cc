@@ -30,7 +30,7 @@ K2TreePartitionBuilder::K2TreePartitionBuilder(unsigned int cnt,
     col_(0),
     ready_(false),
     builder_(submatrix_size_, k1, k2, kl, k1_levels),
-    tmp_(unique_path(file.parent_path() / "%%%%%" )),
+    tmp_(unique_path(file.parent_path() / "%%%%%")),
     file_(file),
     out_(tmp_.native()) {
 }
@@ -41,7 +41,7 @@ void K2TreePartitionBuilder::AddLink(unsigned int p, unsigned int q) {
   assert(q >= col_*submatrix_size_ && q < (col_+1)*submatrix_size_);
   if (Ready())
     throw logic_error("AddLink: Construction is ready");
-  builder_.AddLink(p - row_ * submatrix_size_, q - col_ * submatrix_size_); 
+  builder_.AddLink(p - row_ * submatrix_size_, q - col_ * submatrix_size_);
 }
 
 void K2TreePartitionBuilder::BuildSubtree() {
@@ -65,7 +65,7 @@ void K2TreePartitionBuilder::BuildSubtree() {
 
 K2TreePartitionBuilder::~K2TreePartitionBuilder() {
   out_.close();
-  //remove(tmp_);
+  remove(tmp_);
 }
 
 }  // namespace libk2tree

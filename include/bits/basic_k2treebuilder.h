@@ -29,14 +29,14 @@ using utils::LogCeil;
 using std::shared_ptr;
 
 /*
- * Implement the construction of section 3.3.3, building a regular tree (not compressed)
+ * Implements the construction of section 3.3.3, building a regular tree (not compressed)
  * inserting one link (1 in the matrix) at a time.
  */
 template<class _Size>
 class basic_k2treebuilder {
  public:
   /* 
-   * Create a builder for a tree with an hybrid aproach.
+   * Creates a builder for a tree with an hybrid aproach.
    *
    * @param cnt Number of object in the relation.
    * @param k1 arity of the first levels.
@@ -45,8 +45,9 @@ class basic_k2treebuilder {
    * @param k1_levels Number of levels with arity k1.
    */
   basic_k2treebuilder(_Size cnt, int k1, int k2, int kl, int k1_levels);
+
   /* 
-   * Create a link from object p to q. Creating a link out of the range of
+   * Creates a link from object p to q. Creating a link out of the range of
    * the matrix causes an undefined behavior.
    *
    * @param p Identifier of the first object.
@@ -60,7 +61,7 @@ class basic_k2treebuilder {
   shared_ptr<basic_k2tree<_Size>> Build() const;
 
   /*
-   * Clear the builder deleting the current structure
+   * Clears the builder deleting the current structure
    */
   void Clear();
 
@@ -107,16 +108,16 @@ class basic_k2treebuilder {
   // Struct to store the tree.
   struct Node {
     union {
-      // Store the children of the level height_-1 (the leafs)
+      // Stores the children of the level height_-1 (the leafs)
       BitArray<unsigned char, unsigned int> *data_;
       // Pointers to children of internal nodes.
       Node **children_;
     };
   };
-  // Create a node for the specified level using an appropiate k
+  // Creates a node for the specified level using an appropiate k
   Node *CreateNode(int level);
-  // Free memory allocated for n assuming it was built for the
-  // specified level. Recursively delete children of internal nodes.
+  // Frees memory allocated for n assuming it was built for the
+  // specified level. Recursively deletes children of internal nodes.
   void DeleteNode(Node *n, int level);
 
   // Root of the tree

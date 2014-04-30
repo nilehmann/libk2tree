@@ -10,24 +10,24 @@
 #ifndef INCLUDE_K2TREEPARTITION_BUILDER_H_
 #define INCLUDE_K2TREEPARTITION_BUILDER_H_
 
+#include <boost/filesystem.hpp>
 #include <k2tree.h>
 #include <fstream>
-#include <boost/filesystem.hpp>
 
 namespace libk2tree {
 using std::shared_ptr;
 using boost::filesystem::path;
 
 /*
- * Implement a builder for the aproach of section 5.2, partitioning the first
+ * Implements a builder for the aproach of section 5.2, partitioning the first
  * level and constructing a separate k2tree for each submatrix. Submatrices are
- * stored on disk after beeing built. Considering the representation as matrix
- * of submatrices, they have to be build in row-wise order.
+ * stored on disk after beeing built. Considering the representation as a matrix
+ * of submatrices, they have to be built in row-wise order.
  */
 class K2TreePartitionBuilder {
  public:
   /*
-   * Create a builder partitioning the matrix in submatrix of size
+   * Creates a builder partitioning the matrix in submatrix of size
    * submatrix_size. Independently builds a tree with an hybrid aproach
    * for each submatrix.
    *
@@ -44,7 +44,7 @@ class K2TreePartitionBuilder {
                          const path &file);
 
   /*
-   * Create a link from object p to q, assuming it correspond to the current
+   * Creates a link from object p to q, assuming it correspond to the current
    * submatrix beeing built. Attempting to add a link that doesn't belong to the
    * current submatrix causes an undefined behavior. A call to this function
    * after all submatrices have been built throws an exception.
@@ -62,14 +62,14 @@ class K2TreePartitionBuilder {
   void BuildSubtree();
 
   /*
-   * Return true if all submatrices have been built.
+   * Returns true if all submatrices have been built.
    */
   inline bool Ready() {
     return ready_;
   }
 
   /*
-   * Return number of objects in the relation or matrix.
+   * Returns the number of objects in the relation or matrix.
    */
   inline bool cnt() {
     return cnt_;
@@ -99,7 +99,6 @@ class K2TreePartitionBuilder {
   // File stream to save the partial submatrices. Points to temporary file until
   // all the submatrices have been built.
   ofstream out_;
-
 };
 }  // namespace libk2tree
 

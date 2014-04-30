@@ -64,7 +64,7 @@ void TestDirectIterator(int k1, int k2, int kl, int k1_levels) {
 
   vector<uint> v = GetSuccessors(matrix, p);
   uint i = 0;
-  tree->Direct(p, [&] (unsigned int q) {
+  tree->DirectLinks(p, [&] (unsigned int q) {
     ASSERT_EQ(v[i++], q);
   });
   ASSERT_EQ(v.size(), i);
@@ -91,7 +91,7 @@ void TestInverseIterator(int k1, int k2, int kl, int k1_levels) {
 
   vector<uint> v = GetPredecessors(matrix, q);
   uint i = 0;
-  tree->Inverse(q, [&] (unsigned int p) {
+  tree->InverseLinks(q, [&] (unsigned int p) {
     ASSERT_EQ(v[i++], p);
   });
   ASSERT_EQ(v.size(), i);
@@ -121,10 +121,10 @@ void TestRangeIterator(int k1, int k2, int kl, int k1_levels) {
   vector<pair<uint, uint> > v = GetEdges(matrix, p1, p2, q1, q2);
   uint i = 0;
   vector<pair<uint, uint> > v1;
-  tree->Range(p1, p2, q1, q2, [&] (unsigned int p,unsigned int  q) {
+  tree->RangeQuery(p1, p2, q1, q2, [&] (unsigned int p, unsigned int q) {
     i++;
     ASSERT_TRUE(matrix[p][q]);
-    v1.emplace_back(p,q);
+    v1.emplace_back(p, q);
   });
   ASSERT_EQ(v.size(), i);
 

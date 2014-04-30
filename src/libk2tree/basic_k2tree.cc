@@ -70,7 +70,7 @@ bool basic_k2tree<_Size>::CheckLink(_Size p, _Size q) const {
 
     div_level = N/k;
     if (level > 0 && T_->access(z))
-      z = GetFirstChild(z, level, k);
+      z = FirstChild(z, level, k);
     else if (level > 0)
       return false;
 

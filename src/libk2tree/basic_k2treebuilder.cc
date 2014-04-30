@@ -28,8 +28,8 @@ basic_k2treebuilder<_Size>::basic_k2treebuilder(_Size cnt,
     internal_nodes_(0),  // we dont consider the root
     root() {
   // we extend the size of the matrix to be the product of the arities in all
-  // levels (section 5.1). There are k1_levels levels with arity k1, one with 
-  // arity kl and we must find the numbers of levels with arity k2, ie, the 
+  // levels (section 5.1). There are k1_levels levels with arity k1, one with
+  // arity kl and we must find the numbers of levels with arity k2, ie, the
   // smallest integer x that satisfies:
   // k1^k1_levels * k2^x * kl >= cnt.
   _Size powk1 = Pow<_Size>(k1, k1_levels);
