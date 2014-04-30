@@ -47,9 +47,8 @@ void K2TreePartitionBuilder::AddLink(unsigned int p, unsigned int q) {
 void K2TreePartitionBuilder::BuildSubtree() {
   if (Ready())
     throw logic_error("BuildSubmatrix: Construction is ready");
-  shared_ptr<K2Tree> tree = builder_.Build();
+  builder_.Build(&out_);
   builder_.Clear();
-  tree->Save(&out_);
 
   ++col_;
   if (col_ >= k0_) {

@@ -15,6 +15,7 @@
 #include <bits/utils/bitarray.h>
 #include <bits/utils/utils.h>
 #include <vector>
+#include <fstream>
 #include <memory>
 #include <queue>
 #include <exception>
@@ -59,6 +60,14 @@ class basic_k2treebuilder {
    * Builds a k2tree with the current structure.
    */
   shared_ptr<basic_k2tree<_Size>> Build() const;
+
+  /*
+   * Builds a k2tree with the current structure and saves it to a file
+   */
+  void Build(ofstream *out) const {
+    shared_ptr<basic_k2tree<_Size>> tree = Build();
+    tree->Save(out);
+  }
 
   /*
    * Clears the builder deleting the current structure
