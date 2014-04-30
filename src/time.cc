@@ -64,8 +64,8 @@ int main(int argc, char* argv[]){
   double t = 0;
   ticks= (double)sysconf(_SC_CLK_TCK);
   start_clock();
-  //uint recovered = TimeDirect(qry, cnt_qry, tree);
-  uint recovered = TimeRange(qry, cnt_qry, tree);
+  uint recovered = TimeDirect(qry, cnt_qry, tree);
+  //uint recovered = TimeRange(qry, cnt_qry, tree);
   t += stop_clock(); 
   t *= 1000; // to milliseconds
 
@@ -84,12 +84,14 @@ int main(int argc, char* argv[]){
 uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
   uint i;
   uint recovered = 0;
-  vector<pair<uint, uint>> vec;
   for(i=0;i< cnt_qry;i++) {
     //K2Tree::RangeIterator q = tree.RangeBegin(qry[i], qry[i]+10); 
     //for (; q != tree.RangeEnd(); ++q,++recovered);
-    vec.clear();
-    tree.Range(qry[i], qry[i]+1, 0, tree.cnt() - 1, &vec);
+    vector<vector<uint> > vec(21);
+    tree.Range(qry[i], qry[i]+20, 0, tree.cnt() - 1,
+    [=, &vec, &qry] (uint p, uint q) {
+      vec[p-qry[i]].push_back(q);
+    });
   }
   return recovered;
 }
@@ -98,8 +100,13 @@ uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree) {
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
-    K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
-    for (; q != tree.DirectEnd(); ++q, ++recovered);
+    //K2Tree::DirectIterator q = tree.DirectBegin(qry[i]); 
+    //for (; q != tree.DirectEnd(); ++q, ++recovered);
+    vector<uint> vec;
+    tree.Direct(qry[i], [&] (uint q){
+      //vec.push_back(q); 
+    });
+    
   }
   return recovered;
 }

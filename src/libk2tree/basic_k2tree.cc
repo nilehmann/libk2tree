@@ -8,7 +8,6 @@
  */
 
 #include <bits/basic_k2tree.h>
-#include <bits/k2tree_iterators.h>
 
 namespace libk2tree {
 
@@ -83,84 +82,6 @@ bool basic_k2tree<_Size>::CheckLink(_Size p, _Size q) const {
   return L_.GetBit(z - T_->getLength());
 }
 
-template<class _Size>
-void basic_k2tree<_Size>::Range(_Size p1, _Size p2, _Size q1, _Size q2,
-                                vector<pair<_Size, _Size>> *vec) const {
-  _Size div_level;
-  _Size pp1, pp2, qq1, qq2, dp, dq;
-  queue<RangeFrame<_Size>> queue_;
-
-  queue_.push({p1, p2, q1, q2, 0, 0, 0});
-  _Size N = size_;
-  int level;
-  for (level = 0; level < height_-1; ++level) {
-    int k = GetK(level);
-    div_level = N/k;
-
-    _Size cnt_level = queue_.size();
-    for (_Size q = 0; q < cnt_level; ++q) {
-      RangeFrame<_Size> &f = queue_.front();
-      f.z = GetFirstChild(f.z, level, k);
-
-      p1 = f.p1;
-      p2 = f.p2;
-      q1 = f.q1;
-      q2 = f.q2;
-
-      _Size div_p1 = p1/div_level;
-      _Size rem_p1= p1%div_level;
-      _Size div_p2 = p2/div_level;
-      _Size rem_p2 = p2%div_level;
-      for (_Size i = div_p1; i <= div_p2; ++i) {
-        _Size z = f.z + k*i;
-        dp = f.dp + div_level*i;
-        pp1 = i == div_p1? rem_p1 : 0;
-        pp2 = i == div_p2 ? rem_p2 : div_level - 1;
-
-        _Size div_q1 = q1/div_level;
-        _Size rem_q1 = q1%div_level;
-        _Size div_q2 = q2/div_level;
-        _Size rem_q2 = q2%div_level;
-        for (_Size j = div_q1; j <= div_q2; ++j) {
-          dq = f.dq + div_level*j;
-          qq1 = j == div_q1 ? rem_q1 : 0;
-          qq2 = j == div_q2 ? rem_q2 : div_level-1;
-          if (T_->access(z+j))
-            queue_.push({pp1, pp2, qq1, qq2, dp, dq, z + j});
-        }
-      }
-      queue_.pop();
-    }
-    N = div_level;
-  }
-
-
-  div_level = N/kl_;
-  _Size cnt_level = queue_.size();
-  vec->reserve(cnt_level*kl_);
-  for (_Size q = 0; q < cnt_level; ++q) {
-    RangeFrame<_Size> &f = queue_.front();
-    f.z = GetFirstChild(f.z, level, kl_);
-
-    _Size div_p1 = f.p1/div_level;
-    _Size div_p2 = f.p2/div_level;
-    for (_Size i = div_p1; i <= div_p2; ++i) {
-      _Size z = f.z + kl_*i;
-      dp = f.dp + div_level*i;
-
-      _Size div_q1 = f.q1/div_level;
-      _Size div_q2 = f.q2/div_level;
-      for (_Size j = div_q1; j <= div_q2; ++j) {
-        dq = f.dq + div_level*j;
-        if ( L_.GetBit(z+j - T_->getLength())) 
-          vec->emplace_back(dp, dq);
-      }
-    }
-    queue_.pop();
-  }
-
-
-}
 
 template<class _Size>
 void basic_k2tree<_Size>::Save(ofstream *out) const {

@@ -24,18 +24,6 @@ using ::std::queue;
 using ::std::array;
 
 
-template<class _Size>
-struct Frame {
-  _Size p, q;
-  _Size z;
-};
-
-template<class _Size>
-struct RangeFrame {
-  _Size p1, p2, q1, q2;
-  _Size dp, dq;
-  _Size z;
-};
 
 template<class _Impl, class _Size>
 class K2TreeIterator {

@@ -12,7 +12,6 @@
 
 #include <bits/basic_k2tree.h>
 #include <bits/basic_k2treebuilder.h>
-#include <bits/k2tree_iterators.h>
 namespace libk2tree {
 
 typedef basic_k2tree<unsigned int> K2Tree;

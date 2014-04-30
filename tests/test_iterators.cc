@@ -63,10 +63,10 @@ void TestDirectIterator(int k1, int k2, int kl, int k1_levels) {
   shared_ptr<K2Tree > tree = tb.Build();
 
   vector<uint> v = GetSuccessors(matrix, p);
-  K2Tree::DirectIterator q = tree->DirectBegin(p);
-  uint i;
-  for (i = 0; q != tree->DirectEnd(); ++q, ++i)
-    ASSERT_EQ(v[i], *q);
+  uint i = 0;
+  tree->Direct(p, [&] (unsigned int q) {
+    ASSERT_EQ(v[i++], q);
+  });
   ASSERT_EQ(v.size(), i);
 }
 
@@ -90,10 +90,10 @@ void TestInverseIterator(int k1, int k2, int kl, int k1_levels) {
   shared_ptr<K2Tree > tree = tb.Build();
 
   vector<uint> v = GetPredecessors(matrix, q);
-  K2Tree::InverseIterator p = tree->InverseBegin(q);
-  uint i;
-  for (i = 0; p != tree->InverseEnd(); ++p, ++i)
-    ASSERT_EQ(v[i], *p);
+  uint i = 0;
+  tree->Inverse(q, [&] (unsigned int p) {
+    ASSERT_EQ(v[i++], p);
+  });
   ASSERT_EQ(v.size(), i);
 }
 
@@ -119,13 +119,13 @@ void TestRangeIterator(int k1, int k2, int kl, int k1_levels) {
 
 
   vector<pair<uint, uint> > v = GetEdges(matrix, p1, p2, q1, q2);
-  K2Tree::RangeIterator p = tree->RangeBegin(p1, p2);
-  uint i;
+  uint i = 0;
   vector<pair<uint, uint> > v1;
-  for (i = 0; p != tree->RangeEnd(); ++p, ++i) {
-    ASSERT_TRUE(matrix[(*p).first][(*p).second]);
-    v1.push_back(*p);
-  }
+  tree->Range(p1, p2, q1, q2, [&] (unsigned int p,unsigned int  q) {
+    i++;
+    ASSERT_TRUE(matrix[p][q]);
+    v1.emplace_back(p,q);
+  });
   ASSERT_EQ(v.size(), i);
 
   /* Test if there are repeated elements */
