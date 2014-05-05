@@ -97,7 +97,7 @@ class BitArray {
   /*
    * Return the underlying representation
    */
-  inline T *GetRawData() const {
+  inline const T *GetRawData() const {
     return data_;
   }
 

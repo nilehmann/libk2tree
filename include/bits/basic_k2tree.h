@@ -97,9 +97,9 @@ class basic_k2tree {
   /*
    * Iterates over all links in the given row.
    *
-   * @parm p Row in the matrix.
-   * @param fun Pointer to function, functor or lambda to be called for each object
-   * related to p.
+   * @param p Row in the matrix.
+   * @param fun Pointer to function, functor or lambda to be called for each
+   * object related to p.
    * The function expect a parameter of type _Size.
    */
   template<class Function>
@@ -110,7 +110,7 @@ class basic_k2tree {
   /*
    * Iterates over all links in the given column.
    *
-   * @parm q Column in the matrix.
+   * @param q Column in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each 
    * object related to q.
    * The function expect a parameter of type _Size.
@@ -121,12 +121,36 @@ class basic_k2tree {
   }
 
   /*
+   * Return number of words of size kl*kl in the leaf level.
+   */
+  _Size LeafWordsCnt() const {
+    return L_.length()/kl_/kl_;
+  }
+
+  /*
+   * Return the size in bits of the words in the leaf level, ie, kl*kl.
+   */
+  int LeafWordSize() const {
+    return kl_*kl_;
+  }
+
+  /*
+   * Return a concatenation of the words in the leaf. Each word occupies kl*kl
+   * bits in the returned array.
+   */
+  const unsigned int * LeafWords() const {
+    return L_.GetRawData();
+  }
+
+
+
+  /*
    * Iterates over all links in the specified submatrix.
    *
-   * @parm p1 Starting row in the matrix.
-   * @parm p2 Ending row in the matrix.
-   * @parm q1 Starting column in the matrix.
-   * @parm q2 Ending column in the matrix.
+   * @param p1 Starting row in the matrix.
+   * @param p2 Ending row in the matrix.
+   * @param q1 Starting column in the matrix.
+   * @param q2 Ending column in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each 
    * pair of objects. The function expect two parameters of type _Size
    */
