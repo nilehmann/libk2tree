@@ -144,6 +144,7 @@ class basic_k2tree {
   }
 
   void CompressLeaves() {
+    
   }
 
   /*
