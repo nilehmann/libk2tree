@@ -10,8 +10,10 @@
 #ifndef INCLUDE_K2TREE_H_
 #define INCLUDE_K2TREE_H_
 
-#include <bits/basic_k2tree.h>
 #include <bits/basic_k2treebuilder.h>
+#include <bits/basic_k2tree.h>
+#include <k2treepartition_builder.h>
+#include <k2tree_partition.h>
 namespace libk2tree {
 
 typedef basic_k2tree<unsigned int> K2Tree;

@@ -26,24 +26,24 @@ namespace utils {
 template<typename T, class _Size>
 class BitArray {
  public:
-  /* Create a bit array to hold up to length bits. The array is initialized
+  /* Creates a bit array to hold up to length bits. The array is initialized
    * with all bits to false.
    */
   explicit BitArray(_Size length) :
       bits_(sizeof(T)*8),
       length_(length),
-      data_(new T[length/bits_ + 1]) {
-    for (_Size i = 0; i < length/bits_ + 1; ++i)
+      data_(new T[Ceil<_Size>(length_, bits_)]) {
+    for (_Size i = 0; i < Ceil<_Size>(length_, bits_); ++i)
       this->data_[i] = 0;
   }
 
   /*
-   * Construct a bitarray from a stream
+   * Constructs a bitarray from a stream
    */
   explicit BitArray(ifstream *in) :
       bits_(LoadValue<int>(in)),
       length_(LoadValue<_Size>(in)),
-      data_(LoadValue<T>(in, length_/bits_ + 1)) {}
+      data_(LoadValue<T>(in, Ceil<_Size>(length_, bits_))) {}
 
   /* 
    * Copy constructor
@@ -51,19 +51,27 @@ class BitArray {
   BitArray(const BitArray<T, _Size>& rhs) :
       bits_(sizeof(T)*8),
       length_(rhs.length()),
-      data_(new T[rhs.length()/bits_ + 1]) {
-    for (_Size i = 0; i < length_/bits_ + 1; ++i)
+      data_(new T[Ceil<_Size>(length_, bits_)]) {
+    for (_Size i = 0; i < Ceil<_Size>(length_, bits_); ++i)
       this->data_[i] = rhs.data_[i];
   }
 
   /*
-   * Save BitArray to the output file stream.
+   * Saves BitArray to the output file stream.
    */
   void Save(ofstream *out) const {
     SaveValue(out, bits_);
     SaveValue(out, length_);
-    SaveValue(out, data_, length_/bits_ + 1);
+    SaveValue(out, data_, Ceil<_Size>(length_, bits_));
   }
+
+  inline size_t GetSize() const {
+    // bits_ + length + data_ + (ptr to data_)
+    size_t size = sizeof(int) + sizeof(_Size);
+    size += sizeof(_Size)*(Ceil<_Size>(length_, bits_)) + sizeof(_Size*);
+    return size;
+  }
+
   /*
    * Set bit p to true.
    * @param p Position to set.
@@ -81,21 +89,21 @@ class BitArray {
   }
 
   /*
-   * Return the bit on position p.
+   * Returns the bit on position p.
    */
   inline bool GetBit(_Size p) const {
     return (data_[p/bits_] >> (p%bits_) ) & 1;
   }
 
   /*
-   * Return the length of the bit array.
+   * Returns the length of the bit array.
    */
   inline _Size length() const {
     return length_;
   }
 
   /*
-   * Return the underlying representation
+   * Returns the underlying representation.
    */
   inline const T *GetRawData() const {
     return data_;
@@ -107,15 +115,19 @@ class BitArray {
 
 
  private:
-  /*Number of bits on T */
+  // Number of bits on T.
   int bits_;
+  // Number of bits in the array.
   _Size length_;
+  // Array to hold bits.
   T * data_;
 
   /*
    * Declaration of methods to prevent the copy assignment.
    */
   BitArray &operator=(const BitArray&);
+
+
 };
 
 }  // namespace utils

@@ -18,7 +18,7 @@
 using std::ifstream;
 using std::shared_ptr;
 using std::vector;
-using libk2tree::K2Tree;
+using libk2tree::K2TreePartition;
 using libk2tree::utils::LoadValue;
 
 typedef unsigned int uint;
@@ -37,13 +37,13 @@ double stop_clock() {
 }
 /* end Time meassuring */
 
-uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree);
-uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree);
+uint TimeDirect(uint *qry, uint cnt_qry, const K2TreePartition &tree);
+uint TimeRange(uint *qry, uint cnt_qry, const K2TreePartition &tree);
 
 int main(int argc, char* argv[]){
 
   if(argc<2){
-    fprintf(stderr,"USAGE: %s <GRAPH> <QUERIES> [type]\n",argv[0]);
+    fprintf(stderr,"USAGE: %s <GRAPH> <QUERIES>\n",argv[0]);
     return(-1);
   }
 
@@ -51,7 +51,9 @@ int main(int argc, char* argv[]){
   ifstream in; 
   in.open(argv[1], ifstream::in);
 
-  K2Tree tree(&in);
+  K2TreePartition tree(&in);
+
+  tree.Memory();
 
   ifstream in_queries;
   in_queries.open(argv[2], ifstream::in);
@@ -64,8 +66,8 @@ int main(int argc, char* argv[]){
   double t = 0;
   ticks= (double)sysconf(_SC_CLK_TCK);
   start_clock();
-  uint recovered = TimeDirect(qry, cnt_qry, tree);
-  //uint recovered = TimeRange(qry, cnt_qry, tree);
+  //uint recovered = TimeDirect(qry, cnt_qry, tree);
+  uint recovered = TimeRange(qry, cnt_qry, tree);
   t += stop_clock(); 
   t *= 1000; // to milliseconds
 
@@ -80,7 +82,7 @@ int main(int argc, char* argv[]){
   return 0;
 }
 
-uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
+uint TimeRange(uint *qry, uint cnt_qry, const K2TreePartition &tree) {
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
@@ -94,7 +96,7 @@ uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
   return recovered;
 }
 
-uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree) {
+uint TimeDirect(uint *qry, uint cnt_qry, const K2TreePartition &tree) {
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {

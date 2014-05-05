@@ -10,6 +10,8 @@
 #include <bits/basic_k2tree.h>
 
 namespace libk2tree {
+using utils::LoadValue;
+using utils::SaveValue;
 
 template<class _Size>
 basic_k2tree<_Size>::basic_k2tree(const BitArray<unsigned int, _Size> &T,
@@ -81,6 +83,26 @@ bool basic_k2tree<_Size>::CheckLink(_Size p, _Size q) const {
     N /= k, p %= div_level, q %= div_level;
   }
   return L_.GetBit(z - T_->getLength());
+}
+
+template<class _Size>
+void basic_k2tree<_Size>::Memory() const {
+  printf("T: %ld\n", T_->getSize());
+  printf("L: %ld\n", L_.GetSize());
+  printf("Acum Rank: %ld\n", height_*sizeof(_Size));
+  printf("Offset: %ld\n", (height_+1)*sizeof(_Size));
+  printf("Various: %ld\n", 5*sizeof(int) + 2*sizeof(_Size) + 2*sizeof(_Size*));
+  printf("Total: %ld\n", GetSize());
+}
+
+template<class _Size>
+size_t basic_k2tree<_Size>::GetSize() const {
+  size_t size = T_->getSize();
+  size += L_.GetSize();
+  size += height_*sizeof(_Size);
+  size += (height_+1)*sizeof(_Size);
+  size += 5*sizeof(int) + 2*sizeof(_Size) + 2*sizeof(_Size*);
+  return size;
 }
 
 

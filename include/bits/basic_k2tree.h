@@ -13,24 +13,21 @@
 #include <bits/utils/bitarray.h>
 #include <bits/utils/utils.h>
 #include <BitSequence.h>  // libcds
-#include <vector>
-#include <stack>
 #include <fstream>
 #include <cstdlib>
 #include <queue>
+#include <memory>
 
 
 namespace libk2tree {
 using utils::BitArray;
 using cds_static::BitSequence;
 using cds_static::BitSequenceRG;
-using std::vector;
-using std::stack;
 using std::ifstream;
 using std::ofstream;
-using utils::LoadValue;
-using utils::SaveValue;
 using std::queue;
+using std::unique_ptr;
+using utils::Ceil;
 
 
 template<class _Size>
@@ -65,6 +62,8 @@ class basic_k2tree {
   friend class basic_k2treebuilder<_Size>;
 
  public:
+  typedef _Size words_cnt;
+  typedef _Size obj_cnt;
   /*
    * Loads a K2Tree previously saved with Save(ofstream)
    */
@@ -83,7 +82,7 @@ class basic_k2tree {
   /*
    * Returns the number of objects in the original relation
    */
-  inline _Size cnt() const {
+  inline obj_cnt cnt() const {
     return cnt_;
   }
 
@@ -121,28 +120,31 @@ class basic_k2tree {
   }
 
   /*
-   * Return number of words of size kl*kl in the leaf level.
+   * Return number of words of kl*kl bits in the leaf level.
    */
-  _Size LeafWordsCnt() const {
+  words_cnt WordsCnt() const {
     return L_.length()/kl_/kl_;
   }
 
   /*
-   * Return the size in bits of the words in the leaf level, ie, kl*kl.
+   * Return the size in bytes of the words in the leaf level, ie, kl*kl.
    */
-  int LeafWordSize() const {
-    return kl_*kl_;
+  int WordSize() const {
+    return Ceil(kl_*kl_, 8);
   }
 
   /*
-   * Return a concatenation of the words in the leaf. Each word occupies kl*kl
-   * bits in the returned array.
+   * Iterates over the bits in the leaf level.
+   * @param fun Pointer to function, functor or lambda expecting a bool.
    */
-  const unsigned int * LeafWords() const {
-    return L_.GetRawData();
+  template<class Function>
+  void LeavesBits(Function fun) const {
+    for (_Size i = 0; i < L_.length(); ++i)
+      fun(L_.GetBit(i));
   }
 
-
+  void CompressLeaves() {
+  }
 
   /*
    * Iterates over all links in the specified submatrix.
@@ -223,6 +225,15 @@ class basic_k2tree {
       queue.pop();
     }
   }
+
+  /* 
+   * Print a summary of the memor usage.
+   */
+  void Memory() const;
+  /*
+   * Get size in bytes.
+   */
+  size_t GetSize() const;
 
   /*
    * Method implemented for testing reasons
