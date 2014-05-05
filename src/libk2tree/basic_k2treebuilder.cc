@@ -125,6 +125,7 @@ template<class _Size>
 void basic_k2treebuilder<_Size>::Clear() {
   DeleteNode(root, 0);
   root = NULL;
+  leafs_ = internal_nodes_ = edges_ = 0;
 }
 
 template<class _Size>
@@ -159,10 +160,8 @@ void basic_k2treebuilder<_Size>::DeleteNode(basic_k2treebuilder<_Size>::Node *n,
     int k = level <= max_level_k1_ ? k1_ : k2_;
     for (int i = 0; i < k*k; ++i)
       DeleteNode(n->children_[i], level+1);
-    --internal_nodes_;
     delete [] n->children_;
   } else {
-    leafs_ -= kl_*kl_;
     delete n->data_;
   }
   delete n;

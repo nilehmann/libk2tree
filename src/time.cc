@@ -43,7 +43,7 @@ uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree);
 int main(int argc, char* argv[]){
 
   if(argc<2){
-    fprintf(stderr,"USAGE: %s <GRAPH> <QUERIES>\n",argv[0]);
+    fprintf(stderr,"USAGE: %s <GRAPH> <QUERIES> [type]\n",argv[0]);
     return(-1);
   }
 
@@ -86,8 +86,9 @@ uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
   for(i=0;i< cnt_qry;i++) {
     vector<vector<uint> > vec(21);
     tree.RangeQuery(qry[i], qry[i]+20, 0, tree.cnt() - 1,
-    [=, &vec, &qry] (uint p, uint q) {
+    [=, &vec, &qry, &recovered] (uint p, uint q) {
       vec[p-qry[i]].push_back(q);
+      ++recovered;
     });
   }
   return recovered;
@@ -100,6 +101,7 @@ uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree) {
     vector<uint> vec;
     tree.DirectLinks(qry[i], [&] (uint q){
       vec.push_back(q); 
+      ++recovered;
     });
     
   }

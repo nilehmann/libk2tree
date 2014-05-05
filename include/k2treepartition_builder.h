@@ -11,7 +11,7 @@
 #define INCLUDE_K2TREEPARTITION_BUILDER_H_
 
 #include <boost/filesystem.hpp>
-#include <k2tree.h>
+#include <bits/basic_k2treebuilder.h>
 #include <fstream>
 
 namespace libk2tree {
@@ -46,8 +46,8 @@ class K2TreePartitionBuilder {
   /*
    * Creates a link from object p to q, assuming it correspond to the current
    * submatrix beeing built. Attempting to add a link that doesn't belong to the
-   * current submatrix causes an undefined behavior. A call to this function
-   * after all submatrices have been built throws an exception.
+   * current submatrix or after all submatrices have been built causes an
+   * undefined behavior.
    *
    * @param p Identifier of the first object.
    * @param q Identifier of the second object.
@@ -56,23 +56,41 @@ class K2TreePartitionBuilder {
 
   /*
    * Builds a k2tree for the current submatrix and moves to the next submatrix.
-   * A call to this function after all submatrices have been built throws an
-   * exception.
+   * A call to this function after all submatrices have been built causes
+   * an undefined behavior.
    */
   void BuildSubtree();
 
   /*
    * Returns true if all submatrices have been built.
    */
-  inline bool Ready() {
+  inline bool Ready() const {
     return ready_;
   }
 
   /*
    * Returns the number of objects in the relation or matrix.
    */
-  inline bool cnt() {
+  inline bool cnt() const {
     return cnt_;
+  }
+
+  /*
+   * Returns the row of the current submatrix beeing built.
+   */
+  inline int row() const {
+    return row_;
+  }
+
+  /*
+   * Returns the col of the current submatrix beeing build.
+   */
+  inline int col() const {
+    return col_;
+  }
+
+  inline int k0() const {
+    return k0_;
   }
 
   ~K2TreePartitionBuilder();
@@ -91,7 +109,7 @@ class K2TreePartitionBuilder {
   // Whether all submatrices have been built or not
   bool ready_;
   // Builder for the current submatrix.
-  K2TreeBuilder builder_;
+  basic_k2treebuilder<unsigned int> builder_;
   // Name of the temporary file.
   path tmp_;
   // Name of the resulting file.

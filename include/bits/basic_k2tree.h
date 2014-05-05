@@ -13,8 +13,6 @@
 #include <bits/utils/bitarray.h>
 #include <bits/utils/utils.h>
 #include <BitSequence.h>  // libcds
-#include <vector>
-#include <stack>
 #include <fstream>
 #include <cstdlib>
 #include <queue>
@@ -24,12 +22,8 @@ namespace libk2tree {
 using utils::BitArray;
 using cds_static::BitSequence;
 using cds_static::BitSequenceRG;
-using std::vector;
-using std::stack;
 using std::ifstream;
 using std::ofstream;
-using utils::LoadValue;
-using utils::SaveValue;
 using std::queue;
 
 
@@ -199,6 +193,9 @@ class basic_k2tree {
       queue.pop();
     }
   }
+
+  void Memory() const;
+  size_t GetSize() const;
 
   /*
    * Method implemented for testing reasons

@@ -8,6 +8,7 @@
  */
 
 #include <k2treepartition_builder.h>
+#include <bits/utils/utils.h>
 #include <memory>
 #include <exception>
 #include <cstdio>
@@ -15,6 +16,7 @@
 namespace libk2tree {
 using utils::Ceil;
 using std::shared_ptr;
+using utils::SaveValue;
 using boost::filesystem::unique_path;
 using boost::filesystem::rename;
 
@@ -33,20 +35,21 @@ K2TreePartitionBuilder::K2TreePartitionBuilder(unsigned int cnt,
     tmp_(unique_path(file.parent_path() / "%%%%%")),
     file_(file),
     out_(tmp_.native()) {
+  SaveValue(&out_, cnt_);
+  SaveValue(&out_, submatrix_size_);
+  SaveValue(&out_, k0_);
 }
 
 
 void K2TreePartitionBuilder::AddLink(unsigned int p, unsigned int q) {
   assert(p >= row_*submatrix_size_ && p < (row_+1)*submatrix_size_);
   assert(q >= col_*submatrix_size_ && q < (col_+1)*submatrix_size_);
-  if (Ready())
-    throw logic_error("AddLink: Construction is ready");
+  assert(!Ready());
   builder_.AddLink(p - row_ * submatrix_size_, q - col_ * submatrix_size_);
 }
 
 void K2TreePartitionBuilder::BuildSubtree() {
-  if (Ready())
-    throw logic_error("BuildSubmatrix: Construction is ready");
+  assert(!Ready());
   builder_.Build(&out_);
   builder_.Clear();
 
