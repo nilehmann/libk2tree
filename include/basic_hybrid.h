@@ -14,11 +14,9 @@
 #include <utils/bitarray.h>
 #include <utils/utils.h>
 #include <BitSequence.h>  // libcds
-#include <fstream>
 #include <cstdlib>
 #include <queue>
 #include <memory>
-#include <algorithm>
 
 
 namespace libk2tree {
@@ -28,7 +26,6 @@ using cds_static::BitSequenceRG;
 using std::ifstream;
 using std::ofstream;
 using std::queue;
-using std::unique_ptr;
 using std::shared_ptr;
 using utils::Ceil;
 using utils::LoadValue;
@@ -86,7 +83,6 @@ class basic_hybrid {
     uint N, div_level;
     size_t z;
     int k;
-
     N = size_;
     z = 0;
     for (int level = 0; level < height_ - 1; ++level) {

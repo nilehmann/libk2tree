@@ -15,7 +15,6 @@
 #include <dacs.h>
 
 
-
 namespace libk2tree {
 using compression::compressable;
 using compression::HashTable;
@@ -38,9 +37,14 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree>,
    */
   void Save(ofstream *out) const;
 
-
-  void Memory() const;
+  /*
+   * Returns the size in bytes
+   */
   size_t GetSize() const;
+
+  /*
+   * Method implemented for testing reasons.
+   */
   bool operator==(const HybridK2Tree &rhs) const;
 
   /*
@@ -138,32 +142,9 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree>,
 
   shared_ptr<CompressedHybrid>
   BuildCompressed(const HashTable &table,
-                  shared_ptr<Array<uchar>> voc) const {
-    uint cnt = WordsCnt();
-    uint size = WordSize();
-    uint *codewords = new uint[cnt];
+                  shared_ptr<Array<uchar>> voc) const;
 
-    int i = 0;
-    Words([&] (const uchar *word) {
-      uint addr;
-      if (!table.search(word, size, &addr)) {
-        fprintf(stderr, "Word not found\n");
-        exit(1);
-      }
-      codewords[i++] = table[addr].codeword;
-    });
-
-    FTRep *compressL = createFT(codewords, cnt);
-
-    delete [] codewords;
-
-    shared_ptr<CompressedHybrid> t(new CompressedHybrid(T_, compressL, voc,
-                                                        k1_, k2_, kl_,
-                                                        max_level_k1_, height_,
-                                                        cnt_, size_));
-    return t;
-  }
-
+  // BitArray containing leaf nodes.
   BitArray<uint, uint> L_;
 };
 }  // namespace libk2tree

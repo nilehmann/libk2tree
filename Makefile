@@ -12,11 +12,9 @@ K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
 DACS = dacs
 
-//FLAGS = -std=c++11 -O3 -Wall -Wextra -Winline -Wpedantic
-FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Winline -Wpedantic
+//FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic
+FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic
 LIBRARIES = -L$(DACS) -lcds -lboost_filesystem -lboost_system -ldacs
-
-
 
 
 .PHONY: clean style test all
@@ -38,6 +36,10 @@ header: $(HEADERS)
 # TEST
 test: bin/test
 
+#bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_SRC) 
+#	@echo " [CMP LNK] Linking test"
+#	@$(CXX) -isystem $(GTEST)/include -lpthread $(INCLUDE) $(FLAGS) $(TESTS_SRC) $(K2TREE_OBJ) $(LIBRARIES)\
+#					$(GTEST)/libgtest.a -o bin/test
 bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_OBJ) 
 	@echo " [LNK] Linking test"
 	@$(CXX) -isystem $(GTEST)/include -lpthread  $(TESTS_OBJ) $(K2TREE_OBJ) $(LIBRARIES)\

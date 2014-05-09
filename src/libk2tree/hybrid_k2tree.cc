@@ -25,9 +25,6 @@ HybridK2Tree::HybridK2Tree(ifstream *in) :
     basic_hybrid(in),
     L_(in) {}
 
-
-
-
 size_t HybridK2Tree::GetSize() const {
   size_t size = T_->getSize();
   size += L_.GetSize();
@@ -37,13 +34,38 @@ size_t HybridK2Tree::GetSize() const {
   return size;
 }
 
-
-
 void HybridK2Tree::Save(ofstream *out) const {
   basic_hybrid::Save(out);
   L_.Save(out);
 }
 
+shared_ptr<CompressedHybrid>
+HybridK2Tree::BuildCompressed(const HashTable &table,
+                              shared_ptr<Array<uchar>> voc) const {
+  uint cnt = WordsCnt();
+  uint size = WordSize();
+  uint *codewords = new uint[cnt];
+
+  int i = 0;
+  Words([&] (const uchar *word) {
+    uint addr;
+    if (!table.search(word, size, &addr)) {
+      fprintf(stderr, "Word not found\n");
+      exit(1);
+    }
+    codewords[i++] = table[addr].codeword;
+  });
+
+  FTRep *compressL = createFT(codewords, cnt);
+
+  delete [] codewords;
+
+  shared_ptr<CompressedHybrid> t(new CompressedHybrid(T_, compressL, voc,
+                                                      k1_, k2_, kl_,
+                                                      max_level_k1_, height_,
+                                                      cnt_, size_));
+  return t;
+}
 
 bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
   if (T_->getLength() != rhs.T_->getLength()) return false;
