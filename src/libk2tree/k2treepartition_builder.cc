@@ -20,8 +20,8 @@ using utils::SaveValue;
 using boost::filesystem::unique_path;
 using boost::filesystem::rename;
 
-K2TreePartitionBuilder::K2TreePartitionBuilder(unsigned int cnt,
-                                               unsigned int submatrix_size,
+K2TreePartitionBuilder::K2TreePartitionBuilder(uint cnt,
+                                               uint submatrix_size,
                                                int k1, int k2, int kl,
                                                int k1_levels,
                                                const path &file) :
@@ -41,7 +41,7 @@ K2TreePartitionBuilder::K2TreePartitionBuilder(unsigned int cnt,
 }
 
 
-void K2TreePartitionBuilder::AddLink(unsigned int p, unsigned int q) {
+void K2TreePartitionBuilder::AddLink(uint p, uint q) {
   assert(p >= row_*submatrix_size_ && p < (row_+1)*submatrix_size_);
   assert(q >= col_*submatrix_size_ && q < (col_+1)*submatrix_size_);
   assert(!Ready());

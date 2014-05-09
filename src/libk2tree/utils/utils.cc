@@ -32,6 +32,33 @@ int SquaringPow(int base, int exp) {
   return pow;
 }
 
+/*
+ * Find the smallest prime greater or equal to n
+ */
+uint NearestPrime(uint n) {
+  /* the prime number being sought */
+  int pos;  
+  int i;  
+
+  for (pos = n; ; pos++) {
+    // checks if those values from 2 to $\sqrt{pos}$ can be factors of $pos$
+    for (i = 2; i <= pos/i + 1 && pos % i != 0; i++) ;
+    // No factors in that range, therefore a prime number was found 
+    if (pos % i != 0)  
+      break;
+  }
+  return pos;
+} 
+
+char strcmp(const uchar *w1, const uchar *w2, uint size) {
+  uint i = 0;
+  while (i < size - 1 && *w1 == *w2) {
+    ++w1;
+    ++w2;
+    ++i;
+  }
+  return *w1 - *w2;
+}
 
 }  // namespace utils
 }  // namespace libk2tree

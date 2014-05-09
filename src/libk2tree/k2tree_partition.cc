@@ -28,19 +28,11 @@ K2TreePartition::K2TreePartition(ifstream *in) :
 }
 
 bool K2TreePartition::CheckLink(uint p, uint q) const {
-  const basic_k2tree<uint> &t = subtrees_[p/submatrix_size_][q/submatrix_size_];
+  const HybridK2Tree &t = subtrees_[p/submatrix_size_][q/submatrix_size_];
   return t.CheckLink(p % submatrix_size_, q % submatrix_size_);
 }
 
-void K2TreePartition::Memory() const {
-  for (int i = 0; i < k0_; ++i)
-    for (int j = 0; j < k0_; ++j) {
-      printf("row: %d, col: %d\n", i, j);
-      subtrees_[i][j].Memory();
-      printf("\n");
-    }
-  printf("Total: %ld\n", GetSize());
-}
+
 
 size_t K2TreePartition::GetSize() const {
   size_t size = 0;

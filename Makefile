@@ -1,6 +1,6 @@
-//CXX = clang++
+CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
-INCLUDE = include/
+INCLUDE = -Iinclude/ -Idacs/
 
 
 TESTS_SRC = $(shell find tests -name *.cc)
@@ -10,17 +10,25 @@ GTEST=gtest-1.7.0
 K2TREE_SRC = $(shell find src/libk2tree -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
+DACS = dacs
+
 //FLAGS = -std=c++11 -O3 -Wall -Wextra -Winline -Wpedantic
 FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Winline -Wpedantic
-LIBRARIES = -lcds -lboost_filesystem -lboost_system
+LIBRARIES = -L$(DACS) -lcds -lboost_filesystem -lboost_system -ldacs
 
 
 
 
 .PHONY: clean style test all
 
-all: test build_k2tree time qry_gen time_partition
+all: dacs test build_k2tree time qry_gen time_partition
 
+# DACS
+dacs: $(DACS)/libdacs.a
+
+$(DACS)/libdacs.a:
+	@make -C $(DACS)
+# END DACS
 
 # TEST
 test: bin/test
@@ -38,7 +46,7 @@ $(GTEST)/libgtest.a:
 
 obj/tests/%.o: tests/%.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -isystem $(GTEST)/include -I$(INCLUDE) $(FLAGS) -c $< -o $@
+	@$(CXX) -isystem $(GTEST)/include $(INCLUDE) $(FLAGS) -c $< -o $@
 # END TEST
 
 
@@ -76,22 +84,22 @@ bin/build_k2tree: $(K2TREE_OBJ) obj/src/build_k2tree.o
 
 obj/src/build_k2tree.o: src/build_k2tree.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
+	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 
 obj/src/time.o: src/time.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
+	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 
 obj/src/time_partition.o: src/time_partition.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
+	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 
 obj/src/qry_gen.o: src/queries_generator.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
+	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 obj/src/%.o: src/%.cc
 	@echo " [C++] Compiling $<"
-	@$(CXX) -I$(INCLUDE) $(FLAGS) -c $< -o $@
+	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 # END K2TREE
 
 

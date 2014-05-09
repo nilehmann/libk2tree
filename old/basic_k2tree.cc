@@ -14,13 +14,15 @@ using utils::LoadValue;
 using utils::SaveValue;
 
 template<class _Size>
-basic_k2tree<_Size>::basic_k2tree(const BitArray<unsigned int, _Size> &T,
-                                 const BitArray<unsigned int, _Size> &L,
+basic_k2tree<_Size>::basic_k2tree(const BitArray<uint, _Size> &T,
+                                 const BitArray<uint, _Size> &L,
                                  int k1, int k2, int kl, int max_level_k1,
                                  int height, _Size cnt, _Size size) :
-    T_(new BitSequenceRG(const_cast<unsigned int*>(T.GetRawData()),
+    T_(new BitSequenceRG(const_cast<uint*>(T.GetRawData()),
                          T.length(), 20)),
-    L_(L),
+    L_(new BitArray<uint, _Size>(L)),
+    compressL_(NULL),
+    vocabulary_(NULL),
     k1_(k1),
     k2_(k2),
     kl_(kl),
@@ -42,7 +44,9 @@ basic_k2tree<_Size>::basic_k2tree(const BitArray<unsigned int, _Size> &T,
 template<class _Size>
 basic_k2tree<_Size>::basic_k2tree(ifstream *in) :
     T_(BitSequence::load(*in)),
-    L_(in),
+    L_(new BitArray<uint, _Size>(in)),
+    compressL_(NULL),
+    vocabulary_(NULL),
     k1_(LoadValue<int>(in)),
     k2_(LoadValue<int>(in)),
     kl_(LoadValue<int>(in)),
@@ -82,13 +86,13 @@ bool basic_k2tree<_Size>::CheckLink(_Size p, _Size q) const {
 
     N /= k, p %= div_level, q %= div_level;
   }
-  return L_.GetBit(z - T_->getLength());
+  return L_->GetBit(z - T_->getLength());
 }
 
 template<class _Size>
 void basic_k2tree<_Size>::Memory() const {
   printf("T: %ld\n", T_->getSize());
-  printf("L: %ld\n", L_.GetSize());
+  printf("L: %ld\n", L_->GetSize());
   printf("Acum Rank: %ld\n", height_*sizeof(_Size));
   printf("Offset: %ld\n", (height_+1)*sizeof(_Size));
   printf("Various: %ld\n", 5*sizeof(int) + 2*sizeof(_Size) + 2*sizeof(_Size*));
@@ -98,7 +102,7 @@ void basic_k2tree<_Size>::Memory() const {
 template<class _Size>
 size_t basic_k2tree<_Size>::GetSize() const {
   size_t size = T_->getSize();
-  size += L_.GetSize();
+  size += L_->GetSize();
   size += height_*sizeof(_Size);
   size += (height_+1)*sizeof(_Size);
   size += 5*sizeof(int) + 2*sizeof(_Size) + 2*sizeof(_Size*);
@@ -109,7 +113,7 @@ size_t basic_k2tree<_Size>::GetSize() const {
 template<class _Size>
 void basic_k2tree<_Size>::Save(ofstream *out) const {
   T_->save(*out);
-  L_.Save(out);
+  L_->Save(out);
   SaveValue(out, k1_);
   SaveValue(out, k2_);
   SaveValue(out, kl_);
@@ -127,9 +131,9 @@ bool basic_k2tree<_Size>::operator==(const basic_k2tree &rhs) const {
   for (size_t i = 0; i < T_->getLength(); ++i)
     if (T_->access(i) != rhs.T_->access(i)) return false;
 
-  if (L_.length() != rhs.L_.length()) return false;
-  for (size_t i = 0; i < L_.length(); ++i)
-    if (L_.GetBit(i) != rhs.L_.GetBit(i)) return false;
+  if (L_->length() != rhs.L_->length()) return false;
+  for (size_t i = 0; i < L_->length(); ++i)
+    if (L_->GetBit(i) != rhs.L_->GetBit(i)) return false;
 
   if (height_ != rhs.height_) return false;
 
@@ -142,8 +146,30 @@ bool basic_k2tree<_Size>::operator==(const basic_k2tree &rhs) const {
   return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kl_ == rhs.kl_ &&
          max_level_k1_ == rhs.max_level_k1_ && size_ == rhs.size_;
 }
+template<class _Size>
+void basic_k2tree<_Size>::CompressLeaves(const HashTable &table,
+                                         shared_ptr<uchar> voc) {
+  words_cnt cnt = WordsCnt();
+  uint size = WordSize();
+  uint *codewords = new uint[cnt];
 
-template class basic_k2tree<unsigned int>;
+  int i = 0;
+  Words([&] (const uchar *word) {
+    uint addr;
+    if (!table.search(word, size, &addr)) {
+      fprintf(stderr, "Word not found\n");
+      exit(1);
+    }
+    codewords[i++] = table[addr].codeword;  
+  });
+
+  compressL_ = createFT(codewords, cnt);
+  
+  vocabulary_ = voc;
+  //L_ = NULL;
+}
+
+template class basic_k2tree<uint>;
 template class basic_k2tree<size_t>;
 
 }  // namespace libk2tree

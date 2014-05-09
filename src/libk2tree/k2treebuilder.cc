@@ -8,14 +8,14 @@
  *
  */
 
-#include <bits/basic_k2treebuilder.h>
+#include <k2treebuilder.h>
 
 namespace libk2tree {
 
-template<class _Size>
-basic_k2treebuilder<_Size>::basic_k2treebuilder(_Size cnt,
-                                                 int k1, int k2, int kl,
-                                                 int k1_levels):
+
+K2TreeBuilder::K2TreeBuilder(uint cnt,
+                             int k1, int k2, int kl,
+                             int k1_levels):
     cnt_(cnt),
     size_(0),
     k1_(k1),
@@ -32,21 +32,21 @@ basic_k2treebuilder<_Size>::basic_k2treebuilder(_Size cnt,
   // arity kl and we must find the numbers of levels with arity k2, ie, the
   // smallest integer x that satisfies:
   // k1^k1_levels * k2^x * kl >= cnt.
-  _Size powk1 = Pow<_Size>(k1, k1_levels);
-  unsigned int x = LogCeil(cnt*1.0/powk1/kl, k2);
+  uint powk1 = Pow<uint>(k1, k1_levels);
+  uint x = LogCeil(cnt*1.0/powk1/kl, k2);
   if (x == 0)
     fprintf(stderr, "Warning: Ignoring levels with arity k2.\n");
 
   height_ = k1_levels + x + 1;
-  size_ = powk1 * Pow<_Size>(k2, x) * kl;
+  size_ = powk1 * Pow<uint>(k2, x) * kl;
 }
 
-template<class _Size>
-void basic_k2treebuilder<_Size>::AddLink(_Size p, _Size q) {
+
+void K2TreeBuilder::AddLink(uint p, uint q) {
   if (root == NULL)
     root = CreateNode(0);
   Node *n = root;
-  _Size N = size_, div_level;
+  uint N = size_, div_level;
   int child;
   for (int level = 0; level < height_ - 1; level++) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
@@ -69,22 +69,22 @@ void basic_k2treebuilder<_Size>::AddLink(_Size p, _Size q) {
   n->data_->SetBit(child);
 }
 
-template<class _Size>
-shared_ptr<basic_k2tree<_Size>> basic_k2treebuilder<_Size>::Build() const {
-  BitArray<unsigned int, _Size> T(internal_nodes_);
-  BitArray<unsigned int, _Size> L(leafs_);
+
+shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
+  BitArray<uint, uint> T(internal_nodes_);
+  BitArray<uint, uint> L(leafs_);
   queue<Node*> q;
   q.push(root);
 
-  _Size cnt_level;
+  uint cnt_level;
   int level;
 
   // Position on the bitmap T
-  _Size pos = 0;
+  uint pos = 0;
   for (level = 0; level < height_-1; ++level) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
     cnt_level = q.size();
-    for (_Size i = 0; i < cnt_level; ++i) {
+    for (uint i = 0; i < cnt_level; ++i) {
       Node *n = q.front(); q.pop();
       if (n != NULL) {
         if (level > 0)  // if not the root
@@ -99,9 +99,9 @@ shared_ptr<basic_k2tree<_Size>> basic_k2treebuilder<_Size>::Build() const {
   }
 
   // Visiting nodes on level height - 1
-  _Size leaf_pos = 0;
+  uint leaf_pos = 0;
   cnt_level = q.size();
-  for (_Size i = 0; i < cnt_level; ++i) {
+  for (uint i = 0; i < cnt_level; ++i) {
     Node *n = q.front(); q.pop();
     if (n != NULL) {
       T.SetBit(pos);
@@ -114,29 +114,28 @@ shared_ptr<basic_k2tree<_Size>> basic_k2treebuilder<_Size>::Build() const {
     ++pos;
   }
 
-  basic_k2tree<_Size> *tree = new basic_k2tree<_Size>(T, L, k1_, k2_, kl_,
-                                                      max_level_k1_,
-                                                      height_, cnt_, size_);
-  return shared_ptr<basic_k2tree<_Size> >(tree);
+  HybridK2Tree *tree = new HybridK2Tree(T, L, k1_, k2_, kl_,
+                                        max_level_k1_,
+                                        height_, cnt_, size_);
+  return shared_ptr<HybridK2Tree>(tree);
 }
 
 
-template<class _Size>
-void basic_k2treebuilder<_Size>::Clear() {
+
+void K2TreeBuilder::Clear() {
   DeleteNode(root, 0);
   root = NULL;
   leafs_ = internal_nodes_ = edges_ = 0;
 }
 
-template<class _Size>
-basic_k2treebuilder<_Size>::~basic_k2treebuilder() {
+
+K2TreeBuilder::~K2TreeBuilder() {
   Clear();
 }
 
-template<class _Size>
-typename basic_k2treebuilder<_Size>::Node
-*basic_k2treebuilder<_Size>::CreateNode(int level) {
-  basic_k2treebuilder<_Size>::Node *n = new basic_k2treebuilder<_Size>::Node;
+
+K2TreeBuilder::Node *K2TreeBuilder::CreateNode(int level) {
+  K2TreeBuilder::Node *n = new K2TreeBuilder::Node;
   if (level < height_ - 1) {
     int k = level <= max_level_k1_ ? k1_ : k2_;
     n->children_ = new Node*[k*k];
@@ -144,15 +143,15 @@ typename basic_k2treebuilder<_Size>::Node
       n->children_[i] = NULL;
     internal_nodes_ += k*k;
   } else {
-    n->data_ = new BitArray<unsigned char, unsigned int>(kl_*kl_);
+    n->data_ = new BitArray<uchar, uint>(kl_*kl_);
     leafs_ += kl_*kl_;
   }
   return n;
 }
 
-template<class _Size>
-void basic_k2treebuilder<_Size>::DeleteNode(basic_k2treebuilder<_Size>::Node *n,
-                                            int level) {
+
+void K2TreeBuilder::DeleteNode(K2TreeBuilder::Node *n,
+                               int level) {
   if (n == NULL)
     return;
 
@@ -167,7 +166,5 @@ void basic_k2treebuilder<_Size>::DeleteNode(basic_k2treebuilder<_Size>::Node *n,
   delete n;
 }
 
-template class basic_k2treebuilder<unsigned int>;
-template class basic_k2treebuilder<size_t>;
 
 }  // namespace libk2tree

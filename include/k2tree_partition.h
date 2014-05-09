@@ -10,7 +10,8 @@
 #ifndef INCLUDE_K2TREE_PARTITION_H_
 #define INCLUDE_K2TREE_PARTITION_H_
 
-#include <bits/basic_k2tree.h>
+#include <libk2tree_basic.h>
+#include <hybrid_k2tree.h>
 #include <fstream>
 #include <vector>
 
@@ -18,7 +19,7 @@ namespace libk2tree {
 
 class K2TreePartition {
  public:
-  typedef unsigned int uint;
+  typedef uint uint;
   typedef size_t words_cnt;
   typedef size_t obj_cnt;
 
@@ -46,13 +47,13 @@ class K2TreePartition {
    * @param p Row in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each
    * object related to p.
-   * The function expect a parameter of type unsigned int.
+   * The function expect a parameter of type uint.
    */
   template<class Function>
   void DirectLinks(uint p, Function fun) const {
     uint row = p/submatrix_size_;
     for (int col = 0; col < k0_; ++col) {
-      const basic_k2tree<uint> &tree = subtrees_[row][col];
+      const HybridK2Tree &tree = subtrees_[row][col];
       tree.DirectLinks(p % submatrix_size_, [=] (uint q) {
         fun(col*submatrix_size_ + q);
       });
@@ -68,13 +69,13 @@ class K2TreePartition {
    * @param q Column in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each
    * object related to q.
-   * The function expect a parameter of type unsigned int.
+   * The function expect a parameter of type uint.
    */
   template<class Function>
   void InverseLinks(uint q, Function fun) const {
     uint col = q/submatrix_size_;
     for (int row = 0; row < k0_; ++row) {
-      const basic_k2tree<uint> &tree = subtrees_[row][col];
+      const HybridK2Tree &tree = subtrees_[row][col];
       tree.InverseLinks(q % submatrix_size_, [=] (uint p) {
         fun(row*submatrix_size_ + p);
       });
@@ -92,7 +93,7 @@ class K2TreePartition {
    * @param q1 Starting column in the matrix.
    * @param q2 Ending column in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each pair
-   * of objects. The function expect two parameters of type unsigned int.
+   * of objects. The function expect two parameters of type uint.
    */
   template<class Function>
   void RangeQuery(uint p1, uint p2, uint q1, uint q2, Function fun) const {
@@ -108,7 +109,7 @@ class K2TreePartition {
         q1 = col == div_q1 ? rem_q1 : 0;
         q2 = col == div_q2 ? rem_q2 : submatrix_size_ - 1;
 
-        const basic_k2tree<uint> &tree = subtrees_[row][col];
+        const HybridK2Tree &tree = subtrees_[row][col];
         tree.RangeQuery(p1, p2, q1, q2, [=] (uint p, uint q) {
           fun(row*submatrix_size_ + p, col*submatrix_size_ + q);
         });
@@ -123,11 +124,7 @@ class K2TreePartition {
     return cnt_;
   }
 
-  /*
-   * Print a summary of the memory usage.
-   */
 
-  void Memory() const;
   /* 
    * Get size in bytes.
    */
@@ -136,31 +133,31 @@ class K2TreePartition {
   /*
    * Return number of words of size kl*kl in the leaf level.
    */
-  words_cnt WordsCnt() const {
+  /*words_cnt WordsCnt() const {
     size_t leaves = 0;
     for (int row = 0; row < k0_; ++row)
       for (int col = 0; col < k0_; ++col)
         leaves += subtrees_[row][col].WordsCnt();
     return leaves;
-  }
+  }*/
 
   /*
-   * Return the size in bits of the words in the leaf level, ie, kl*kl.
+   * Return the size in bytes of the words in the leaf level, ie, kl*kl/8.
    */
-  int WordSize() const {
-    return subtrees_[0][0].WordSize();
-  }
+  /*int WordSize() const {
+    //return subtrees_[0][0].WordSize();
+  }*/
 
   /*
-   * Iterates over the bits in the leaf level.
-   * @param fun Pointer to function, functor or lambda expecting a bool.
+   * Iterates over the words in the leaf level.
+   * @param fun Pointer to function, functor or lambda expecting a uchar *.
    */
-  template<class Function>
-  void LeavesBits(Function fun) const {
+  /*template<class Function>
+  void Words(Function fun) const {
     for (int row = 0; row < k0_; ++row)
       for (int col = 0; col < k0_; ++col)
-        subtrees_[row][col].LeavesBits(fun);
-  }
+        subtrees_[row][col].Words(fun);
+  }*/
 
  private:
   // Returns the number of objects in the relation or matrix.
@@ -170,7 +167,7 @@ class K2TreePartition {
   // Value of k for the firt level, ie, there are k0*k0 subtree.
   int k0_;
   // Matrix of subtrees.
-  vector<vector<basic_k2tree<uint>>> subtrees_;
+  vector<vector<HybridK2Tree>> subtrees_;
 };
 
 

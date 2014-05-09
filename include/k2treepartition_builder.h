@@ -10,8 +10,9 @@
 #ifndef INCLUDE_K2TREEPARTITION_BUILDER_H_
 #define INCLUDE_K2TREEPARTITION_BUILDER_H_
 
+#include <libk2tree_basic.h>
 #include <boost/filesystem.hpp>
-#include <bits/basic_k2treebuilder.h>
+#include <k2treebuilder.h>
 #include <fstream>
 
 namespace libk2tree {
@@ -39,7 +40,7 @@ class K2TreePartitionBuilder {
    * @param k1_levels Number of levels with arity k1.
    * @param file Name of the file to store the structure.
    */
-  K2TreePartitionBuilder(unsigned int cnt, unsigned int submatrix_size,
+  K2TreePartitionBuilder(uint cnt, uint submatrix_size,
                          int k1, int k2, int kl, int k1_levels,
                          const path &file);
 
@@ -52,7 +53,7 @@ class K2TreePartitionBuilder {
    * @param p Identifier of the first object.
    * @param q Identifier of the second object.
    */
-  void AddLink(unsigned int p, unsigned int q);
+  void AddLink(uint p, uint q);
 
   /*
    * Builds a k2tree for the current submatrix and moves to the next submatrix.
@@ -97,9 +98,9 @@ class K2TreePartitionBuilder {
 
  private:
   // Number of objects in the relation or matrix.
-  unsigned int cnt_;
+  uint cnt_;
   // Size of each submatrix.
-  unsigned int submatrix_size_;
+  uint submatrix_size_;
   // Value of k for the first level, ie, there are k0*k0 submatrices.
   int k0_;
   // Row of the current submatrix in the matrix of submatrices.
@@ -109,7 +110,7 @@ class K2TreePartitionBuilder {
   // Whether all submatrices have been built or not
   bool ready_;
   // Builder for the current submatrix.
-  basic_k2treebuilder<unsigned int> builder_;
+  K2TreeBuilder builder_;
   // Name of the temporary file.
   path tmp_;
   // Name of the resulting file.

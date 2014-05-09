@@ -53,7 +53,6 @@ int main(int argc, char* argv[]){
 
   K2TreePartition tree(&in);
 
-  tree.Memory();
 
   ifstream in_queries;
   in_queries.open(argv[2], ifstream::in);

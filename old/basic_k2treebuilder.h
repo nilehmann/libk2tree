@@ -11,6 +11,7 @@
 #ifndef INCLUDE_BITS_BASIC_K2TREEBUILDER_H_
 #define INCLUDE_BITS_BASIC_K2TREEBUILDER_H_
 
+#include <libk2tree_basic.h>
 #include <bits/basic_k2tree.h>
 #include <bits/utils/bitarray.h>
 #include <bits/utils/utils.h>
@@ -118,7 +119,7 @@ class basic_k2treebuilder {
   struct Node {
     union {
       // Stores the children of the level height_-1 (the leafs)
-      BitArray<unsigned char, unsigned int> *data_;
+      BitArray<uchar, uint> *data_;
       // Pointers to children of internal nodes.
       Node **children_;
     };

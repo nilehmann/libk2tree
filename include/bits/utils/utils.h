@@ -13,6 +13,7 @@
 #ifndef INCLUDE_BITS_UTILS_UTILS_H_
 #define INCLUDE_BITS_UTILS_UTILS_H_
 
+#include <libk2tree_basic.h>
 #include <fstream>
 
 namespace libk2tree {
@@ -44,22 +45,24 @@ int SquaringPow(int base, int exp);
  * Calculates base raised to the power of exp, in exp operations.
  */
 template<typename _Size>
-_Size Pow(unsigned int base, unsigned int exp) {
+_Size Pow(uint base, uint exp) {
   _Size pow = 1;
-  for (unsigned int i = 0; i < exp; ++i)
+  for (uint i = 0; i < exp; ++i)
     pow *= base;
   return pow;
 }
 
-/** Saves a value into an ofstream.
-*/
+/* 
+ * Saves a value into an ofstream.
+ */
 template <typename T>
 void SaveValue(ofstream *out, T val) {
   out->write(reinterpret_cast<char *>(&val), sizeof(T));
 }
 
-/** Loads a value from an istream.
-*/
+/* 
+ * Loads a value from an istream.
+ */
 template <typename T>
 T LoadValue(ifstream *in) {
   T ret;
@@ -67,21 +70,30 @@ T LoadValue(ifstream *in) {
   return ret;
 }
 
-/** Saves len values into an ofstream.
-*/
+/* 
+ * Saves len values into an ofstream.
+ */
 template <typename T>
 void SaveValue(ofstream *out, T *val, size_t length) {
   out->write(reinterpret_cast<char *>(val), length * sizeof(T));
 }
 
-/** Loads len values from an istream.
-*/
+/* 
+ * Loads len values from an istream.
+ */
 template <typename T>
 T *LoadValue(ifstream *in, size_t length) {
   T *ret = new T[length];
   in->read(reinterpret_cast<char *>(ret), length * sizeof(T));
   return ret;
 }
+
+/*
+ * Find the smallest prime greater or equal to n
+ */
+uint NearestPrime(uint n);
+
+char strcmp(const uchar *w1, const uchar *w2, uint size);
 
 }  // namespace utils
 }  // namespace libk2tree

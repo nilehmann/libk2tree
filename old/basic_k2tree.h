@@ -10,13 +10,19 @@
 #ifndef INCLUDE_BITS_BASIC_K2TREE_H_
 #define INCLUDE_BITS_BASIC_K2TREE_H_
 
+#include <libk2tree_basic.h>
+#include <leaves_compression/hash.h>
+#include <leaves_compression/leaves_compressor.h>
 #include <bits/utils/bitarray.h>
 #include <bits/utils/utils.h>
+#include <leaves_compression/leaves_compressor.h>
 #include <BitSequence.h>  // libcds
+#include <dacs.h>
 #include <fstream>
 #include <cstdlib>
 #include <queue>
 #include <memory>
+#include <algorithm>
 
 
 namespace libk2tree {
@@ -28,6 +34,7 @@ using std::ofstream;
 using std::queue;
 using std::unique_ptr;
 using utils::Ceil;
+using leaves_compression::HashTable;
 
 
 template<class _Size>
@@ -54,13 +61,12 @@ template<class _Size> struct InverseImpl;
  * Teplate implementation for a compact representation of binary relations or
  * matrices using a k2tree. The template parameter specifies the integral type
  * able to hold the number of objects in the relation. The library gives
- * precompiled instances for unsigned int (alias K2Tree) and size_t (alias LongK2Tree)
+ * precompiled instances for uint (alias K2Tree) and size_t (alias LongK2Tree)
  * Object identifiers starts with 0.
  */
 template<class _Size>
 class basic_k2tree {
   friend class basic_k2treebuilder<_Size>;
-
  public:
   typedef _Size words_cnt;
   typedef _Size obj_cnt;
@@ -119,33 +125,51 @@ class basic_k2tree {
     Neighbors<Function, InverseImpl<_Size>>(q, fun);
   }
 
+
   /*
    * Return number of words of kl*kl bits in the leaf level.
    */
   words_cnt WordsCnt() const {
-    return L_.length()/kl_/kl_;
+    return L_->length()/kl_/kl_;
   }
 
   /*
-   * Return the size in bytes of the words in the leaf level, ie, kl*kl.
+   * Return the size in bytes of the words in the leaf level, ie, kl*kl/8.
    */
-  int WordSize() const {
+  uint WordSize() const {
     return Ceil(kl_*kl_, 8);
   }
 
   /*
-   * Iterates over the bits in the leaf level.
-   * @param fun Pointer to function, functor or lambda expecting a bool.
+   * Iterates over the words in the leaf level.
+   * @param fun Pointer to function, functor or lambda expecting a
+   * uchar*
    */
   template<class Function>
-  void LeavesBits(Function fun) const {
-    for (_Size i = 0; i < L_.length(); ++i)
-      fun(L_.GetBit(i));
-  }
+  void Words(Function fun) const {
+    words_cnt cnt = WordsCnt();
+    uint size = WordSize();
 
-  void CompressLeaves() {
+    _Size bit = 0;
+    for (words_cnt i = 0; i < cnt; ++i) {
+      uchar *word = new uchar[size];
+      std::fill(word, word + size, 0);
+      for (int j = 0; j < kl_*kl_; ++j, ++bit) {
+        if (L_->GetBit(bit))
+          word[j/8] |= (1 << (j%8));
+      }
+      fun(word);
+      delete [] word;
+    }
     
   }
+
+
+  void CompressLeaves() {
+    leaves_compression::Compress(*this);    
+  }
+
+  void CompressLeaves(const HashTable &table, shared_ptr<uchar> voc);
 
   /*
    * Iterates over all links in the specified submatrix.
@@ -219,7 +243,7 @@ class basic_k2tree {
         div_q2 = f.q2/div_level;
         for (_Size j = div_q1; j <= div_q2; ++j) {
           dq = f.dq + div_level*j;
-          if ( L_.GetBit(z+j - T_->getLength()))
+          if ( L_->GetBit(z+j - T_->getLength()))
             fun(dp, dq);
         }
       }
@@ -256,8 +280,8 @@ class basic_k2tree {
    * @param cnt Number of object in the relation.
    * @param size Size of the expanded matrix.
    */
-  basic_k2tree(const BitArray<unsigned int, _Size> &T,
-               const BitArray<unsigned int, _Size> &L,
+  basic_k2tree(const BitArray<uint, _Size> &T,
+               const BitArray<uint, _Size> &L,
                int k1, int k2, int kl, int max_level_k1, int height,
                _Size cnt, _Size size);
 
@@ -285,6 +309,32 @@ class basic_k2tree {
     else  return kl_;
   }
 
+  template<class Function, class _Impl>
+  void LeafBits(Frame<_Size> f, uint div_level, Function fun) const {
+    _Size first = f.z = FirstChild(f.z, height_ - 1, kl_);
+    f.z += _Impl::Offset(f, kl_, div_level);
+    if (compressL_  == NULL) {
+      for (int j  = 0; j < kl_; ++j) {
+        Frame<_Size> newf = _Impl::NextFrame(f, j, kl_, div_level);
+        if (L_->GetBit(newf.z - T_->getLength()))
+          fun(_Impl::Output(newf));
+      }
+    }
+    else {
+      uint size = WordSize();
+      uint pos = f.z - T_->getLength();
+      uint iword = accessFT(compressL_, pos/(size*8));
+      uchar *word = vocabulary_.get()+iword*size;
+
+      for (int j  = 0; j < kl_; ++j) {
+        Frame<_Size> newf = _Impl::NextFrame(f, j, kl_, div_level);
+        pos = newf.z - first;
+        if ((word[pos/8] >> (pos%8)) & 1)
+          fun(_Impl::Output(newf));
+      }
+    }
+
+  }
 
   /*
    * Template implementation for DirectLinks and InverseLinks
@@ -294,7 +344,7 @@ class basic_k2tree {
     _Size div_level;
     _Size cnt_level;
     int k, level;
-    queue<Frame<_Size> > queue;
+    queue<Frame<_Size> > queue; 
 
     queue.push(_Impl::FirstFrame(object));
     _Size N = size_;
@@ -321,13 +371,8 @@ class basic_k2tree {
     cnt_level = queue.size();
     for (_Size i = 0; i < cnt_level; ++i) {
       Frame<_Size> &f = queue.front();
-      f.z = FirstChild(f.z, level, kl_);
-      f.z += _Impl::Offset(f, kl_, div_level);
-      for (int j  = 0; j < kl_; ++j) {
-        Frame<_Size> newf = _Impl::NextFrame(f, j, kl_, div_level);
-        if (L_.GetBit(newf.z - T_->getLength()))
-          fun(_Impl::Output(newf));
-      }
+      LeafBits<Function, _Impl>(f, div_level, fun);
+
       queue.pop();
     }
   }
@@ -335,7 +380,9 @@ class basic_k2tree {
   // Bit array with rank capability containing internal nodes.
   BitSequence *T_;
   // Bit array for the leafs.
-  BitArray<unsigned int, _Size> L_;
+  BitArray<uint, _Size> *L_;
+  FTRep* compressL_;
+  shared_ptr<uchar> vocabulary_;
   // Arity of the first part.
   int k1_;
   // Arity of the second part.

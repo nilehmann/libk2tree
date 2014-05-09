@@ -7,20 +7,10 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef INCLUDE_K2TREE_H_
-#define INCLUDE_K2TREE_H_
-
-#include <k2treebuilder.h>
-#include <k2treepartition_builder.h>
-#include <k2tree_partition.h>
-#include <hybrid_k2tree.h>
+#ifndef INCLUDE_LIBK2TREE_BASIC_H_
+#define INCLUDE_LIBK2TREE_BASIC_H_
 namespace libk2tree {
-
-//typedef basic_k2tree<uint> K2Tree;
-//typedef HybridK2Tree K2Tree;
-//typedef basic_k2tree<size_t> LongK2Tree;
-//typedef basic_k2treebuilder<uint> K2TreeBuilder;
-//typedef basic_k2treebuilder<size_t> LongK2TreeBuilder;
-
+typedef unsigned int uint;
+typedef unsigned char uchar;
 }  // namespace libk2tree
-#endif  // INCLUDE_K2TREE_H_
+#endif  // INCLUDE_LIBK2TREE_BASIC_H_

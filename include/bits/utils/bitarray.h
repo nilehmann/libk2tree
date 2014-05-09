@@ -12,6 +12,7 @@
 #ifndef INCLUDE_BITS_UTILS_BITARRAY_H_
 #define INCLUDE_BITS_UTILS_BITARRAY_H_
 
+#include <libk2tree_basic.h>
 #include <bits/utils/utils.h>
 #include <cstddef>
 
@@ -21,7 +22,7 @@ namespace utils {
 
 /*
  * Dynamic bit array implementation with an array of T as underlying
- * representation. T should be typically a unsigned char or an unsigned int.
+ * representation. T should be typically a uchar or an uint.
  */
 template<typename T, class _Size>
 class BitArray {
