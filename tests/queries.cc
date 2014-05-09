@@ -8,7 +8,6 @@
  */
 
 
-#include <libk2tree_basic.h>
 #include "./queries.h"
 #include <vector>
 
@@ -22,7 +21,7 @@ vector<uint> GetSuccessors(const vector<vector<bool> > &matrix, uint p) {
   return v;
 }
 vector<pair<uint, uint> > GetEdges(const vector<vector<bool> > &matrix,
-                             uint p1, uint p2, uint q1, uint q2) {
+                                   uint p1, uint p2, uint q1, uint q2) {
   vector<pair<uint, uint> > v;
   for (uint i = p1; i <= p2; ++i)
     for (uint j = q1; j <= q2; ++j)

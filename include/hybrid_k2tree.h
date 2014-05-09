@@ -129,7 +129,6 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree>,
           fun(dp, dq);
       }
     }
-
   }
 
   bool GetChildInLeaf(uint z, int child) const {
@@ -151,13 +150,13 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree>,
         fprintf(stderr, "Word not found\n");
         exit(1);
       }
-      codewords[i++] = table[addr].codeword;  
+      codewords[i++] = table[addr].codeword;
     });
 
     FTRep *compressL = createFT(codewords, cnt);
 
     delete [] codewords;
-    
+
     shared_ptr<CompressedHybrid> t(new CompressedHybrid(T_, compressL, voc,
                                                         k1_, k2_, kl_,
                                                         max_level_k1_, height_,

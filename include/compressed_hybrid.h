@@ -46,7 +46,6 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
  private:
   FTRep * compressL_;
   shared_ptr<Array<uchar> > vocabulary_;
-  
 
   /* 
    * Builds a k2tree with and hybrid aproach. This construtor should
@@ -89,7 +88,6 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
       z = Impl::NextChild(z, kl_);
     }
-
   }
 
   template<class Function>
@@ -113,7 +111,6 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
           fun(dp, dq);
       }
     }
-
   }
 
   bool GetChildInLeaf(uint z, int child) const {
@@ -128,7 +125,6 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
   uint WordSize() const {
     return Ceil(kl_*kl_, 8);
   }
-
 };
 }  // namespace libk2tree
 #endif  // INCLUDE_COMPRESSED_HYBRID_H_

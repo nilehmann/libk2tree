@@ -8,13 +8,14 @@
  */
 
 
-#include "./queries.h"
 #include <k2tree.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>
 #include <cstdio>
 #include <algorithm>
+#include "./queries.h"
+
 using ::libk2tree::K2TreeBuilder;
 using ::libk2tree::HybridK2Tree;
 using ::libk2tree::CompressedHybrid;
@@ -64,5 +65,25 @@ TEST(CompressedHybrid, RangeQuery) {
   vector<vector<bool>> matrix;
   shared_ptr<CompressedHybrid> tree = Build(&matrix);
 
+  TestRangeQuery(*tree, matrix);
+}
+TEST(CompressedHybrid, Save) {
+  vector<vector<bool>> matrix;
+  shared_ptr<CompressedHybrid> tree = Build(&matrix);
+  ofstream out;
+  out.open("compressed_k2tree_test", ofstream::out);
+  tree->Save(&out);
+  out.close();
+
+  ifstream in;
+  in.open("compressed_k2tree_test", ifstream::in);
+  HybridK2Tree tree2(&in);
+  in.close();
+
+  TestDirectLinks(*tree, matrix);
+  TestInverseLinks(*tree, matrix);
+  TestRangeQuery(*tree, matrix);
+
+  remove("compressed_k2tree_test");
   TestRangeQuery(*tree, matrix);
 }

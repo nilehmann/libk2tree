@@ -1,4 +1,4 @@
-CXX = clang++
+//CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = -Iinclude/ -Idacs/
 
@@ -29,6 +29,11 @@ dacs: $(DACS)/libdacs.a
 $(DACS)/libdacs.a:
 	@make -C $(DACS)
 # END DACS
+#
+#
+header: $(HEADERS)
+	@$(CXX) $(INCLUDE) $(FLAGS) include/k2tree.h
+
 
 # TEST
 test: bin/test

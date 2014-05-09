@@ -8,7 +8,7 @@
  */
 
 #include <k2treepartition_builder.h>
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 #include <memory>
 #include <exception>
 #include <cstdio>

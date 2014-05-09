@@ -10,13 +10,14 @@
 #ifndef TESTS_QUERIES_H_
 #define TESTS_QUERIES_H_
 
-#include <libk2tree_basic.h>
 #include <k2tree.h>
+#include <libk2tree_basic.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>
 #include <cstdio>
 #include <algorithm>
+#include <utility>
 
 using ::libk2tree::K2TreeBuilder;
 using ::std::shared_ptr;

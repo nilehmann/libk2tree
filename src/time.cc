@@ -8,7 +8,7 @@
  */
 
 #include <k2tree.h>
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 #include <cstdio>
 #include <cmath>
 #include <cstring>
@@ -18,7 +18,7 @@
 using std::ifstream;
 using std::shared_ptr;
 using std::vector;
-using libk2tree::K2Tree;
+using libk2tree::HybridK2Tree;
 using libk2tree::utils::LoadValue;
 
 typedef unsigned int uint;
@@ -37,8 +37,8 @@ double stop_clock() {
 }
 /* end Time meassuring */
 
-uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree);
-uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree);
+uint TimeDirect(uint *qry, uint cnt_qry, const HybridK2Tree &tree);
+uint TimeRange(uint *qry, uint cnt_qry, const HybridK2Tree &tree);
 
 int main(int argc, char* argv[]){
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
   ifstream in; 
   in.open(argv[1], ifstream::in);
 
-  K2Tree tree(&in);
+  HybridK2Tree tree(&in);
 
   ifstream in_queries;
   in_queries.open(argv[2], ifstream::in);
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
   return 0;
 }
 
-uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
+uint TimeRange(uint *qry, uint cnt_qry, const HybridK2Tree &tree) {
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
@@ -94,7 +94,7 @@ uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
   return recovered;
 }
 
-uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree) {
+uint TimeDirect(uint *qry, uint cnt_qry, const HybridK2Tree &tree) {
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {

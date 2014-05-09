@@ -140,12 +140,9 @@ ushort * optimizationk(uint * acumFreqs,int maxInt, int * nkvalues){
 	for(i=1;i<=nBits;i++){
 		maxSize=-1;
 		maxPos=0;
-	//fprintf(stderr,"maxSize:%ld\n",maxSize);
-		//fprintf(stderr,"i=%d\n",i);
+
 		
 		for(j=0;j<i;j++){
-			//El ultimo nivel se crea desde j hasta i
-			//fprintf(stderr,"j=%d\n",j);
 			if(i==nBits)
 				posVocInf=0;
 			else
@@ -157,37 +154,25 @@ ushort * optimizationk(uint * acumFreqs,int maxInt, int * nkvalues){
 				currentSize = tableSize[j]+	((ulong)(acumFreqs[sizeVoc]-acumFreqs[posVocInf]))*((i-j));	
 			else
 				currentSize = tableSize[j]+	((ulong)(acumFreqs[sizeVoc]-acumFreqs[posVocInf]))*((i-j)+1)+(acumFreqs[sizeVoc]-acumFreqs[posVocInf])/FACT_RANK;	
-			
-			//fprintf(stderr,"i %d ,j %d,tableSize: %ld, acumFreqSup[%d] :%d, acumFreqInf[%d]:%d,bits level:%d, total:%ld\n",i,j,tableSize[j],	posVocSup,(acumFreqs[posVocSup]),posVocInf,(acumFreqs[posVocInf]),(i-j),currentSize);	
 
 			if(maxSize>currentSize){
 				maxSize=currentSize;
 				maxPos=j;
 			}
 			
-	
 		}
-		//if(i==nBits)
-		//	maxPos=4;
-		//fprintf(stderr,"\n");
-		tableSize[i]=maxSize;
-	//fprintf(stderr,"maxSize:%ld\n",maxSize);
 
-		//fprintf(stderr,"MaxPos: %d, con %d k values\n",maxPos,tableNLevels[maxPos]+1);
+		tableSize[i]=maxSize;
 		tableNLevels[i]=tableNLevels[maxPos]+1;
 		tableKvalues[i]=(uint *)malloc(sizeof(uint)*tableNLevels[i]);
 		for(j=0;j<tableNLevels[i]-1;j++){
 			tableKvalues[i][j]=tableKvalues[maxPos][j];
-			//fprintf(stderr,"%d\n",tableKvalues[i][j]);
 		}
 		tableKvalues[i][tableNLevels[i]-1]=i-maxPos;			
-	//fprintf(stderr,"%d\n",tableKvalues[i][tableNLevels[i]-1]);
-		
-		//tableKvalues[i]=tableKvalues[
+
 		
 	}
 
-	//fprintf(stderr,"Valor optimo para el último nivel: %d tamanho aproximado: %d\n",tableNLevels[nBits],tableSize[nBits]);
 	
 	ulong sumaTotal=0;
 	int bitCountInf=0, bitCountSup=0, bitsCount;
@@ -201,8 +186,6 @@ ushort * optimizationk(uint * acumFreqs,int maxInt, int * nkvalues){
 			posVocSup=(1<<bitCountSup);
 			if(posVocSup>=sizeVoc)
 				posVocSup=sizeVoc;
-			//fprintf(stderr,"posVocInf:%d, posVocSup:%d\n",posVocInf,posVocSup);
-			//fprintf(stderr,"tamaño del nivel: %d\n",acumFreqs[sizeVoc]-acumFreqs[posVocInf]);
 			if(j==tableNLevels[nBits])
 				sumaTotal += 	((ulong)(acumFreqs[sizeVoc]-acumFreqs[posVocInf]))*bitsCount;	
 
@@ -211,13 +194,10 @@ ushort * optimizationk(uint * acumFreqs,int maxInt, int * nkvalues){
 
 		
 		
-			//fprintf(stderr,"%d\n",bitsCount);
 			
 			bitCountInf+=bitsCount;
 		}
 
-	//fprintf(stderr,"Valor optimo para el último nivel: %d tamanho aproximado: %d\n",tableNLevels[nBits],sumaTotal);
-	//printf("%d\n",tableNLevels[nBits]);
 	
 		
 	(*nkvalues)=tableNLevels[nBits];
@@ -229,21 +209,17 @@ ushort * optimizationk(uint * acumFreqs,int maxInt, int * nkvalues){
 			
 			kvalues[j]=bitsCount;
 	
-	
-			//printf("%d\n",bitsCount);
+
 			
 			bitCountInf+=bitsCount;
 		}
 
-	//fprintf(stderr,"freq del primero: %d\n",acumFreqs[0]);
-	//fprintf(stderr,"freq de los 10 primeros:\n");
-	//for(j=0;j<10;j++)
-	//	fprintf(stderr,"i: %d, freq: %d\n",j,acumFreqs[j+1]-acumFreqs[j]);
-	//j = 1024;// 2<<(tableKvalues[nBits][tableNLevels[nBits]-1]);
-	//fprintf(stderr,"freq del ultimo del primer nivel, con %d bits %d: %d\n",tableKvalues[nBits][tableNLevels[nBits]-1],j,acumFreqs[j+1]-acumFreqs[j]);
-	
-	
-	//fprintf(stderr,"total bits: %d\n",bitCountInf);	
+
+    free (tableSize);
+    for (i = 1; i <= nBits; ++i)
+        free (tableKvalues[i]);
+    free (tableKvalues);
+    free (tableNLevels);
 	return kvalues;
 	
 	
@@ -340,7 +316,6 @@ FTRep* createFT(uint *list,uint listLength){
 			kval=1<<(kvalues[i]);	
 		multval*=kval;
 		newval = oldval+multval;//mypow(kval,i);
-		//fprintf(stderr,"i:%u, old: %u, sumando mypow(%d,%d)=%d --> new: %u\n",i,oldval,kval,i,mypow(kval,i),newval);
 		i++;
 	}
 	while(oldval<newval);
@@ -364,7 +339,6 @@ FTRep* createFT(uint *list,uint listLength){
 		multval*=kval;
 		newval = oldval+multval;//mypow(kval,i);
 		rep->tablebase[i]=oldval;
-		//fprintf(stderr,"rep->tablebase[%d]=%d\n",i,rep->tablebase[i]);
 	}	
 	
 	
@@ -384,11 +358,9 @@ FTRep* createFT(uint *list,uint listLength){
 	j=0;
 //	//Contadores
 	while((j<rep->tamtablebase)&&(levelSizeAux[j]!=0)){
-		//fprintf(stderr,"levelSize[%d]=%d\n",j,levelSizeAux[j]);
 		 j++;
 		}
 	rep->nLevels = j;
-	//fprintf(stderr,"Number of Levels: %d\n",rep->nLevels);
 	rep->levelsIndex = (uint *) malloc(sizeof(uint)*(rep->nLevels+1));
 	bits_BS_len =0;
 	
@@ -408,35 +380,7 @@ FTRep* createFT(uint *list,uint listLength){
 
 	uint tamLevels =0;
 		
-//	rep->base[0]=1;
-//	rep->base_bits[0]=0;
-//
-////	if(levelSizeAux[0]%8)
-////		levelSizeAux[0]=((levelSizeAux[0]>>3)<<3)+8;
-////	rep->base[0]=1;
-//	rep->base_bits[0]=0;
-//	
-//	//tamLevels+=levelSizeAux[0]/8;
-//	if(rep->nLevels>=2){
-//	//	if (levelSizeAux[1]%4)
-//	//		levelSizeAux[1]=((levelSizeAux[1]>>2)<<2)+4;
-//	//		tamLevels+=levelSizeAux[1]/4;
-//		rep->base[1]=4;
-//		rep->base_bits[1]=2;
-//	}
-//
-//	if(rep->nLevels>=3){
-//	//	if (levelSizeAux[2]%2)
-//	//		levelSizeAux[2]++;
-//	//		tamLevels+=levelSizeAux[2]/2;
-//		rep->base[2]=16;
-//		rep->base_bits[2]=4;
-//	}
-//	for(j=3;j<rep->nLevels;j++){
-//		//tamLevels+=levelSizeAux[j];
-//		rep->base[j]=256;
-//		rep->base_bits[j]=8;
-//	}
+
 
 	tamLevels=0;
 	for(i=0;i<rep->nLevels;i++)
@@ -444,7 +388,6 @@ FTRep* createFT(uint *list,uint listLength){
 
 	rep->iniLevel = (uint *)malloc(sizeof(uint)*rep->nLevels);		
 	rep->tamCode=tamLevels;
-	//fprintf(stderr,"Tamaño del nivel: %d bits\n",tamLevels);
 	uint indexLevel=0;
 	rep->levelsIndex[0]=0;
 	for(j=0;j<rep->nLevels;j++){
@@ -455,9 +398,7 @@ FTRep* createFT(uint *list,uint listLength){
 			indexLevel+=levelSizeAux[j]*rep->base_bits[j];
 		//}
 		contB[j]=rep->levelsIndex[j];
-		//fprintf(stderr,"nivel %d: de %d a %d\n",j,rep->levelsIndex[j],rep->levelsIndex[j+1]);
-		//fprintf(stderr,"base: %d\n",rep->base[j]);
-		//fprintf(stderr,"bits: %d\n",rep->base_bits[j]);
+
 	}
 
 
@@ -474,67 +415,26 @@ FTRep* createFT(uint *list,uint listLength){
 
 		while(j>=0){
 			if(value >= rep->tablebase[j]){
-			//if(i<10)
-			//fprintf(stderr,"value = %d, j= %d\n",d,j);
-				//contB[0]++;
-//				if((rep->base_bits[j]==0)&&(value ==0)){
-//					//if(i<10)
-//					//	fprintf(stderr,"Saliendo porque d es 0\n");
-//									bitset(bits_BS,contB[0]-1);
-//					//if(i<10)
-//					//	fprintf(stderr,"Poniendo a 1 el bit\n",contB[0]-1);
-//					break;			
-//				}
-				//fprintf(stderr,"i: %d, valor: $%d, con j max: %d\n",i,d,j);
+
 				newvalue = value- rep->tablebase[j];
-				//if(i<1)
-				//	fprintf(stderr,"newvalue = %d j= %d\n",newvalue,j);
 
 				for(k=0;k<j;k++){
-					//if(i<10)
-					//	fprintf(stderr,"cont[%d]=%d, limite: %d\n",k,cont[k],rep->levelsIndex[k+1]);
-//					if(cont[k]&rep->base_mascmod[k]){
-//						//if(i<10)
-//					//fprintf(stderr,"Cont[%d]=%d, Valor anterior: %d, base: %d macmod %d desplaz: %d, valor nuevo: %d\n",k,cont[k],rep->levels[rep->iniLevel[k]+(cont[k]>>rep->base_div[k])],rep->base_bits[k],rep->base_mascmod[k],(rep->base_bits[k]*(cont[k]&rep->base_mascmod[k])),((byte)newvalue%rep->base[k])<<(rep->base_bits[k]*(cont[k]&rep->base_mascmod[k])));
-//						rep->levels[rep->iniLevel[k]+(cont[k]>>rep->base_div[k])]=rep->levels[rep->iniLevel[k]+(cont[k]>>rep->base_div[k])]+(((byte)newvalue%rep->base[k])<<(rep->base_bits[k]*(cont[k]&rep->base_mascmod[k])));
-//						//if(i<10)
-//						//fprintf(stderr,"levels[%d]=%d\n",rep->iniLevel[k]+(cont[k]>>rep->base_div[k]),rep->levels[rep->iniLevel[k]+(cont[k]>>rep->base_div[k])]);
-//					}
-//					else{
-//						//fprintf(stderr,"Cont[%d]=%d, Valor anterior: %d, valor nuevo: %d, valor que queda: %d\n",k,cont[k],rep->levels[cont[k]/4],(byte)newvalue%BASE,rep->levels[cont[k]/4]+(((byte)newvalue%BASE)<<(BASE_BITS*(cont[k]&0x3))));
-//						rep->levels[rep->iniLevel[k]+(cont[k]>>rep->base_div[k])]=rep->levels[rep->iniLevel[k]+(cont[k]>>rep->base_div[k])]+(byte)newvalue%rep->base[k];	
-//						//fprintf(stderr,"levels[%d]=%d\n",cont[k]/4,rep->levels[cont[k]/4]);
-//					}
+
 					
 
 					bitwrite(rep->levels,cont[k],rep->base_bits[k],newvalue%rep->base[k]);
 					cont[k]+=rep->base_bits[k];
 					contB[k]++;
-					//fprintf(stderr,"rep->levels[%d][%d]=%d\n",k,cont[k]-1,rep->levels[k][cont[k]-1]);
 					newvalue = newvalue/rep->base[k];
 				}
 				k=j;
-				//fprintf(stderr,"i: %d, j: %d, cont[j]= %d, base_mascmod: %d\n",i,j,cont[j],rep->base_mascmod[j]);
-//				if(cont[j]&rep->base_mascmod[j]){
-//					//fprintf(stderr,"Cont[%d]=%d, Valor anterior: %d, valor nuevo: %d, valor que queda: %d\n",k,cont[k],rep->levels[cont[k]/4],(byte)newvalue%BASE,rep->levels[cont[k]/4]+(((byte)newvalue%BASE)<<(BASE_BITS*(cont[k]&0x3))));
-//						
-//					rep->levels[rep->iniLevel[k]+(cont[j]>>rep->base_div[j])]=rep->levels[rep->iniLevel[k]+(cont[j]>>rep->base_div[j])]+(((byte)newvalue%rep->base[j])<<(rep->base_bits[j]*(cont[k]&rep->base_mascmod[j])));
-//					//fprintf(stderr,"levels[%d]=%d\n",cont[k]/4,rep->levels[cont[k]/4]);
-//					}
-//				else{
-//					//fprintf(stderr,"Cont[%d]=%d, Valor anterior: %d, valor nuevo: %d, valor que queda: %d\n",k,cont[k],rep->levels[cont[k]>>rep->base_div[j]],(byte)newvalue%rep->base_bits[j],rep->levels[cont[k]>>rep->base_bits[j]]+(((byte)newvalue%rep->base[j])<<(rep->base_bits[k]*(cont[k]&rep->base_mascmod[j]))));
-//					
-//					rep->levels[rep->iniLevel[k]+(cont[j]>>rep->base_div[j])]=rep->levels[rep->iniLevel[k]+(cont[j]>>rep->base_div[j])]+(byte)newvalue%rep->base[j];	
-//					//fprintf(stderr,"levels[%d]=%d\n",cont[k]/4,rep->levels[cont[k]/4]);
-//											}
-					
+
 
 					bitwrite(rep->levels,cont[j],rep->base_bits[j],newvalue%rep->base[j]);
 					cont[j]+=rep->base_bits[j];
 					contB[j]++;
 				if(j<rep->nLevels-1){
 					bitset(bits_BS,contB[j]-1);
-				//fprintf(stderr,"rep->levels[%d][%d]=%d\n\n",j,cont[j]-1,rep->levels[j][cont[j]-1]);
 				}
 									
 				break;
@@ -547,25 +447,21 @@ FTRep* createFT(uint *list,uint listLength){
 	//Para simular ultimo array:
 
 	bitset(bits_BS,bits_BS_len-1);
-	//fprintf(stderr,"se esta creando un bitmap de %d longitud, con %d en la ultima posicion\n",bits_BS_len, bitget(bits_BS,bits_BS_len-1));
 	//rep->bits_bitmap = bits_BS;
 	rep->bS = createBitRankW32Int(bits_BS, bits_BS_len , 1, 20); 	
 
 
-	//for(j=0;j<rep->nLevels;j++)
- 	//		fprintf(stderr,"inilevel[%d]=%d\n",j,rep->iniLevel[j]);
 
 	
 	rep->rankLevels = (uint *) malloc(sizeof(uint)*rep->nLevels);
 	for(j=0;j<rep->nLevels;j++)
  			rep->rankLevels[j]= rank(rep->bS, rep->levelsIndex[j]-1);
 
-	//for(i=0;i<rep->nLevels;i++)
-	//	fprintf(stderr,"i:%d ranklevel: %d\n",i,rep->rankLevels[i]);
 		
 	free(cont);
 	free(contB);
 	free(levelSizeAux);
+    free(kvalues);
 	return rep;
 }
 

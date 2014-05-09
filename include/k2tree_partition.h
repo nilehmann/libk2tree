@@ -19,7 +19,6 @@ namespace libk2tree {
 
 class K2TreePartition {
  public:
-  typedef uint uint;
   typedef size_t words_cnt;
   typedef size_t obj_cnt;
 

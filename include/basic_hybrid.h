@@ -11,8 +11,8 @@
 #define INCLUDE_BASIC_HYBRID_H_
 
 #include <libk2tree_basic.h>
-#include <bits/utils/bitarray.h>
-#include <bits/utils/utils.h>
+#include <utils/bitarray.h>
+#include <utils/utils.h>
 #include <BitSequence.h>  // libcds
 #include <fstream>
 #include <cstdlib>
@@ -134,7 +134,6 @@ class basic_hybrid {
     Neighbors<Function, InverseImpl>(q, fun);
   }
 
-  
   /*
    * Iterates over all links in the specified submatrix.
    *
@@ -190,7 +189,6 @@ class basic_hybrid {
       N = div_level;
     }
 
-
     div_level = N/kl_;
     uint cnt_level = queue.size();
     for (uint q = 0; q < cnt_level; ++q) {
@@ -205,9 +203,8 @@ class basic_hybrid {
    * Get size in bytes.
    */
   size_t GetSize() const {
-    static_cast<const Hybrid&>(*this).GetSize();
+    return static_cast<const Hybrid&>(*this).GetSize();
   }
-
 
 
  protected:
@@ -235,7 +232,7 @@ class basic_hybrid {
 
   basic_hybrid(shared_ptr<BitSequence> T,
                int k1, int k2, int kl, int max_level_k1, int height,
-               uint cnt, uint size) 
+               uint cnt, uint size)
       : k1_(k1),
         k2_(k2),
         kl_(kl),
@@ -244,7 +241,7 @@ class basic_hybrid {
         cnt_(cnt),
         size_(size),
         acum_rank_(new uint[height]),
-        offset_(new uint[height+1]), 
+        offset_(new uint[height+1]),
         T_(T) {
     acum_rank_[0] = offset_[0] = 0;
     offset_[1] = k1*k1;
@@ -267,7 +264,7 @@ class basic_hybrid {
                     20)),
             k1, k2, kl, max_level_k1, height, cnt, size) {}
 
-  basic_hybrid(ifstream *in)
+  explicit basic_hybrid(ifstream *in)
       : k1_(LoadValue<int>(in)),
         k2_(LoadValue<int>(in)),
         kl_(LoadValue<int>(in)),
@@ -341,7 +338,7 @@ class basic_hybrid {
     uint div_level;
     uint cnt_level;
     int k, level;
-    queue<Frame > queue; 
+    queue<Frame > queue;
 
     queue.push(Impl::FirstFrame(object));
     uint N = size_;
@@ -356,7 +353,7 @@ class basic_hybrid {
         for (int j  = 0; j < k; ++j) {
           if (T_->access(z))
             queue.push(Impl::NextFrame(f.p, f.q, z, j, div_level));
-          z = Impl::NextChild(z, k); 
+          z = Impl::NextChild(z, k);
         }
         queue.pop();
       }
@@ -416,4 +413,4 @@ struct InverseImpl {
 
 }  // namespace libk2tree
 
-#endif  // INCLUDE_BITS_HYBRID_H_
+#endif  // INCLUDE_BASIC_HYBRID_H_

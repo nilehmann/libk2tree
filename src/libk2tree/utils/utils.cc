@@ -10,7 +10,7 @@
  *
  */
 
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 
 namespace libk2tree {
 namespace utils {
@@ -37,18 +37,18 @@ int SquaringPow(int base, int exp) {
  */
 uint NearestPrime(uint n) {
   /* the prime number being sought */
-  int pos;  
-  int i;  
+  int pos;
+  int i;
 
   for (pos = n; ; pos++) {
     // checks if those values from 2 to $\sqrt{pos}$ can be factors of $pos$
     for (i = 2; i <= pos/i + 1 && pos % i != 0; i++) ;
-    // No factors in that range, therefore a prime number was found 
-    if (pos % i != 0)  
+    // No factors in that range, therefore a prime number was found
+    if (pos % i != 0)
       break;
   }
   return pos;
-} 
+}
 
 char strcmp(const uchar *w1, const uchar *w2, uint size) {
   uint i = 0;

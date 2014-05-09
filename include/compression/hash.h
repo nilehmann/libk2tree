@@ -34,17 +34,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define INCLUDE_COMPRESSION_HASH_H_
 
 #include <libk2tree_basic.h>
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 #include <cstdio>
 #include <vector>
 
-
-#define JUMP 101  		 //jump done when a collision appears
-#define OCUP_HASH 1.5	 	 //index of occupation of the hash table
-#define SMALL_PRIME 1009 // a small prime number, used to compute a hash function
-#define SEED	1159241
+// jump done when a collision appears
+#define JUMP 101
+// a small prime number, used to compute a hash function
+#define SMALL_PRIME 1009
+#define SEED 1159241
 /* Type definitions */
-
 
 
 namespace libk2tree {
@@ -62,15 +61,14 @@ struct Nword {
 
 class HashTable {
  public:
-	
-  HashTable (uint sizeVoc);
-  uint add (const uchar *aWord, uint len, uint addr);
-  bool search (const uchar *aWord, uint len, uint *returnedAddr) const;
+  HashTable(uint sizeVoc, double occup_hash= 1.5);
+  uint add(const uchar *aWord, uint len, uint addr);
+  bool search(const uchar *aWord, uint len, uint *returnedAddr) const;
 
   Nword  &operator[](uint i) {
     return hash[i];
   }
-  
+
   const Nword &operator[](uint i) const {
     return hash[i];
   }
@@ -91,14 +89,13 @@ class HashTable {
    Modification of Zobel's bitwise function to have into account the 
    lenght of the key explicetely 
    ---------------------------------------------------------------- */
-  uint hashFunction (const uchar *aWord, uint len) const;
+  uint hashFunction(const uchar *aWord, uint len) const;
 
   /*------------------------------------------------------------------
    Modification of Zobel's scmp function compare two strings
    ---------------------------------------------------------------- */
   inline int strcomp(const uchar *s1, const uchar *s2,
                      uint ws1, uint ws2) const;
-  
 };
 
 }  // namespace compression

@@ -7,14 +7,13 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "./queries.h"
 #include <k2tree.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>
-
-
 #include <fstream>
+
+#include "./queries.h"
 
 using ::libk2tree::K2TreeBuilder;
 using ::libk2tree::HybridK2Tree;
@@ -43,7 +42,7 @@ void CheckLink(int k1, int k2, int kl, int k1_levels) {
   vector<vector<bool>> matrix;
   shared_ptr<HybridK2Tree > tree = Build(k1, k2, kl, k1_levels, &matrix);
   TestCheckLink(*tree, matrix);
-} 
+}
 void DirectLinks(int k1, int k2, int kl, int k1_levels) {
   vector<vector<bool> > matrix;
   shared_ptr<HybridK2Tree > tree = Build(k1, k2, kl, k1_levels, &matrix);
@@ -83,7 +82,7 @@ void TestSave(int k1, int k2, int kl, int k1_levels) {
   remove("k2tree_test");
 }
 
-//CHECK Link
+// CHECK Link
 TEST(HybridK2Tree, CheckEdge1) {
   srand(time(NULL));
   CheckLink(3, 2, 2, 1);
@@ -95,7 +94,7 @@ TEST(HybridK2Tree, CheckEdge3) {
   CheckLink(4, 2, 2, 10);
 }
 
-//DIRECT LINKS
+// DIRECT LINKS
 TEST(HybridK2Tree, DirectLinks1) {
   DirectLinks(3, 2, 2, 1);
 }
@@ -106,7 +105,7 @@ TEST(HybridK2Tree, DirectLinks3) {
   DirectLinks(4, 2, 2, 10);
 }
 
-//INVERSE LINKS
+// INVERSE LINKS
 TEST(HybridK2Tree, InverseLinks1) {
   srand(time(NULL));
   InverseLinks(3, 2, 2, 1);
@@ -118,7 +117,7 @@ TEST(HybridK2Tree, InverseLinks3) {
   InverseLinks(4, 2, 2, 10);
 }
 
-//RANGE QUERY
+// RANGE QUERY
 TEST(HybridK2Tree, RangeQuery1) {
   srand(time(NULL));
   RangeQuery(3, 2, 2, 1);
@@ -130,7 +129,7 @@ TEST(HybridK2Tree, RangeQuery3) {
   RangeQuery(4, 2, 2, 10);
 }
 
-//SAVE
+// SAVE
 TEST(HybridK2Tree, Save1) {
   srand(time(NULL));
   TestSave(3, 2, 2, 1);

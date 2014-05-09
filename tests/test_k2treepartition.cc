@@ -7,13 +7,13 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "./queries.h"
-#include <gtest/gtest.h>
 #include <k2tree.h>
-#include <bits/utils/utils.h>
+#include <gtest/gtest.h>
+#include <utils/utils.h>
 #include <boost/filesystem.hpp>
 #include <cstdio>
 #include <string>
+#include "./queries.h"
 
 using ::libk2tree::K2TreePartitionBuilder;
 using ::libk2tree::utils::Ceil;
@@ -51,7 +51,6 @@ void Build(string filename, vector<vector<bool>> *matrix) {
       b.BuildSubtree();
     }
   }
-
 }
 
 TEST(k2treepartition, CheckLink) {

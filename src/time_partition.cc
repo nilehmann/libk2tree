@@ -8,7 +8,7 @@
  */
 
 #include <k2tree.h>
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 #include <cstdio>
 #include <cmath>
 #include <cstring>

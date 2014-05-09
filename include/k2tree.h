@@ -9,18 +9,11 @@
 
 #ifndef INCLUDE_K2TREE_H_
 #define INCLUDE_K2TREE_H_
+//#error "No quiero usar esto"
 
 #include <k2treebuilder.h>
 #include <k2treepartition_builder.h>
 #include <k2tree_partition.h>
 #include <hybrid_k2tree.h>
-namespace libk2tree {
 
-//typedef basic_k2tree<uint> K2Tree;
-//typedef HybridK2Tree K2Tree;
-//typedef basic_k2tree<size_t> LongK2Tree;
-//typedef basic_k2treebuilder<uint> K2TreeBuilder;
-//typedef basic_k2treebuilder<size_t> LongK2TreeBuilder;
-
-}  // namespace libk2tree
 #endif  // INCLUDE_K2TREE_H_

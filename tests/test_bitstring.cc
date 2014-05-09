@@ -9,7 +9,7 @@
 
 
 #include <gtest/gtest.h>
-#include <bits/utils/bitarray.h>
+#include <utils/bitarray.h>
 
 using  ::libk2tree::utils::BitArray;
 

@@ -23,7 +23,7 @@ CompressedHybrid::CompressedHybrid(shared_ptr<BitSequence> T,
       compressL_(compressL),
       vocabulary_(vocabulary) {}
 
-CompressedHybrid::CompressedHybrid(ifstream *in) 
+CompressedHybrid::CompressedHybrid(ifstream *in)
     : basic_hybrid(in),
       compressL_(LoadFT(in)),
       vocabulary_(new Array<uchar>(in)) {}
@@ -32,8 +32,8 @@ CompressedHybrid::CompressedHybrid(ifstream *in)
 
 size_t CompressedHybrid::GetSize() const {
   size_t size = T_->getSize();
-  //size += L_.GetSize();
-  // TODO
+  // size += L_.GetSize();
+  // TODO(nlehmann): Size of FTRep
   size += height_*sizeof(uint);
   size += (height_+1)*sizeof(uint);
   size += 5*sizeof(int) + 2*sizeof(uint) + 2*sizeof(uint*);

@@ -8,7 +8,7 @@
  */
 
 #include <k2tree.h>
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 #include <string>
 #include <fstream>
 #include <memory>
@@ -22,7 +22,7 @@ using ::std::ofstream;
 using ::std::stoi;
 using ::libk2tree::utils::LoadValue;
 using ::std::shared_ptr;
-using ::libk2tree::K2Tree;
+using ::libk2tree::HybridK2Tree;
 using ::libk2tree::K2TreeBuilder;
 using ::libk2tree::K2TreePartitionBuilder;
 typedef unsigned int uint;

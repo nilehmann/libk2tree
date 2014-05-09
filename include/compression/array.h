@@ -11,7 +11,7 @@
 #define INCLUDE_COMPRESSION_ARRAY_H_
 
 #include <libk2tree_basic.h>
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 #include <algorithm>
 #include <fstream>
 
@@ -26,10 +26,10 @@ class Array {
  public:
   Array(uint cnt, uint size)
       : cnt_(cnt),
-        size_(size), 
+        size_(size),
         data_(new T[cnt*size_]) {}
 
-  Array(std::ifstream *in)
+  explicit Array(std::ifstream *in)
       : cnt_(LoadValue<uint>(in)),
         size_(LoadValue<size_t>(in)),
         data_(LoadValue<T>(in, cnt_*size_)) {}
@@ -59,7 +59,7 @@ class Array {
     for (uint i = 0; i < size_; ++i)
       std::swap(data_[a*size_ + i], data_[b*size_ + i]);
   }
-  
+
   uint size() const {
     return size_;
   }
@@ -71,6 +71,7 @@ class Array {
   ~Array() {
     delete [] data_;
   }
+
  private:
   uint quicksort(uint left, uint right) {
     if (left == right)
@@ -83,7 +84,7 @@ class Array {
     while (k < right - 1) {
       // We use the last element as pivot.
       char cmp = strcmp((*this)[k], (*this)[right-1], size_);
-      
+
       if (cmp == 0) {
         swap(j, k);
         ++j;

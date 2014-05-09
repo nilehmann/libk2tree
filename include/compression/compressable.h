@@ -13,6 +13,8 @@
 #include <libk2tree_basic.h>
 #include <compression/hash.h>
 #include <compression/array.h>
+#include <vector>
+#include <algorithm>
 
 namespace libk2tree {
 namespace compression {
@@ -23,7 +25,6 @@ using std::shared_ptr;
 template<class Uncompressed, class Compressed>
 class compressable {
  public:
-
   /*
    * Creates new k2tree with the leaves compressed.
    * @param tree
@@ -33,8 +34,8 @@ class compressable {
     uint size = WordSize();
 
     Array<uchar> words(cnt, size);
-   
-    uint pos = 0; 
+
+    uint pos = 0;
     Words([&] (const uchar *word) {
       words.assign(pos, word);
       ++pos;
@@ -43,7 +44,7 @@ class compressable {
     // Count number of different words
     uint diff_cnt = words.sort();
 
-    // Insert 
+    // Insert
     HashTable table(diff_cnt);
     vector<uint> posInHash;
     posInHash.reserve(diff_cnt);
@@ -53,7 +54,7 @@ class compressable {
         table.add(words[i], size, addr);
         posInHash.push_back(addr);
       } else {
-        table[addr].weight += 1; 
+        table[addr].weight += 1;
       }
     }
 

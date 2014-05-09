@@ -47,7 +47,7 @@ void save_bitrank(bitRankW32Int * br, std::ofstream *out) {
   SaveValue(out, n);
   SaveValue(out, br->factor);
   SaveValue(out, br->data, n/W+1);
-  SaveValue(out, br->Rs,n/s+1);
+  SaveValue(out, br->Rs, n/s+1);
 }
 
 void load_bitrank(bitRankW32Int * br, std::ifstream *in) {
@@ -61,10 +61,10 @@ void load_bitrank(bitRankW32Int * br, std::ifstream *in) {
   br->integers = n/W;
   br->data= (uint *) malloc(sizeof( uint) *(n/W+1));
 
-  in->read(reinterpret_cast<char *>(br->data),sizeof(uint)*br->n/W+1);
+  in->read(reinterpret_cast<char *>(br->data),sizeof(uint)*(br->n/W+1));
   br->owner = 1;
   br->Rs=(uint*)malloc(sizeof(uint)*(n/s+1));
-  in->read(reinterpret_cast<char *>(br->Rs),sizeof(uint)*n/s+1);
+  in->read(reinterpret_cast<char *>(br->Rs),sizeof(uint)*(n/s+1));
 }
 
 void SaveFT(std::ofstream *out, FTRep *rep) {
@@ -103,7 +103,7 @@ FTRep* LoadFT(std::ifstream *in) {
 	
 	
 	rep->levelsIndex = (uint *) malloc(sizeof(uint)*(rep->nLevels+1));
-	in->read(reinterpret_cast<char *>(rep->levelsIndex),sizeof(uint)*rep->nLevels+1);
+	in->read(reinterpret_cast<char *>(rep->levelsIndex),sizeof(uint)*(rep->nLevels+1));
 	
 	rep->iniLevel = (uint *) malloc(sizeof(uint)*rep->nLevels);
 	in->read(reinterpret_cast<char *>(rep->iniLevel),sizeof(uint)*rep->nLevels);

@@ -36,20 +36,20 @@ namespace compression {
 using utils::NearestPrime;
 using std::vector;
 
-HashTable::HashTable (uint sizeVoc) :
-    TAM_HASH(NearestPrime(OCUP_HASH * sizeVoc)),
-    NumElem(0),
-    hash() {
+HashTable::HashTable(uint sizeVoc, double occup_hash)
+    : TAM_HASH(NearestPrime(occup_hash * sizeVoc)),
+      NumElem(0),
+      hash() {
   if (TAM_HASH <= JUMP)
     TAM_HASH = NearestPrime(JUMP+1);
   hash.resize(TAM_HASH);
-  fprintf(stderr,"\nHash Table initilized with: %u elements\n", TAM_HASH);
+  fprintf(stderr, "\nHash Table initilized with: %u elements\n", TAM_HASH);
 }
 
-uint HashTable::add (const uchar *aWord,
-          uint len,
-          uint addr) {
-  if(addr == TAM_HASH) {
+uint HashTable::add(const uchar *aWord,
+                    uint len,
+                    uint addr) {
+  if (addr == TAM_HASH) {
     printf("Not enough memory, vocabulary exceeds maximun size !\n");
     exit(1);
   }
@@ -61,22 +61,22 @@ uint HashTable::add (const uchar *aWord,
 
   return addr;
 }
-bool HashTable::search (const uchar *aWord, unsigned len,
-                        uint *returnedAddr) const {
+bool HashTable::search(const uchar *aWord, unsigned len,
+                       uint *returnedAddr) const {
   uint addr;
-  addr = hashFunction(aWord,len);
+  addr = hashFunction(aWord, len);
 
-  while((hash[addr].word != NULL) &&
+  while ((hash[addr].word != NULL) &&
         (strcomp(hash[addr].word, aWord, hash[addr].len, len) != 0))
     addr = (addr + JUMP) % TAM_HASH;
   // position returned
   *returnedAddr = addr;
 
-  //Word was not found
-  if(hash[addr].word  == NULL) {
+  // Word was not found
+  if (hash[addr].word  == NULL) {
     return false;
   }
-  //Word was found	
+  // Word was found
   return true;
 }
 
@@ -86,16 +86,15 @@ bool HashTable::search (const uchar *aWord, unsigned len,
  Modification of Zobel's bitwise function to have into account the 
  lenght of the key explicetely 
  ---------------------------------------------------------------- */
-uint HashTable::hashFunction (const uchar *aWord, uint len) const {
+uint HashTable::hashFunction(const uchar *aWord, uint len) const {
   char c;
   uint h;
 
   h = SEED;
-   
+
   uint i = 0;
   while (i++ < len) {
     c = *(aWord++);
-    //c=*aWord;
     h ^= ( (h << 5) + c + (h >> 2) );
   }
   return((uint)((h&0x7fffffff) % TAM_HASH));
@@ -104,20 +103,19 @@ uint HashTable::hashFunction (const uchar *aWord, uint len) const {
  Modification of Zobel's scmp function compare two strings
  ---------------------------------------------------------------- */
 int HashTable::strcomp(const uchar *s1, const uchar *s2,
-                   uint ws1, uint ws2) const {
+                       uint ws1, uint ws2) const {
   if (ws1 !=ws2)
     return -1;
-   
-  uint iters;	    
-  iters=0;
-  while( iters < ws1-1 && *s1 == *s2 ) {
+
+  uint iters;
+  iters = 0;
+  while (iters < ws1-1 && *s1 == *s2) {
     s1++;
     s2++;
     iters++;
   }
   return( *s1-*s2 );
 }
-  
 
 }  // namespace compression
 }  // namespace libk2tree

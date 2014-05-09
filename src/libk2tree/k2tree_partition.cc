@@ -8,7 +8,7 @@
  */
 
 #include <k2tree_partition.h>
-#include <bits/utils/utils.h>
+#include <utils/utils.h>
 
 
 namespace libk2tree {
@@ -24,7 +24,6 @@ K2TreePartition::K2TreePartition(ifstream *in) :
     for (int j = 0; j < k0_; ++j)
       subtrees_[i].emplace_back(in);
   }
-
 }
 
 bool K2TreePartition::CheckLink(uint p, uint q) const {
