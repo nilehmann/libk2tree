@@ -24,17 +24,17 @@ K2TreePartitionBuilder::K2TreePartitionBuilder(uint cnt,
                                                uint submatrix_size,
                                                int k1, int k2, int kl,
                                                int k1_levels,
-                                               const path &file) :
-    cnt_(cnt),
-    submatrix_size_(submatrix_size),
-    k0_(Ceil(cnt, submatrix_size)),
-    row_(0),
-    col_(0),
-    ready_(false),
-    builder_(submatrix_size_, k1, k2, kl, k1_levels),
-    tmp_(unique_path(file.parent_path() / "%%%%%")),
-    file_(file),
-    out_(tmp_.native()) {
+                                               const path &file)
+    : cnt_(cnt),
+      submatrix_size_(submatrix_size),
+      k0_(Ceil(cnt, submatrix_size)),
+      row_(0),
+      col_(0),
+      ready_(false),
+      builder_(submatrix_size_, k1, k2, kl, k1_levels),
+      tmp_(unique_path(file.parent_path() / "%%%%%")),
+      file_(file),
+      out_(tmp_.native()) {
   SaveValue(&out_, cnt_);
   SaveValue(&out_, submatrix_size_);
   SaveValue(&out_, k0_);

@@ -8,37 +8,24 @@
  */
 
 #include <k2tree_partition.h>
-#include <utils/utils.h>
-
 
 namespace libk2tree {
-using utils::LoadValue;
+K2TreePartition::K2TreePartition(std::ifstream *in) : basic_partition(in) {}
 
-K2TreePartition::K2TreePartition(ifstream *in) :
-    cnt_(LoadValue<uint>(in)),
-    submatrix_size_(LoadValue<uint>(in)),
-    k0_(LoadValue<int>(in)),
-    subtrees_(k0_) {
+uint K2TreePartition::WordsCnt() const {
+  size_t leaves = 0;
+  for (int row = 0; row < k0_; ++row)
+    for (int col = 0; col < k0_; ++col)
+      leaves += subtrees_[row][col].WordsCnt();
+  return leaves;
+}
+shared_ptr<CompressedPartition> K2TreePartition::BuildCompressedTree(
+    const HashTable &t,
+    shared_ptr<Array<uchar>> voc) const {
+  vector<vector<CompressedHybrid>> subtrees(k0_);
   for (int i = 0; i < k0_; ++i) {
-    subtrees_[i].reserve(k0_);
     for (int j = 0; j < k0_; ++j)
-      subtrees_[i].emplace_back(in);
   }
 }
 
-bool K2TreePartition::CheckLink(uint p, uint q) const {
-  const HybridK2Tree &t = subtrees_[p/submatrix_size_][q/submatrix_size_];
-  return t.CheckLink(p % submatrix_size_, q % submatrix_size_);
-}
-
-
-
-size_t K2TreePartition::GetSize() const {
-  size_t size = 0;
-  for (int i = 0; i < k0_; ++i)
-    for (int j = 0; j < k0_; ++j)
-      size += subtrees_[i][j].GetSize();
-  return size;
-}
-
-}  // namespace libk2tree
+}  // namespace libk2tree 

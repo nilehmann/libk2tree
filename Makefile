@@ -1,4 +1,4 @@
-//CXX = clang++
+CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = -Iinclude/ -Idacs/
 

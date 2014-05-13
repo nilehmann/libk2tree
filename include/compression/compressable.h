@@ -22,6 +22,9 @@ using utils::Ceil;
 using std::vector;
 using std::shared_ptr;
 
+namespace std {
+class ofstream;
+}  // namespace std
 template<class Uncompressed, class Compressed>
 class compressable {
  public:
@@ -87,6 +90,12 @@ class compressable {
   shared_ptr<Compressed> BuildCompressedTree(const HashTable &t,
                                              shared_ptr<Array<uchar>> voc) {
     return static_cast<const Uncompressed&>(*this).BuildCompressed(t, voc);
+  }
+
+  void BuildCompressedTree(const HashTable &t,
+                           shared_ptr<Array<uchar>> voc
+                           ofstream *out) {
+    static_cast<const Uncompressed&>(*this).BuildCompressed(t, voc, out);
   }
 };
 
