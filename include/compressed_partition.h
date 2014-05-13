@@ -11,7 +11,7 @@
 #define INCLUDE_COMPRESSED_PARTITION_H_
 
 #include <basic_partition.h>
-#include <hybrid_k2tree.h>
+#include <compressed_hybrid.h>
 
 namespace libk2tree {
 typedef basic_partition<CompressedHybrid> CompressedPartition;

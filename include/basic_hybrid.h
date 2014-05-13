@@ -81,7 +81,7 @@ class basic_hybrid {
    */
   bool CheckLink(uint p, uint q) const {
     uint N, div_level;
-    size_t z;
+    uint z;
     int k;
     N = size_;
     z = 0;

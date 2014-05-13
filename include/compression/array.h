@@ -47,6 +47,21 @@ class Array {
     return data_ + i*size_;
   }
 
+  void print() const {
+    for (uint i = 0; i < cnt_; ++i)
+      print(i);
+  }
+  void print(uint i) const {
+    const T *word = (*this)[i];
+    for (uint bit = 0; bit < size_*sizeof(T)*8; ++bit) {
+      if ((word[bit/sizeof(T)/8] >> (bit%(sizeof(T)*8))) & 1)
+        fprintf(stderr, "1");
+      else
+        fprintf(stderr, "0");
+    }
+    fprintf(stderr, "\n");
+  }
+
   void assign(uint p, const T* val) {
     std::copy(val, val + size_, data_ + p*size_);
   }
@@ -70,6 +85,15 @@ class Array {
 
   ~Array() {
     delete [] data_;
+  }
+
+  bool operator==(const Array &rhs) {
+    if (cnt_ != rhs.cnt_ && size_ != rhs.size_)
+      return false;
+    for (size_t i = 0; i < cnt_*size_; ++i)
+      if (data_[i] != rhs.data_[i])
+        return false;
+    return true;
   }
 
  private:

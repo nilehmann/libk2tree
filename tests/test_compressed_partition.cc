@@ -19,15 +19,18 @@
 using ::libk2tree::K2TreePartitionBuilder;
 using ::libk2tree::utils::Ceil;
 using ::libk2tree::K2TreePartition;
+using ::libk2tree::CompressedPartition;
 using ::boost::filesystem::remove;
 using ::std::shared_ptr;
 
 typedef unsigned int uint;
 
 
-shared_ptr<K2TreePartition> BuildPartition(vector<vector<bool>> *matrix) {
-  string filename = "partition_test";
+shared_ptr<CompressedPartition>
+//shared_ptr<K2TreePartition>
+BuildCompressed(vector<vector<bool>> *matrix) {
   int n = 1000;
+  //int n = 100;
 
   int e = rand()%(n*10) + 1;
 
@@ -41,8 +44,9 @@ shared_ptr<K2TreePartition> BuildPartition(vector<vector<bool>> *matrix) {
   int k0 = 10;
   int subm = n/k0;
 
+  string tmp = "temp_file_construction";
 
-  K2TreePartitionBuilder b(n, subm, 4, 2, 2, 3, filename);
+  K2TreePartitionBuilder b(n, subm, 4, 2, 2, 3, tmp);
   for (int row = 0; row < k0; ++row) {
     for (int col = 0; col < k0; ++col) {
       for (int i = 0; i < subm; ++i) {
@@ -54,53 +58,53 @@ shared_ptr<K2TreePartition> BuildPartition(vector<vector<bool>> *matrix) {
       b.BuildSubtree();
     }
   }
-  ifstream in(filename, ifstream::in);
-  shared_ptr<K2TreePartition> t(new K2TreePartition(&in));
+  ifstream in(tmp, ifstream::in);
+  K2TreePartition tree(&in);
   in.close();
+
+  string filename = "compressed_partition";
+
+  ofstream out(filename, ofstream::out);
+  tree.CompressLeaves(&out);
+  out.close();
+
+  in.open(filename, ifstream::in);
+  shared_ptr<CompressedPartition> t(new CompressedPartition(&in));
+  //shared_ptr<K2TreePartition> t(new K2TreePartition(&in));
+  in.close();
+
+  remove(tmp);
   remove(filename);
   return t;
 }
 
-TEST(k2treepartition, CheckLink) {
-  srand(time(NULL));
+TEST(CompressedPartition, CheckLink) {
+  time_t t = time(NULL);
+  fprintf(stderr, "TIME: %ld\n", t);
+  srand(t);
+
   vector<vector<bool>> matrix;
-  shared_ptr<K2TreePartition> tree = BuildPartition(&matrix);
+  shared_ptr<CompressedPartition> tree = BuildCompressed(&matrix);
+
 
   TestCheckLink(*tree, matrix);
 }
 
-TEST(k2treepartition, DirectLinks) {
+TEST(CompressedPartition, DirectLinks) {
   vector<vector<bool>> matrix;
-  shared_ptr<K2TreePartition> tree = BuildPartition(&matrix);
+  shared_ptr<CompressedPartition> tree = BuildCompressed(&matrix);
 
   TestDirectLinks(*tree, matrix);
 }
-TEST(k2treepartition, InverseLinks) {
+TEST(CompressedPartition, InverseLinks) {
   vector<vector<bool>> matrix;
-  shared_ptr<K2TreePartition> tree = BuildPartition(&matrix);
+  shared_ptr<CompressedPartition> tree = BuildCompressed(&matrix);
 
   TestInverseLinks(*tree, matrix);
-
 }
-TEST(k2treepartition, RangeQuery) {
+TEST(CompressedPartition, RangeQuery) {
   vector<vector<bool>> matrix;
-  shared_ptr<K2TreePartition> tree = BuildPartition(&matrix);
+  shared_ptr<CompressedPartition> tree = BuildCompressed(&matrix);
 
   TestRangeQuery(*tree, matrix);
-}
-
-TEST(k2treepartition, Save) {
-  vector<vector<bool>> matrix;
-  shared_ptr<K2TreePartition> tree = BuildPartition(&matrix);
-
-  ofstream out;
-  out.open("partition_save", ofstream::out);
-  tree->Save(&out);
-  out.close();
-
-  ifstream in;
-  in.open("partition_save", ifstream::in);
-  K2TreePartition tree2(&in);
-  in.close();
-  ASSERT_TRUE(*tree == tree2);
 }

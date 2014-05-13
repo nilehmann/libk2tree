@@ -8,10 +8,13 @@
  */
 
 #include <hybrid_k2tree.h>
+#include <compression/compressor.h>
+#include <memory>
 
 namespace libk2tree {
 using utils::LoadValue;
 using utils::SaveValue;
+using std::make_shared;
 
 
 HybridK2Tree::HybridK2Tree(const BitArray<uint, uint> &T,
@@ -39,6 +42,18 @@ void HybridK2Tree::Save(ofstream *out) const {
   L_.Save(out);
 }
 
+
+shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves() const {
+  shared_ptr<CompressedHybrid> t;
+
+  compression::CompressLeaves(*this, [&] (const HashTable &table,
+                                          shared_ptr<Array<uchar>> voc) {
+    t = BuildCompressed(table, voc);
+  });
+  return t;
+
+}
+
 shared_ptr<CompressedHybrid>
 HybridK2Tree::BuildCompressed(const HashTable &table,
                               shared_ptr<Array<uchar>> voc) const {
@@ -60,12 +75,14 @@ HybridK2Tree::BuildCompressed(const HashTable &table,
 
   delete [] codewords;
 
-  shared_ptr<CompressedHybrid> t(new CompressedHybrid(T_, compressL, voc,
-                                                      k1_, k2_, kl_,
-                                                      max_level_k1_, height_,
-                                                      cnt_, size_));
-  return t;
+  return shared_ptr<CompressedHybrid>(new CompressedHybrid(T_, compressL, voc,
+                                                           k1_, k2_, kl_,
+                                                           max_level_k1_,
+                                                           height_,
+                                                           cnt_, size_));
 }
+
+
 
 bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
   if (T_->getLength() != rhs.T_->getLength()) return false;
@@ -85,7 +102,8 @@ bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
     if (offset_[i] != offset_[i]) return false;
 
   return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kl_ == rhs.kl_ &&
-         max_level_k1_ == rhs.max_level_k1_ && size_ == rhs.size_;
+         max_level_k1_ == rhs.max_level_k1_ && size_ == rhs.size_ &&
+         cnt_ == rhs.cnt_;
 }
 
 

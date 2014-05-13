@@ -11,21 +11,18 @@
 #define INCLUDE_HYBRID_K2TREE_H_
 #include <basic_hybrid.h>
 #include <compressed_hybrid.h>
-#include <compression/compressable.h>
+#include <compression/compressor.h>
 #include <dacs.h>
 
 
 namespace libk2tree {
-using compression::compressable;
 using compression::HashTable;
 class K2TreeBuilder;
 
 
-class HybridK2Tree : public basic_hybrid<HybridK2Tree>,
-                     public compressable<HybridK2Tree, CompressedHybrid> {
+class HybridK2Tree : public basic_hybrid<HybridK2Tree> {
   friend class K2TreeBuilder;
   friend class basic_hybrid<HybridK2Tree>;
-  friend class compressable<HybridK2Tree, CompressedHybrid>;
  public:
   /*
    * Loads a K2Tree previously saved with Save(ofstream)
@@ -84,6 +81,11 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree>,
     }
   }
 
+  shared_ptr<CompressedHybrid> CompressLeaves() const;
+
+  shared_ptr<CompressedHybrid> BuildCompressed(
+      const HashTable &table,
+      shared_ptr<Array<uchar>> voc) const;
 
  private:
   /* 
@@ -140,9 +142,7 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree>,
     return L_.GetBit(z + child - T_->getLength());
   }
 
-  shared_ptr<CompressedHybrid>
-  BuildCompressed(const HashTable &table,
-                  shared_ptr<Array<uchar>> voc) const;
+
 
   // BitArray containing leaf nodes.
   BitArray<uint, uint> L_;

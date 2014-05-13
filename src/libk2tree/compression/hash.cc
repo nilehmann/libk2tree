@@ -43,7 +43,6 @@ HashTable::HashTable(uint sizeVoc, double occup_hash)
   if (TAM_HASH <= JUMP)
     TAM_HASH = NearestPrime(JUMP+1);
   hash.resize(TAM_HASH);
-  fprintf(stderr, "\nHash Table initilized with: %u elements\n", TAM_HASH);
 }
 
 uint HashTable::add(const uchar *aWord,

@@ -52,6 +52,32 @@ CompressedHybrid::~CompressedHybrid() {
   destroyFT(compressL_);
 }
 
+bool CompressedHybrid::operator==(const CompressedHybrid &rhs) const {
+  if (T_->getLength() != rhs.T_->getLength()) return false;
+
+  for (size_t i = 0; i < T_->getLength(); ++i)
+    if (T_->access(i) != rhs.T_->access(i)) return false;
+
+
+  if (!equalsFT(compressL_, rhs.compressL_))
+    return false;
+
+  if (!( *vocabulary_ == *rhs.vocabulary_))
+    return false;
+
+
+  if (height_ != rhs.height_) return false;
+
+  for (int i = 0; i < height_; ++i)
+    if (acum_rank_[i] != acum_rank_[i]) return false;
+
+  for (int i = 0; i <= height_; ++i)
+    if (offset_[i] != offset_[i]) return false;
+
+  return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kl_ == rhs.kl_ &&
+         max_level_k1_ == rhs.max_level_k1_ && size_ == rhs.size_ &&
+         cnt_ == rhs.cnt_;
+}
 
 }  // namespace libk2tree
 

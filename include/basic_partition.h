@@ -18,13 +18,13 @@
 namespace libk2tree {
 using std::vector;
 using utils::LoadValue;
-using utils::LoadValue;
+using utils::SaveValue;
 
 template<class K2Tree>
 class basic_partition {
  public:
   /*
-   * Loads a tree previously saved with a K2TreeParitionBuilder
+   * Loads a tree previously saved with a K2TreePartitionBuilder
    */
   explicit basic_partition(std::ifstream *in)
       : cnt_(LoadValue<uint>(in)),
@@ -149,6 +149,25 @@ class basic_partition {
     return size;
   }
 
+  void Save(std::ofstream *out) const {
+    SaveValue(out, cnt_);
+    SaveValue(out, submatrix_size_);
+    SaveValue(out, k0_);
+    for (int i = 0; i < k0_; ++i)
+      for (int j = 0; j < k0_; ++j)
+        subtrees_[i][j].Save(out);
+  }
+
+  bool operator==(const basic_partition &rhs) {
+    if (k0_ != rhs.k0_ || cnt_ != rhs.cnt_ ||
+        submatrix_size_ != rhs.submatrix_size_)
+      return false;
+    for (int i = 0; i < k0_; ++i)
+      for (int j = 0; j < k0_; ++j)
+        if (!(subtrees_[i][j] == rhs.subtrees_[i][j]))
+          return false;
+    return true;
+  }
 
  protected:
   // Returns the number of objects in the relation or matrix.

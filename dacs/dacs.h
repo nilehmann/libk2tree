@@ -21,4 +21,5 @@ typedef struct sFTRep FTRep;
 
 void SaveFT(std::ofstream *out, FTRep *rep);
 FTRep *LoadFT(std::ifstream *in);
+bool equalsFT(FTRep *lhs, FTRep *rhs);
 #endif  // DACS_DACS_H_

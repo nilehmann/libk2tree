@@ -24,11 +24,12 @@ using ::std::ofstream;
 
 
 shared_ptr<HybridK2Tree> Build(int k1, int k2, int kl, int k1_levels,
-                               vector<vector<bool>> *matrix) {
+                               vector<vector<bool>> *matrix, int e = -1) {
   int n = rand()%5000+1;
   K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
   matrix->resize(n, vector<bool>(n, false));
-  int e = rand()%(n*10) + 1;
+  if (e == -1)
+    e = rand()%(n*10) + 1;
   for (int i = 0; i < e; ++i) {
     int p = rand()%n;
     int q = rand()%n;
@@ -37,6 +38,7 @@ shared_ptr<HybridK2Tree> Build(int k1, int k2, int kl, int k1_levels,
   }
   return tb.Build();
 }
+
 
 void CheckLink(int k1, int k2, int kl, int k1_levels) {
   vector<vector<bool>> matrix;
@@ -139,4 +141,14 @@ TEST(HybridK2Tree, Save2) {
 }
 TEST(HybridK2Tree, Save3) {
   TestSave(4, 2, 2, 10);
+}
+
+// EMPTY
+TEST(HybridK2Tree, Empty) {
+  vector<vector<bool>> matrix;
+  shared_ptr<HybridK2Tree > tree = Build(3, 2, 2, 1, &matrix, 0);
+  TestCheckLink(*tree, matrix);
+  TestDirectLinks(*tree, matrix);
+  TestInverseLinks(*tree, matrix);
+  TestRangeQuery(*tree, matrix);
 }

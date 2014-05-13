@@ -13,13 +13,10 @@
 #include <libk2tree_basic.h>
 #include <basic_partition.h>
 #include <hybrid_k2tree.h>
-#include <compressed_partition.h>
 
 
 namespace libk2tree {
-class K2TreePartition
-    : public basic_partition<HybridK2Tree>,
-      public compressable<K2TreePartition, void> {
+class K2TreePartition: public basic_partition<HybridK2Tree> {
  public:
   K2TreePartition(std::ifstream *in);
   
@@ -46,9 +43,8 @@ class K2TreePartition
         subtrees_[row][col].Words(fun);
   }
 
-  shared_ptr<CompressedPartition> BuildCompressedTree(
-      const HashTable &t,
-      shared_ptr<Array<uchar>> voc) const;
+  void CompressLeaves(std::ofstream *out) const;
+
 };
 
 }  // namespace libk2tree

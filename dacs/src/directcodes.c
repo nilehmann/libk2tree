@@ -105,13 +105,13 @@ uint mypow(uint base, uint exponente)
 
 
 
-ushort * optimizationk(uint * acumFreqs,int maxInt, int * nkvalues){
+ushort * optimizationk(uint * acumFreqs,int maxInt, uint * nkvalues){
 	
 
 	int sizeVoc = maxInt;
 	
 	
-	uint listLength = acumFreqs[sizeVoc];	
+	//uint listLength = acumFreqs[sizeVoc];	
 	uint nBits = bits(sizeVoc);
 	
 	//fprintf(stderr,"Length of the list: %d, max bits: %d\n",listLength,nBits);
@@ -472,17 +472,18 @@ FTRep* createFT(uint *list,uint listLength){
 
 uint accessFT(FTRep * listRep,uint param){
  uint mult=0;
- register uint i;
+ //register uint i;
  register uint j;
- uint * rankLevel = listRep->rankLevels;
- byte * list;
- uint n , partialSum=0, sumAux=0;
+ //uint * rankLevel = listRep->rankLevels;
+ //byte * list;
+ //uint n , partialSum=0, sumAux=0;
+ uint partialSum=0;
  //uint ini = param-1;
  uint ini = param;
- bitRankW32Int * bS = listRep->bS;
- uint * bsData = listRep->bS->data;
+ //bitRankW32Int * bS = listRep->bS;
+ //uint * bsData = listRep->bS->data;
  uint nLevels=listRep->nLevels;
- uint levelIndex;
+ //uint levelIndex;
  uint * level;
  uint readByte;
  uint cont,pos, rankini;
@@ -566,12 +567,13 @@ uint * decompressFT(FTRep * listRep, uint n){
  uint mult=0;
  register uint i;
  register uint j;
- uint partialSum=0, sumAux=0;
- uint ini = 0;
- bitRankW32Int * bS = listRep->bS;
- uint * bsData = listRep->bS->data;
+ //uint partialSum=0, sumAux=0;
+ uint partialSum=0;
+ //uint ini = 0;
+ //bitRankW32Int * bS = listRep->bS;
+ //uint * bsData = listRep->bS->data;
  uint nLevels=listRep->nLevels;
- uint levelIndex;
+ //uint levelIndex;
  uint * level=listRep->levels;
  byte readByte;
  uint * list = (uint *) malloc(sizeof(uint)*n);
@@ -673,7 +675,7 @@ void destroyFT(FTRep * rep){
 
  ---------------------------------------------------------------- */
 void saveFT(FTRep * rep, FILE * flist){
-	int i;
+	//int i;
 	
 	fwrite(&(rep->listLength),sizeof(uint),1,flist);
 	fwrite(&(rep->nLevels),sizeof(byte),1,flist);
@@ -720,7 +722,7 @@ void saveFT(FTRep * rep, FILE * flist){
 FTRep* loadFT(FILE * flist){
 	//FILE * flist;
 
-	int i;
+	//int i;
 	FTRep * rep = (FTRep *) malloc(sizeof(struct sFTRep));
 	//flist = fopen(filename,"r");
 	fread(&(rep->listLength),sizeof(uint),1,flist);

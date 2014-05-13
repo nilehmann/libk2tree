@@ -39,12 +39,14 @@ K2TreeBuilder::K2TreeBuilder(uint cnt,
 
   height_ = k1_levels + x + 1;
   size_ = powk1 * Pow<uint>(k2, x) * kl;
+
+  root = CreateNode(0);
 }
 
 
 void K2TreeBuilder::AddLink(uint p, uint q) {
-  if (root == NULL)
-    root = CreateNode(0);
+  //if (root == NULL)
+    //root = CreateNode(0);
   Node *n = root;
   uint N = size_, div_level;
   int child;
@@ -124,8 +126,9 @@ shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
 
 void K2TreeBuilder::Clear() {
   DeleteNode(root, 0);
-  root = NULL;
+  //root = NULL;
   leafs_ = internal_nodes_ = edges_ = 0;
+  root = CreateNode(0);
 }
 
 

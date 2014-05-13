@@ -70,8 +70,7 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
    * Returns word containing the bit at the given position
    */
   const uchar *getWord(uint pos) const {
-    uint size = WordSize();
-    uint iword = accessFT(compressL_, pos/(size*8));
+    uint iword = accessFT(compressL_, pos/(kl_*kl_));
     return vocabulary_->get(iword);
   }
 
