@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef INCLUDE_BITS_UTILS_UTILS_H_
-#define INCLUDE_BITS_UTILS_UTILS_H_
+#ifndef INCLUDE_UTILS_UTILS_H_
+#define INCLUDE_UTILS_UTILS_H_
 
 #include <libk2tree_basic.h>
 #include <fstream>
@@ -98,4 +98,4 @@ char strcmp(const uchar *w1, const uchar *w2, uint size);
 }  // namespace utils
 }  // namespace libk2tree
 
-#endif  // INCLUDE_BITS_UTILS_UTILS_H_
+#endif  // INCLUDE_UTILS_UTILS_H_

@@ -14,7 +14,14 @@
 #include <compressed_hybrid.h>
 
 namespace libk2tree {
-typedef basic_partition<CompressedHybrid> CompressedPartition;
+class CompressedPartition: public basic_partition<CompressedHybrid> {
+ public:
+  CompressedPartition(std::ifstream *in);
+  void Save(std::ofstream *out) const;
+
+ private:
+  shared_ptr<Vocabulary> vocabulary_;
+};
 }  // namespace libk2tree
 
 #endif  // INCLUDE_COMPRESSED_PARTITION_H_

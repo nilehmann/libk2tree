@@ -9,8 +9,8 @@
  * Dynamic bit array
  */
 
-#ifndef INCLUDE_BITS_UTILS_BITARRAY_H_
-#define INCLUDE_BITS_UTILS_BITARRAY_H_
+#ifndef INCLUDE_UTILS_BITARRAY_H_
+#define INCLUDE_UTILS_BITARRAY_H_
 
 #include <libk2tree_basic.h>
 #include <utils/utils.h>
@@ -131,4 +131,4 @@ class BitArray {
 
 }  // namespace utils
 }  // namespace libk2tree
-#endif  // INCLUDE_BITS_UTILS_BITARRAY_H_
+#endif  // INCLUDE_UTILS_BITARRAY_H_

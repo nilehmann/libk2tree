@@ -12,7 +12,22 @@
 #include <compression/compressor.h>
 
 namespace libk2tree {
-K2TreePartition::K2TreePartition(std::ifstream *in) : basic_partition(in) {}
+K2TreePartition::K2TreePartition(std::ifstream *in): basic_partition(in) {
+  for (int i = 0; i < k0_; ++i) {
+    subtrees_[i].reserve(k0_);
+    for (int j = 0; j < k0_; ++j)
+      subtrees_[i].emplace_back(in);
+  }
+}
+
+void K2TreePartition::Save(std::ofstream *out) const {
+  SaveValue(out, cnt_);
+  SaveValue(out, submatrix_size_);
+  SaveValue(out, k0_);
+  for (int i = 0; i < k0_; ++i)
+    for (int j = 0; j < k0_; ++j)
+      subtrees_[i][j].Save(out);
+}
 
 uint K2TreePartition::WordsCnt() const {
   size_t leaves = 0;
@@ -27,22 +42,16 @@ void K2TreePartition::CompressLeaves(std::ofstream *out) const {
   SaveValue(out, submatrix_size_);
   SaveValue(out, k0_);
 
-  /*compression::CompressLeaves(*this, [&] (const HashTable &table,
-                                          shared_ptr<Array<uchar>> voc) {
+  compression::FreqVoc(*this, [&] (const HashTable &table,
+                                   shared_ptr<Vocabulary> voc) {
+    voc->Save(out);
     for (int i = 0; i < k0_; ++i) {
       for (int j = 0; j < k0_; ++j) {
-        shared_ptr<CompressedHybrid> t = subtrees_[i][j].BuildCompressed(table, voc);
-        t->Save(out);
+        shared_ptr<CompressedHybrid> t = subtrees_[i][j].CompressLeaves(table, voc);
+        t->Save(out, false);
       }
     }
-  });*/
-  for (int i = 0; i < k0_; ++i) {
-    for (int j = 0; j < k0_; ++j) {
-      shared_ptr<CompressedHybrid> t = subtrees_[i][j].CompressLeaves();
-      t->Save(out);
-      //subtrees_[i][j].Save(out);
-    }
-  }
+  });
 }
 
-}  // namespace libk2tree 
+}  // namespace libk2tree

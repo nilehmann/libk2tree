@@ -14,6 +14,13 @@
 #include <memory>
 #include <cstdio>
 #include <iostream>
+
+#include <boost/program_options/positional_options.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/parsers.hpp>
+
+namespace po = boost::program_options;
 using namespace std;
 
 
@@ -25,6 +32,9 @@ using ::std::shared_ptr;
 using ::libk2tree::HybridK2Tree;
 using ::libk2tree::K2TreeBuilder;
 using ::libk2tree::K2TreePartitionBuilder;
+using ::libk2tree::CompressedHybrid;
+using ::libk2tree::K2TreePartition;
+
 typedef unsigned int uint;
 typedef unsigned long ulong;
 
@@ -42,10 +52,11 @@ double stop_clock() {
 }
 /* end Time meassuring */
 
-char *in_file, *out_file;
+string in_file, out_file;
 int k1, k2, kl;
 int k1_levels;
 int S;
+bool compress = false;
 
 
 void build_k2tree();
@@ -54,34 +65,69 @@ template<class Function>
 void Neighbors(streampos pos, ifstream *in,
                uint p1, uint p2, vector<streamoff> &next, uint q2, Function fun);
 
+
+void ParseOps(int argc, char *argv[]) {
+  po::options_description ops("Usage: build_k2tree [options] input-graph"
+                              " output-graph\n"
+                              "Allowed options");
+  ops.add_options()
+    ("help,h", "Print this help")
+    ("compress,c", "Builds a tree with compressed leaves")
+    ("k1", po::value<int>(&k1)->default_value(4), "Arity of the first leveles")
+    ("k2", po::value<int>(&k2)->default_value(2), "Arity of the second part")
+    ("kl", po::value<int>(&kl)->default_value(-1), "Arity of the level height - 1")
+    ("k1-levels", po::value<int>(&k1_levels)->default_value(5),
+     "Number of level with arity k1")
+    ("submatrix-size,S", po::value<int>(&S)->default_value(-1),
+     "Builds a tree partitioning the first level in submatrices of size"
+     " 2^S");
+
+  po::options_description files;
+  files.add_options()
+    ("input-graph", po::value<string>(), "Input graph file")
+    ("output-graph", po::value<string>(), "Output graph file");
+
+  po::options_description all("All options");
+  all.add(ops).add(files);
+
+  po::positional_options_description p;
+  p.add("input-graph", 1);
+  p.add("output-graph", 1);
+
+  po::variables_map map;
+  po::store(po::command_line_parser(argc, argv).
+            options(all).positional(p).run(), map);
+  po::notify(map);
+
+  if(map.count("help")) {
+    std::cout << ops;
+    exit(0);
+  }
+  if(map.count("compress"))
+    compress = true;
+
+  in_file = map["input-graph"].as<string>();
+  out_file = map["output-graph"].as<string>();
+  if (kl == -1)
+    kl = k2*k2*k2;
+}
+
 int main(int argc, char *argv[]) {
   ticks = (double)sysconf(_SC_CLK_TCK);
 
-  if (argc < 6) {
-    printf("Usage: %s in out k1 k2 k1_levels [S]\n", argv[0]);
-    exit(0);
-  }
-  in_file = argv[1];
-  out_file = argv[2];
-  k1 = stoi(argv[3]);
-  k2 = stoi(argv[4]);
-  kl = k2*k2*k2;
-  k1_levels = stoi(argv[5]);
+  ParseOps(argc, argv);
 
   uint t;
-  printf("k1: %d, k2: %d, kl: %d, k1_levels: %d", k1, k2, kl, k1_levels);
-  if (argc > 6) {
-    S = stoi(argv[6]);
-    printf(" S: %d\n", S);
-    start_clock();
+  printf("k1: %d, k2: %d, kl: %d, k1-levels: %d\n", k1, k2, kl, k1_levels);
+  printf("Input File: %s\n", in_file.c_str());
+  printf("Output File: %s\n", out_file.c_str());
+  start_clock();
+  if (S > 0)
     build_k2tree_partition();
-    t = stop_clock();
-  } else {
-    printf("\n");
-    start_clock();
+  else
     build_k2tree();
-    t = stop_clock();
-  }
+  
+  t = stop_clock();
 
   printf("%d seconds to build.\n", t);
 
@@ -93,7 +139,7 @@ void build_k2tree() {
   uint nodes = LoadValue<uint>(&in);
   ulong edges = LoadValue<ulong>(&in);
 
-  printf("nodes: %d, edges: %ld\n", nodes, edges);
+  printf("Nodes: %d, Edges: %ld\n", nodes, edges);
 
   K2TreeBuilder tb(nodes, k1, k2, kl, k1_levels);
   for (uint p = 0; p < nodes; ++p) {
@@ -105,12 +151,16 @@ void build_k2tree() {
   }
   in.close();
 
-
   // Build and save k2tree
   ofstream out(out_file, ofstream::out);
-  tb.Build(&out);
+  shared_ptr<HybridK2Tree> tree = tb.Build();
+  if (compress) {
+    shared_ptr<CompressedHybrid> tree2 = tree->CompressLeaves();
+    tree2->Save(&out);
+  } else {
+    tree->Save(&out);
+  }
   out.close();
-
 }
 
 void build_k2tree_partition() {
@@ -120,7 +170,7 @@ void build_k2tree_partition() {
   ulong edges = LoadValue<ulong>(&in);
   uint subm_size = 1 << S;
 
-  printf("nodes: %d, edges: %ld, submatrix size: %d\n", nodes, edges, subm_size);
+  printf("Nodes: %d, Edges: %ld, Submatrix size: %d\n", nodes, edges, subm_size);
 
 
   K2TreePartitionBuilder tb(nodes, subm_size, k1, k2, kl, k1_levels, out_file);
@@ -149,7 +199,17 @@ void build_k2tree_partition() {
       tb.BuildSubtree();
     }
   }
+  in.close();
 
+  if (compress) {
+    in.open(out_file, ifstream::in);
+    K2TreePartition tree(&in);
+    in.close();
+
+    ofstream out(out_file, ofstream::out);
+    tree.CompressLeaves(&out);
+    out.close();
+  }
 }
 
 template<class Function>

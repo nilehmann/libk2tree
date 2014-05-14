@@ -80,7 +80,6 @@ TEST(k2treepartition, InverseLinks) {
   shared_ptr<K2TreePartition> tree = BuildPartition(&matrix);
 
   TestInverseLinks(*tree, matrix);
-
 }
 TEST(k2treepartition, RangeQuery) {
   vector<vector<bool>> matrix;

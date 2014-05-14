@@ -30,13 +30,8 @@ class basic_partition {
       : cnt_(LoadValue<uint>(in)),
         submatrix_size_(LoadValue<uint>(in)),
         k0_(LoadValue<int>(in)),
-        subtrees_(k0_) {
-    for (int i = 0; i < k0_; ++i) {
-      subtrees_[i].reserve(k0_);
-      for (int j = 0; j < k0_; ++j)
-        subtrees_[i].emplace_back(in);
-    }
-  }
+        subtrees_(k0_) {}
+
 
   /* Checks if exist a link from object p to q.
    *
@@ -149,14 +144,6 @@ class basic_partition {
     return size;
   }
 
-  void Save(std::ofstream *out) const {
-    SaveValue(out, cnt_);
-    SaveValue(out, submatrix_size_);
-    SaveValue(out, k0_);
-    for (int i = 0; i < k0_; ++i)
-      for (int j = 0; j < k0_; ++j)
-        subtrees_[i][j].Save(out);
-  }
 
   bool operator==(const basic_partition &rhs) {
     if (k0_ != rhs.k0_ || cnt_ != rhs.cnt_ ||

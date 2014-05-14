@@ -12,14 +12,14 @@
 
 #include <libk2tree_basic.h>
 #include <basic_hybrid.h>
-#include <compression/array.h>
+#include <compression/vocabulary.h>
 #include <dacs.h>
 #include <memory>
 
 
 namespace libk2tree {
 using std::shared_ptr;
-using compression::Array;
+using compression::Vocabulary;
 
 class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
   friend class basic_hybrid<CompressedHybrid>;
@@ -29,11 +29,12 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
    * Loads a K2Tree previously saved with Save(ofstream)
    */
   explicit CompressedHybrid(ifstream *in);
+  CompressedHybrid(ifstream *in, shared_ptr<Vocabulary> voc);
 
   /* 
    * Saves the k2tree to a file
    */
-  void Save(ofstream *out) const;
+  void Save(ofstream *out, bool save_voc = true) const;
 
 
   void Memory() const;
@@ -45,7 +46,7 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
 
  private:
   FTRep * compressL_;
-  shared_ptr<Array<uchar> > vocabulary_;
+  shared_ptr<Vocabulary> vocabulary_;
 
   /* 
    * Builds a k2tree with and hybrid aproach. This construtor should
@@ -62,7 +63,7 @@ class CompressedHybrid: public basic_hybrid<CompressedHybrid> {
    */
   CompressedHybrid(shared_ptr<BitSequence> T,
                    FTRep *compressL,
-                   shared_ptr<Array<uchar>> vocabulary,
+                   shared_ptr<Vocabulary> vocabulary,
                    int k1, int k2, int kl, int max_level_k1, int height,
                    uint cnt, uint size);
 

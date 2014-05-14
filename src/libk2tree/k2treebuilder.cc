@@ -15,18 +15,18 @@ namespace libk2tree {
 
 K2TreeBuilder::K2TreeBuilder(uint cnt,
                              int k1, int k2, int kl,
-                             int k1_levels):
-    cnt_(cnt),
-    size_(0),
-    k1_(k1),
-    k2_(k2),
-    kl_(kl),
-    max_level_k1_(k1_levels-1),
-    height_(-1),
-    leafs_(0),
-    edges_(0),
-    internal_nodes_(0),  // we dont consider the root
-    root() {
+                             int k1_levels)
+    : cnt_(cnt),
+      size_(0),
+      k1_(k1),
+      k2_(k2),
+      kl_(kl),
+      max_level_k1_(k1_levels-1),
+      height_(-1),
+      leafs_(0),
+      edges_(0),
+      internal_nodes_(0),  // we dont consider the root
+      root() {
   // we extend the size of the matrix to be the product of the arities in all
   // levels (section 5.1). There are k1_levels levels with arity k1, one with
   // arity kl and we must find the numbers of levels with arity k2, ie, the
@@ -45,8 +45,6 @@ K2TreeBuilder::K2TreeBuilder(uint cnt,
 
 
 void K2TreeBuilder::AddLink(uint p, uint q) {
-  //if (root == NULL)
-    //root = CreateNode(0);
   Node *n = root;
   uint N = size_, div_level;
   int child;
@@ -126,7 +124,6 @@ shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
 
 void K2TreeBuilder::Clear() {
   DeleteNode(root, 0);
-  //root = NULL;
   leafs_ = internal_nodes_ = edges_ = 0;
   root = CreateNode(0);
 }

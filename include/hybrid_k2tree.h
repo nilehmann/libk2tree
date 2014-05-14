@@ -83,9 +83,9 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree> {
 
   shared_ptr<CompressedHybrid> CompressLeaves() const;
 
-  shared_ptr<CompressedHybrid> BuildCompressed(
+  shared_ptr<CompressedHybrid> CompressLeaves(
       const HashTable &table,
-      shared_ptr<Array<uchar>> voc) const;
+      shared_ptr<Vocabulary> voc) const;
 
  private:
   /* 

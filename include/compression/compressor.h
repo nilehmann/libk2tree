@@ -7,12 +7,12 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef INCLUDE_COMPRESSION_COMPRESSION_H_
-#define INCLUDE_COMPRESSION_COMPRESSION_H_
+#ifndef INCLUDE_COMPRESSION_COMPRESSOR_H_
+#define INCLUDE_COMPRESSION_COMPRESSOR_H_
 
 #include <libk2tree_basic.h>
 #include <compression/hash.h>
-#include <compression/array.h>
+#include <compression/vocabulary.h>
 #include <vector>
 #include <algorithm>
 
@@ -26,11 +26,11 @@ using std::shared_ptr;
  * @param tree
  */
 template<class K2Tree, class Function>
-void CompressLeaves(const K2Tree &tree, Function build) {
+void FreqVoc(const K2Tree &tree, Function build) {
   uint cnt = tree.WordsCnt();
   uint size = tree.WordSize();
 
-  Array<uchar> words(cnt, size);
+  Vocabulary words(cnt, size);
 
   uint pos = 0;
   tree.Words([&] (const uchar *word) {
@@ -62,7 +62,7 @@ void CompressLeaves(const K2Tree &tree, Function build) {
     return table[a].weight > table[b].weight;
   });
 
-  shared_ptr<Array<uchar>> voc(new Array<uchar>(diff_cnt, size));
+  shared_ptr<Vocabulary> voc(new Vocabulary(diff_cnt, size));
   for (uint i = 0; i < diff_cnt; ++i) {
     Nword &w = table[posInHash[i]];
     w.codeword = i;
@@ -74,4 +74,4 @@ void CompressLeaves(const K2Tree &tree, Function build) {
 
 }  // namespace compression
 }  // namespace libk2tree
-#endif  // INCLUDE_COMPRESSION_COMPRESSION_H_
+#endif  // INCLUDE_COMPRESSION_COMPRESSOR_H_

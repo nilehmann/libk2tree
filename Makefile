@@ -1,4 +1,4 @@
-CXX = clang++
+//CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = -Iinclude/ -Idacs/
 
@@ -12,14 +12,15 @@ K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 
 DACS = dacs
 
-//FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic
-FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic
-LIBRARIES = -L$(DACS) -lcds -lboost_filesystem -lboost_system -ldacs
+FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG
+//FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic
+LIBRARIES = -L$(DACS) -lcds -lboost_filesystem -lboost_system -ldacs\
+						-lboost_program_options
 
 
 .PHONY: clean style test all
 
-all: dacs test build_k2tree time qry_gen time_partition
+all: dacs test build_k2tree time qry_gen
 
 # DACS
 dacs: $(DACS)/libdacs.a
@@ -81,10 +82,6 @@ bin/time: $(K2TREE_OBJ) obj/src/time.o
 	@echo " [LNK] Linking time"
 	@$(CXX) -lcds $(K2TREE_OBJ) $(FLAGS) obj/src/time.o $(LIBRARIES) -o bin/time
 
-bin/time_partition: $(K2TREE_OBJ) obj/src/time_partition.o
-	@echo " [LNK] Linking time_partition"
-	@$(CXX) -lcds $(K2TREE_OBJ) $(FLAGS) obj/src/time_partition.o $(LIBRARIES) -o bin/time_partition
-
 bin/build_k2tree: $(K2TREE_OBJ) obj/src/build_k2tree.o
 	@echo " [LNK] Linking build_k2tree"
 	@$(CXX) -lcds $(K2TREE_OBJ) obj/src/build_k2tree.o $(LIBRARIES) -o bin/build_k2tree
@@ -94,10 +91,6 @@ obj/src/build_k2tree.o: src/build_k2tree.cc
 	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 
 obj/src/time.o: src/time.cc
-	@echo " [C++] Compiling $<"
-	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
-
-obj/src/time_partition.o: src/time_partition.cc
 	@echo " [C++] Compiling $<"
 	@$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@
 

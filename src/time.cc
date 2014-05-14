@@ -15,10 +15,21 @@
 #include <fstream>
 #include <memory>
 #include <vector>
+
+#include <boost/program_options/positional_options.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/parsers.hpp>
+
+namespace po = boost::program_options;
+
 using std::ifstream;
 using std::shared_ptr;
 using std::vector;
 using libk2tree::HybridK2Tree;
+using libk2tree::CompressedHybrid;
+using libk2tree::CompressedPartition;
+using libk2tree::K2TreePartition;
 using libk2tree::utils::LoadValue;
 
 typedef unsigned int uint;
@@ -36,51 +47,115 @@ double stop_clock() {
   return (t2.tms_utime-t1.tms_utime)/ticks;
 }
 /* end Time meassuring */
+template<class K2Tree>
+uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree);
 
-uint TimeDirect(uint *qry, uint cnt_qry, const HybridK2Tree &tree);
-uint TimeRange(uint *qry, uint cnt_qry, const HybridK2Tree &tree);
+template<class K2Tree>
+uint TimeInverse(uint *qry, uint cnt_qry, const K2Tree &tree);
 
-int main(int argc, char* argv[]){
+template<class K2Tree>
+uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree);
 
-  if(argc<2){
-    fprintf(stderr,"USAGE: %s <GRAPH> <QUERIES> [type]\n",argv[0]);
-    return(-1);
+template<class K2Tree>
+uint Time(uint *qry, uint cnt_qry, const K2Tree &tree);
+
+bool compress = false, part = false;
+string graph_str, queries_str;
+int type;
+double t;
+
+void ParseOps(int argc, char *argv[]) {
+  po::options_description ops("Usage: time [options] graph queries"
+                              "Allowed options");
+  ops.add_options()
+    ("help,h", "Print this help")
+    ("compress,c", "Loads a tree with compressed leaves")
+    ("type,t", po::value<int>(&type)->default_value(1), "Type of query 1: Direct, 2: Inverse, 3: Range")
+    ("partition,p", "Loads a tree with first level partition");
+
+  po::options_description files;
+  files.add_options()
+    ("graph", po::value<string>(), "Input graph file")
+    ("queries", po::value<string>(), "Queries file");
+
+  po::options_description all("All options");
+  all.add(ops).add(files);
+
+  po::positional_options_description p;
+  p.add("graph", 1);
+  p.add("queries", 1);
+
+  po::variables_map map;
+  po::store(po::command_line_parser(argc, argv).
+            options(all).positional(p).run(), map);
+  po::notify(map);
+
+  if (map.count("help")) {
+    std::cout << ops;
+    exit(0);
   }
+  if (map.count("compress"))
+    compress = true;
+  if (map.count("partition"))
+    part = true;
 
-  //char *filename = (char *)malloc(sizeof(char)*20);
-  ifstream in; 
-  in.open(argv[1], ifstream::in);
 
-  HybridK2Tree tree(&in);
+  graph_str = map["graph"].as<string>();
+  queries_str = map["queries"].as<string>();
+}
+int main(int argc, char* argv[]){
+  ParseOps(argc, argv);
 
-  ifstream in_queries;
-  in_queries.open(argv[2], ifstream::in);
+  ifstream in_queries(queries_str, ifstream::in);
   uint cnt_qry = LoadValue<uint>(&in_queries);
-  
   uint *qry = new uint[cnt_qry];
   qry = LoadValue<uint>(&in_queries, cnt_qry);
+  in_queries.close();
 
   fprintf(stderr,"Processing %d queries\n",cnt_qry);
-  double t = 0;
-  ticks= (double)sysconf(_SC_CLK_TCK);
-  start_clock();
-  uint recovered = TimeDirect(qry, cnt_qry, tree);
-  //uint recovered = TimeRange(qry, cnt_qry, tree);
-  t += stop_clock(); 
-  t *= 1000; // to milliseconds
+
+
+  uint recovered = 0;
+  ifstream in(graph_str, ifstream::in);
+  if (compress && part)
+    recovered = Time(qry, cnt_qry, CompressedPartition(&in));
+  else if(!compress && part)
+    recovered = Time(qry, cnt_qry, K2TreePartition(&in));
+  else if(!compress && !part)
+    recovered = Time(qry, cnt_qry, HybridK2Tree(&in));
+  else if(compress && !part)
+    recovered = Time(qry, cnt_qry, CompressedHybrid(&in));
+
+  in.close();
 
   fprintf(stderr,"Recovered Nodes: %d\n",recovered);
-  fprintf(stderr,"Queries: %d\n",cnt_qry);
   fprintf(stderr,"Total time(ms): %f\n",t);
   fprintf(stderr,"Time per query: %f\n",t/cnt_qry);
   fprintf(stderr,"Time per link: %f\n",t/recovered);
 
-
-
   return 0;
 }
 
-uint TimeRange(uint *qry, uint cnt_qry, const HybridK2Tree &tree) {
+template<class K2Tree>
+uint Time(uint *qry, uint cnt_qry, const K2Tree &tree) {
+  ticks = (double)sysconf(_SC_CLK_TCK);
+  uint recovered = 0;
+  start_clock();
+  if (type == 1)
+    recovered = TimeDirect(qry, cnt_qry, tree);
+  else if (type == 2)
+    recovered = TimeInverse(qry, cnt_qry, tree);
+  else
+    recovered = TimeRange(qry, cnt_qry, tree);
+  t += stop_clock(); 
+  t *= 1000; // to milliseconds
+  return recovered;
+}
+
+
+template<class K2Tree>
+uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
+  printf("Range Query\n");
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
@@ -94,7 +169,9 @@ uint TimeRange(uint *qry, uint cnt_qry, const HybridK2Tree &tree) {
   return recovered;
 }
 
-uint TimeDirect(uint *qry, uint cnt_qry, const HybridK2Tree &tree) {
+template<class K2Tree>
+uint TimeDirect(uint *qry, uint cnt_qry, const K2Tree &tree) {
+  printf("Direct Links\n");
   uint i;
   uint recovered = 0;
   for(i=0;i< cnt_qry;i++) {
@@ -103,9 +180,22 @@ uint TimeDirect(uint *qry, uint cnt_qry, const HybridK2Tree &tree) {
       vec.push_back(q); 
       ++recovered;
     });
-    
   }
   return recovered;
 }
 
 
+template<class K2Tree>
+uint TimeInverse(uint *qry, uint cnt_qry, const K2Tree &tree) {
+  printf("Inverse Links\n");
+  uint i;
+  uint recovered = 0;
+  for(i=0;i< cnt_qry;i++) {
+    vector<uint> vec;
+    tree.InverseLinks(qry[i], [&] (uint q){
+      vec.push_back(q); 
+      ++recovered;
+    });
+  }
+  return recovered;
+}

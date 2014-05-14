@@ -16,7 +16,7 @@ using utils::SaveValue;
 
 CompressedHybrid::CompressedHybrid(shared_ptr<BitSequence> T,
                                    FTRep *compressL,
-                                   shared_ptr<Array<uchar>> vocabulary,
+                                   shared_ptr<Vocabulary> vocabulary,
                                    int k1, int k2, int kl, int max_level_k1,
                                    int height, uint cnt, uint size)
     : basic_hybrid(T, k1, k2, kl, max_level_k1, height, cnt, size),
@@ -26,7 +26,13 @@ CompressedHybrid::CompressedHybrid(shared_ptr<BitSequence> T,
 CompressedHybrid::CompressedHybrid(ifstream *in)
     : basic_hybrid(in),
       compressL_(LoadFT(in)),
-      vocabulary_(new Array<uchar>(in)) {}
+      vocabulary_(new Vocabulary(in)) {}
+
+CompressedHybrid::CompressedHybrid(ifstream *in,
+                                   shared_ptr<Vocabulary> voc)
+    : basic_hybrid(in),
+      compressL_(LoadFT(in)),
+      vocabulary_(voc) {}
 
 
 
@@ -42,10 +48,11 @@ size_t CompressedHybrid::GetSize() const {
 
 
 
-void CompressedHybrid::Save(ofstream *out) const {
+void CompressedHybrid::Save(ofstream *out, bool save_voc) const {
   basic_hybrid::Save(out);
   SaveFT(out, compressL_);
-  vocabulary_->Save(out);
+  if (save_voc)
+    vocabulary_->Save(out);
 }
 
 CompressedHybrid::~CompressedHybrid() {

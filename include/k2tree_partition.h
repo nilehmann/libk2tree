@@ -18,8 +18,8 @@
 namespace libk2tree {
 class K2TreePartition: public basic_partition<HybridK2Tree> {
  public:
-  K2TreePartition(std::ifstream *in);
-  
+  explicit K2TreePartition(std::ifstream *in);
+
   /*
    * Return number of words of size kl*kl in the leaf level.
    */
@@ -29,7 +29,7 @@ class K2TreePartition: public basic_partition<HybridK2Tree> {
    * Return the size in bytes of the words in the leaf level, ie, kl*kl/8.
    */
   int WordSize() const {
-   return subtrees_[0][0].WordSize();
+    return subtrees_[0][0].WordSize();
   }
 
   /*
@@ -45,6 +45,7 @@ class K2TreePartition: public basic_partition<HybridK2Tree> {
 
   void CompressLeaves(std::ofstream *out) const;
 
+  void Save(std::ofstream *out) const;
 };
 
 }  // namespace libk2tree

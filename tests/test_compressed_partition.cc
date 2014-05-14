@@ -27,10 +27,8 @@ typedef unsigned int uint;
 
 
 shared_ptr<CompressedPartition>
-//shared_ptr<K2TreePartition>
 BuildCompressed(vector<vector<bool>> *matrix) {
   int n = 1000;
-  //int n = 100;
 
   int e = rand()%(n*10) + 1;
 
@@ -70,7 +68,6 @@ BuildCompressed(vector<vector<bool>> *matrix) {
 
   in.open(filename, ifstream::in);
   shared_ptr<CompressedPartition> t(new CompressedPartition(&in));
-  //shared_ptr<K2TreePartition> t(new K2TreePartition(&in));
   in.close();
 
   remove(tmp);
