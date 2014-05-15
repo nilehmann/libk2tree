@@ -8,6 +8,7 @@
  */
 
 #include <k2tree.h>
+#include <utils/array_queue.h>
 #include <utils/utils.h>
 #include <cstdio>
 #include <cmath>
@@ -31,6 +32,7 @@ using libk2tree::CompressedHybrid;
 using libk2tree::CompressedPartition;
 using libk2tree::K2TreePartition;
 using libk2tree::utils::LoadValue;
+using libk2tree::utils::ArrayQueue;
 
 typedef unsigned int uint;
 
@@ -138,6 +140,7 @@ int main(int argc, char* argv[]){
 
 template<class K2Tree>
 uint Time(uint *qry, uint cnt_qry, const K2Tree &tree) {
+
   ticks = (double)sysconf(_SC_CLK_TCK);
   uint recovered = 0;
   start_clock();
@@ -153,16 +156,22 @@ uint Time(uint *qry, uint cnt_qry, const K2Tree &tree) {
 }
 
 
+ArrayQueue<uint> q1, q2;
 template<class K2Tree>
 uint TimeRange(uint *qry, uint cnt_qry, const K2Tree &tree) {
   printf("Range Query\n");
   uint i;
   uint recovered = 0;
+
   for(i=0;i< cnt_qry;i++) {
-    vector<vector<uint> > vec(21);
+    //vector<vector<uint> > vec(21);
+    q1.clear();
+    q2.clear();
     tree.RangeQuery(qry[i], qry[i]+20, 0, tree.cnt() - 1,
-    [=, &vec, &qry, &recovered] (uint p, uint q) {
-      vec[p-qry[i]].push_back(q);
+    [&] (uint p, uint q) {
+      //vec[p-qry[i]].push_back(q);
+      q1.push(p);
+      q2.push(q);
       ++recovered;
     });
   }

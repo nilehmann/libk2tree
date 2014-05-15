@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <queue>
 #include <memory>
+#include <utils/array_queue.h>
 
 
 namespace libk2tree {
@@ -30,7 +31,7 @@ using std::shared_ptr;
 using utils::Ceil;
 using utils::LoadValue;
 using utils::SaveValue;
-
+using utils::ArrayQueue;
 
 struct Frame {
   uint p, q;
@@ -148,18 +149,19 @@ class basic_hybrid {
     uint div_p1, rem_p1, div_p2, rem_p2;
     uint div_q1, rem_q1, div_q2, rem_q2;
     uint dp, dq;
-    queue<RangeFrame> queue;
+    //queue<RangeFrame> range_queue;
+    range_queue.clear();
 
-    queue.push({p1, p2, q1, q2, 0, 0, 0});
+    range_queue.push({p1, p2, q1, q2, 0, 0, 0});
     uint N = size_;
     int level;
     for (level = 0; level < height_-1; ++level) {
       int k = GetK(level);
       div_level = N/k;
 
-      uint cnt_level = queue.size();
+      uint cnt_level = range_queue.size();
       for (uint q = 0; q < cnt_level; ++q) {
-        const RangeFrame &f = queue.front();
+        const RangeFrame &f = range_queue.front();
         uint first = FirstChild(f.z, level, k);
 
         div_p1 = f.p1/div_level, rem_p1= f.p1%div_level;
@@ -177,20 +179,20 @@ class basic_hybrid {
             q1 = j == div_q1 ? rem_q1 : 0;
             q2 = j == div_q2 ? rem_q2 : div_level-1;
             if (T_->access(z+j))
-              queue.push({p1, p2, q1, q2, dp, dq, z + j});
+              range_queue.push({p1, p2, q1, q2, dp, dq, z + j});
           }
         }
-        queue.pop();
+        range_queue.pop();
       }
       N = div_level;
     }
 
     div_level = N/kl_;
-    uint cnt_level = queue.size();
+    uint cnt_level = range_queue.size();
     for (uint q = 0; q < cnt_level; ++q) {
-      const RangeFrame &f = queue.front();
+      const RangeFrame &f = range_queue.front();
       RangeLeafBits(f, div_level, fun);
-      queue.pop();
+      range_queue.pop();
     }
   }
 
@@ -224,6 +226,9 @@ class basic_hybrid {
   uint *offset_;
   // Bit array with rank capability containing internal nodes.
   shared_ptr<BitSequence> T_;
+  
+  static ArrayQueue<RangeFrame> range_queue;
+  static ArrayQueue<Frame> neighbors_queue;
 
 
   basic_hybrid(shared_ptr<BitSequence> T,
@@ -334,34 +339,35 @@ class basic_hybrid {
     uint div_level;
     uint cnt_level;
     int k, level;
-    queue<Frame > queue;
+    //queue<Frame> neighbors_queue;
+    neighbors_queue.clear();
 
-    queue.push(Impl::FirstFrame(object));
+    neighbors_queue.push(Impl::FirstFrame(object));
     uint N = size_;
     for (level = 0; level < height_ - 1; ++level) {
       k = GetK(level);
       div_level = N/k;
 
-      cnt_level = queue.size();
+      cnt_level = neighbors_queue.size();
       for (uint i = 0; i < cnt_level; ++i) {
-        const Frame &f = queue.front();
+        const Frame &f = neighbors_queue.front();
         uint z = FirstChild(f.z, level, k) + Impl::Offset(f, k, div_level);
         for (int j  = 0; j < k; ++j) {
           if (T_->access(z))
-            queue.push(Impl::NextFrame(f.p, f.q, z, j, div_level));
+            neighbors_queue.push(Impl::NextFrame(f.p, f.q, z, j, div_level));
           z = Impl::NextChild(z, k);
         }
-        queue.pop();
+        neighbors_queue.pop();
       }
       N = div_level;
     }
 
     div_level = N/kl_;
-    cnt_level = queue.size();
+    cnt_level = neighbors_queue.size();
     for (uint i = 0; i < cnt_level; ++i) {
-      Frame &f = queue.front();
+      Frame &f = neighbors_queue.front();
       LeafBits<Function, Impl>(f, div_level, fun);
-      queue.pop();
+      neighbors_queue.pop();
     }
   }
 };
@@ -405,8 +411,11 @@ struct InverseImpl {
 };
 
 
+template<class Hybrid>
+ArrayQueue<RangeFrame> basic_hybrid<Hybrid>::range_queue;
 
-
+template<class Hybrid>
+ArrayQueue<Frame> basic_hybrid<Hybrid>::neighbors_queue;
 }  // namespace libk2tree
 
 #endif  // INCLUDE_BASIC_HYBRID_H_
