@@ -19,18 +19,18 @@ CompressedHybrid::CompressedHybrid(shared_ptr<BitSequence> T,
                                    shared_ptr<Vocabulary> vocabulary,
                                    int k1, int k2, int kl, int max_level_k1,
                                    int height, uint cnt, uint size)
-    : basic_hybrid(T, k1, k2, kl, max_level_k1, height, cnt, size),
+    : base_hybrid(T, k1, k2, kl, max_level_k1, height, cnt, size),
       compressL_(compressL),
       vocabulary_(vocabulary) {}
 
 CompressedHybrid::CompressedHybrid(ifstream *in)
-    : basic_hybrid(in),
+    : base_hybrid(in),
       compressL_(LoadFT(in)),
       vocabulary_(new Vocabulary(in)) {}
 
 CompressedHybrid::CompressedHybrid(ifstream *in,
                                    shared_ptr<Vocabulary> voc)
-    : basic_hybrid(in),
+    : base_hybrid(in),
       compressL_(LoadFT(in)),
       vocabulary_(voc) {}
 
@@ -49,7 +49,7 @@ size_t CompressedHybrid::GetSize() const {
 
 
 void CompressedHybrid::Save(ofstream *out, bool save_voc) const {
-  basic_hybrid::Save(out);
+  base_hybrid::Save(out);
   SaveFT(out, compressL_);
   if (save_voc)
     vocabulary_->Save(out);

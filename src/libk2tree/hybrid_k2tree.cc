@@ -21,12 +21,12 @@ HybridK2Tree::HybridK2Tree(const BitArray<uint, uint> &T,
                            const BitArray<uint, uint> &L,
                            int k1, int k2, int kl, int max_level_k1,
                            int height, uint cnt, uint size)
-    : basic_hybrid(T, k1, k2, kl, max_level_k1, height, cnt, size),
+    : base_hybrid(T, k1, k2, kl, max_level_k1, height, cnt, size),
       L_(L) {}
 
 
 HybridK2Tree::HybridK2Tree(ifstream *in)
-    : basic_hybrid(in),
+    : base_hybrid(in),
       L_(in) {}
 
 size_t HybridK2Tree::GetSize() const {
@@ -39,7 +39,7 @@ size_t HybridK2Tree::GetSize() const {
 }
 
 void HybridK2Tree::Save(ofstream *out) const {
-  basic_hybrid::Save(out);
+  base_hybrid::Save(out);
   L_.Save(out);
 }
 

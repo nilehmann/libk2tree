@@ -10,16 +10,34 @@
 #ifndef INCLUDE_COMPRESSED_PARTITION_H_
 #define INCLUDE_COMPRESSED_PARTITION_H_
 
-#include <basic_partition.h>
+#include <base/base_partition.h>
 #include <compressed_hybrid.h>
 
 namespace libk2tree {
-class CompressedPartition: public basic_partition<CompressedHybrid> {
+
+/**
+ * K2Tree implementation partitioning the first level as described in section
+ * 5.2. This representation use hybrid k2trees with compressed leaves as
+ * substrees.
+ */
+class CompressedPartition: public base_partition<CompressedHybrid> {
  public:
-  CompressedPartition(std::ifstream *in);
+  /**
+   * Loads a tree from a file
+   *
+   * @param in Input stream pointing to the file storing the tree.
+   */
+  explicit CompressedPartition(std::ifstream *in);
+
+  /**
+   * Saves tree to file
+   *
+   * @param out Output stream.
+   */
   void Save(std::ofstream *out) const;
 
  private:
+  /** Vocabulary of the leaves. This vocabulary is shared by all subtrees */
   shared_ptr<Vocabulary> vocabulary_;
 };
 }  // namespace libk2tree

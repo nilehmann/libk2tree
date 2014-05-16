@@ -7,7 +7,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include <k2treepartition_builder.h>
+#include <builder/k2tree_partition_builder.h>
 #include <utils/utils.h>
 #include <memory>
 #include <exception>

@@ -7,8 +7,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef INCLUDE_BASIC_PARTITION_H_
-#define INCLUDE_BASIC_PARTITION_H_
+#ifndef INCLUDE_BASE_BASE_PARTITION_H_
+#define INCLUDE_BASE_BASE_PARTITION_H_
 
 #include <libk2tree_basic.h>
 #include <utils/utils.h>
@@ -21,12 +21,12 @@ using utils::LoadValue;
 using utils::SaveValue;
 
 template<class K2Tree>
-class basic_partition {
+class base_partition {
  public:
   /*
    * Loads a tree previously saved with a K2TreePartitionBuilder
    */
-  explicit basic_partition(std::ifstream *in)
+  explicit base_partition(std::ifstream *in)
       : cnt_(LoadValue<uint>(in)),
         submatrix_size_(LoadValue<uint>(in)),
         k0_(LoadValue<int>(in)),
@@ -145,7 +145,7 @@ class basic_partition {
   }
 
 
-  bool operator==(const basic_partition &rhs) {
+  bool operator==(const base_partition &rhs) {
     if (k0_ != rhs.k0_ || cnt_ != rhs.cnt_ ||
         submatrix_size_ != rhs.submatrix_size_)
       return false;
@@ -167,6 +167,5 @@ class basic_partition {
   vector<vector<K2Tree>> subtrees_;
 };
 
-
 }  // namespace libk2tree
-#endif  // INCLUDE_BASIC_PARTITION_H_
+#endif  // INCLUDE_BASE_BASE_PARTITION_H_

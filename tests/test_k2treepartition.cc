@@ -101,5 +101,6 @@ TEST(k2treepartition, Save) {
   in.open("partition_save", ifstream::in);
   K2TreePartition tree2(&in);
   in.close();
+  remove("partition_save");
   ASSERT_TRUE(*tree == tree2);
 }

@@ -7,17 +7,17 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef INCLUDE_BASIC_HYBRID_H_
-#define INCLUDE_BASIC_HYBRID_H_
+#ifndef INCLUDE_BASE_BASE_HYBRID_H_
+#define INCLUDE_BASE_BASE_HYBRID_H_
 
 #include <libk2tree_basic.h>
 #include <utils/bitarray.h>
 #include <utils/utils.h>
+#include <utils/array_queue.h>
 #include <BitSequence.h>  // libcds
 #include <cstdlib>
 #include <queue>
 #include <memory>
-#include <utils/array_queue.h>
 
 
 namespace libk2tree {
@@ -57,12 +57,12 @@ struct InverseImpl;
  * Object identifiers starts with 0.
  */
 template<class Hybrid>
-class basic_hybrid {
+class base_hybrid {
  public:
   /*
    * Destructor
    */
-  ~basic_hybrid() {
+  ~base_hybrid() {
     delete [] acum_rank_;
     delete [] offset_;
   }
@@ -149,7 +149,7 @@ class basic_hybrid {
     uint div_p1, rem_p1, div_p2, rem_p2;
     uint div_q1, rem_q1, div_q2, rem_q2;
     uint dp, dq;
-    //queue<RangeFrame> range_queue;
+    // queue<RangeFrame> range_queue;
     range_queue.clear();
 
     range_queue.push({p1, p2, q1, q2, 0, 0, 0});
@@ -226,12 +226,12 @@ class basic_hybrid {
   uint *offset_;
   // Bit array with rank capability containing internal nodes.
   shared_ptr<BitSequence> T_;
-  
+
   static ArrayQueue<RangeFrame> range_queue;
   static ArrayQueue<Frame> neighbors_queue;
 
 
-  basic_hybrid(shared_ptr<BitSequence> T,
+  base_hybrid(shared_ptr<BitSequence> T,
                int k1, int k2, int kl, int max_level_k1, int height,
                uint cnt, uint size)
       : k1_(k1),
@@ -254,10 +254,10 @@ class basic_hybrid {
     }
   }
 
-  basic_hybrid(const BitArray<uint, uint> &T,
+  base_hybrid(const BitArray<uint, uint> &T,
                int k1, int k2, int kl, int max_level_k1, int height,
                uint cnt, uint size)
-      : basic_hybrid(
+      : base_hybrid(
             shared_ptr<BitSequence>(
                 new BitSequenceRG(
                     const_cast<uint*>(T.GetRawData()),
@@ -265,7 +265,7 @@ class basic_hybrid {
                     20)),
             k1, k2, kl, max_level_k1, height, cnt, size) {}
 
-  explicit basic_hybrid(ifstream *in)
+  explicit base_hybrid(ifstream *in)
       : k1_(LoadValue<int>(in)),
         k2_(LoadValue<int>(in)),
         kl_(LoadValue<int>(in)),
@@ -339,7 +339,7 @@ class basic_hybrid {
     uint div_level;
     uint cnt_level;
     int k, level;
-    //queue<Frame> neighbors_queue;
+    // queue<Frame> neighbors_queue;
     neighbors_queue.clear();
 
     neighbors_queue.push(Impl::FirstFrame(object));
@@ -412,10 +412,10 @@ struct InverseImpl {
 
 
 template<class Hybrid>
-ArrayQueue<RangeFrame> basic_hybrid<Hybrid>::range_queue;
+ArrayQueue<RangeFrame> base_hybrid<Hybrid>::range_queue;
 
 template<class Hybrid>
-ArrayQueue<Frame> basic_hybrid<Hybrid>::neighbors_queue;
+ArrayQueue<Frame> base_hybrid<Hybrid>::neighbors_queue;
 }  // namespace libk2tree
 
-#endif  // INCLUDE_BASIC_HYBRID_H_
+#endif  // INCLUDE_BASE_BASE_HYBRID_H_

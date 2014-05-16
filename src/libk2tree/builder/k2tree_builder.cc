@@ -8,9 +8,14 @@
  *
  */
 
-#include <k2treebuilder.h>
+#include <builder/k2tree_builder.h>
+#include <utils/utils.h>
+#include <utils/bitarray.h>
 
 namespace libk2tree {
+using utils::Pow;
+using utils::LogCeil;
+using utils::BitArray;
 
 
 K2TreeBuilder::K2TreeBuilder(uint cnt,
@@ -40,6 +45,7 @@ K2TreeBuilder::K2TreeBuilder(uint cnt,
   height_ = k1_levels + x + 1;
   size_ = powk1 * Pow<uint>(k2, x) * kl;
 
+  // The tree has always at least the root
   root = CreateNode(0);
 }
 

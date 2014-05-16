@@ -12,7 +12,7 @@
 #include <compression/compressor.h>
 
 namespace libk2tree {
-K2TreePartition::K2TreePartition(std::ifstream *in): basic_partition(in) {
+K2TreePartition::K2TreePartition(std::ifstream *in): base_partition(in) {
   for (int i = 0; i < k0_; ++i) {
     subtrees_[i].reserve(k0_);
     for (int j = 0; j < k0_; ++j)
@@ -47,7 +47,8 @@ void K2TreePartition::CompressLeaves(std::ofstream *out) const {
     voc->Save(out);
     for (int i = 0; i < k0_; ++i) {
       for (int j = 0; j < k0_; ++j) {
-        shared_ptr<CompressedHybrid> t = subtrees_[i][j].CompressLeaves(table, voc);
+        const HybridK2Tree &subtree = subtrees_[i][j];
+        shared_ptr<CompressedHybrid> t = subtree.CompressLeaves(table, voc);
         t->Save(out, false);
       }
     }

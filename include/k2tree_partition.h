@@ -11,30 +11,44 @@
 #define INCLUDE_K2TREE_PARTITION_H_
 
 #include <libk2tree_basic.h>
-#include <basic_partition.h>
+#include <base/base_partition.h>
 #include <hybrid_k2tree.h>
 
 
 namespace libk2tree {
-class K2TreePartition: public basic_partition<HybridK2Tree> {
+/**
+ * K2Tree implementation partitioning the first level as described in section
+ * 5.2. This representation use hybrid k2trees as substrees.
+ */
+class K2TreePartition: public base_partition<HybridK2Tree> {
  public:
+  /**
+   * Loads tree from a file
+   */
   explicit K2TreePartition(std::ifstream *in);
 
-  /*
-   * Return number of words of size kl*kl in the leaf level.
+  /**
+   * Returns number of words of size kl*kl in the leaf level.
+   * 
+   * @return Number of words.
    */
   uint WordsCnt() const;
 
-  /*
-   * Return the size in bytes of the words in the leaf level, ie, kl*kl/8.
+  /**
+   * Return the number of unsigned chars needed to store a word in the leaf
+   * level, ie, kl*kl/(8*sizeof(uchar)).
+   *
+   * @return Size of the words.
    */
-  int WordSize() const {
+  uint WordSize() const {
     return subtrees_[0][0].WordSize();
   }
 
-  /*
+  /**
    * Iterates over the words in the leaf level.
-   * @param fun Pointer to function, functor or lambda expecting a uchar *.
+   *
+   * @param fun Pointer to function, functor or lambda expecting a pointer to
+   * first position of each word.
    */
   template<class Function>
   void Words(Function fun) const {
@@ -43,8 +57,19 @@ class K2TreePartition: public basic_partition<HybridK2Tree> {
         subtrees_[row][col].Words(fun);
   }
 
+  /**
+   * Constructs a new tree with the same information but compressing the leafs
+   * of each subtree. A common vocabulary is used to comprees each subtree.
+   *
+   * @param out Output stream to store the resulting tree.
+   */
   void CompressLeaves(std::ofstream *out) const;
 
+  /**
+   * Saves tree to file
+   *
+   * @param out Output stream.
+   */
   void Save(std::ofstream *out) const;
 };
 

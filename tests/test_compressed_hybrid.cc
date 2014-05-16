@@ -109,4 +109,5 @@ TEST(CompressedHybrid, Empty) {
   TestDirectLinks(tree2, matrix);
   TestInverseLinks(tree2, matrix);
   TestRangeQuery(tree2, matrix);
+  remove("compressed_k2tree_test");
 }

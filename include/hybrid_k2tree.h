@@ -9,7 +9,7 @@
 
 #ifndef INCLUDE_HYBRID_K2TREE_H_
 #define INCLUDE_HYBRID_K2TREE_H_
-#include <basic_hybrid.h>
+#include <base/base_hybrid.h>
 #include <compressed_hybrid.h>
 #include <compression/compressor.h>
 #include <dacs.h>
@@ -20,48 +20,63 @@ using compression::HashTable;
 class K2TreeBuilder;
 
 
-class HybridK2Tree : public basic_hybrid<HybridK2Tree> {
+/** 
+ * K2Tree implementation using an hybrid aproach as described in section 5.1.
+ */
+class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   friend class K2TreeBuilder;
-  friend class basic_hybrid<HybridK2Tree>;
+  friend class base_hybrid<HybridK2Tree>;
  public:
-  /*
-   * Loads a K2Tree previously saved with Save(ofstream)
+  /**
+   * Loads a K2Tree from a file.
+   *
+   * @param in Input stream pointing to the file storing the tree.
    */
   explicit HybridK2Tree(ifstream *in);
 
-  /* 
-   * Saves the k2tree to a file
+  /** 
+   * Saves the k2tree to a file.
+   *
+   * @param out Output stream
    */
   void Save(ofstream *out) const;
 
-  /*
-   * Returns the size in bytes
+  /**
+   * Returns memory usage of the structure.
+   *
+   * @return Size in bytes.
    */
   size_t GetSize() const;
 
-  /*
+  /**
    * Method implemented for testing reasons.
    */
   bool operator==(const HybridK2Tree &rhs) const;
 
-  /*
-   * Return number of words of kl*kl bits in the leaf level.
+  /**
+   * Returns number of words of kl*kl bits in the leaf level.
+   *
+   * @return Number of words.
    */
   uint WordsCnt() const {
     return L_.length()/kl_/kl_;
   }
 
-  /*
-   * Return the size in bytes of the words in the leaf level, ie, kl*kl/8.
+  /**
+   * Return the number of unsigned chars necesary to store the words 
+   * in the leaf level, ie, kl*kl/(8*sizeof(uchar))
+   *
+   * @return Size of the words.
    */
   uint WordSize() const {
     return Ceil(kl_*kl_, 8);
   }
 
-  /*
+  /**
    * Iterates over the words in the leaf level.
-   * @param fun Pointer to function, functor or lambda expecting a
-   * uchar *
+   *
+   * @param fun Pointer to function, functor or lambda expecting a pointer to
+   * the first position of each word.
    */
   template<class Function>
   void Words(Function fun) const {
@@ -81,16 +96,32 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree> {
     }
   }
 
+  /**
+   * Construct a K2Tree with the same information but with compressed leaves.
+   *
+   * @return Pointer to the new tree.
+   */
   shared_ptr<CompressedHybrid> CompressLeaves() const;
 
+  /**
+   * Construct a K2Tree with the same information but with compressed leaves
+   * using the specified vocabulary.
+   *
+   * @param table Hash table asociating each words to it corresponding frequency
+   * @param voc Word vocabulary sorted by frequency.
+   * @return Pointer to the new tree.
+   */
   shared_ptr<CompressedHybrid> CompressLeaves(
       const HashTable &table,
       shared_ptr<Vocabulary> voc) const;
 
  private:
+  /** BitArray containing leaf nodes. */
+  BitArray<uint, uint> L_;
+
   /* 
-   * Builds a k2tree with and hybrid aproach. This construtor should
-   * be called from a proper builder.
+   * Builds a tree with and hybrid aproach using the specified data that
+   * correctly represent a k2tree.
    *
    * @param T Bit array with the internal nodes.
    * @param L Bit array with the leafs.
@@ -107,6 +138,15 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree> {
                int k1, int k2, int kl, int max_level_k1, int height,
                uint cnt, uint size);
 
+
+  /**
+   * Iterate over the childs in the leaf corresponding to the information in 
+   * the specified frame and calls fun for every child that is 1.
+   *
+   * @param f Frame containing the information required.
+   * @param fun Pointer to function, functor or lambda to call for every bit
+   * that is one. The function expect a unsigned int as argument.
+   */
   template<class Function, class Impl>
   void LeafBits(const Frame &f, uint div_level, Function fun) const {
     uint z = FirstChild(f.z, height_-1, kl_) + Impl::Offset(f, kl_, div_level);
@@ -117,6 +157,14 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree> {
     }
   }
 
+  /**
+   * Iterates over the childs in the leaf corresponding to the information in
+   * the specified frame and calls fun for every child that is 1.
+   *
+   * @param f Frame containing the information required.
+   * @param fun Pointer to function, functor or lambda to call for every bit
+   * that is one. The function expect two unsigned int as arguments.
+   */
   template<class Function>
   void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
     uint div_p1, div_p2, div_q1, div_q2;
@@ -137,15 +185,17 @@ class HybridK2Tree : public basic_hybrid<HybridK2Tree> {
     }
   }
 
+  /**
+   * Check if the child of the specified nodes is 1 or 0.
+   *
+   * @param z Position representing the internal node.
+   * @param child Number of the child.
+   * @return True if the child is 1, false otherwise.
+   */
   bool GetChildInLeaf(uint z, int child) const {
     z = FirstChild(z, height_ - 1, kl_);
     return L_.GetBit(z + child - T_->getLength());
   }
-
-
-
-  // BitArray containing leaf nodes.
-  BitArray<uint, uint> L_;
 };
 }  // namespace libk2tree
 #endif  // INCLUDE_HYBRID_K2TREE_H_

@@ -10,8 +10,8 @@
 #ifndef INCLUDE_K2TREE_H_
 #define INCLUDE_K2TREE_H_
 
-#include <k2treebuilder.h>
-#include <k2treepartition_builder.h>
+#include <builder/k2tree_builder.h>
+#include <builder/k2tree_partition_builder.h>
 #include <k2tree_partition.h>
 #include <hybrid_k2tree.h>
 #include <compressed_partition.h>

@@ -7,8 +7,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef INCLUDE_COMPRESSION_ARRAY_H_
-#define INCLUDE_COMPRESSION_ARRAY_H_
+#ifndef INCLUDE_COMPRESSION_VOCABULARY_H_
+#define INCLUDE_COMPRESSION_VOCABULARY_H_
 
 #include <libk2tree_basic.h>
 #include <algorithm>
@@ -65,4 +65,4 @@ class Vocabulary {
 
 }  // namespace compression
 }  // namespace libk2tree
-#endif  // INCLUDE_COMPRESSION_ARRAY_H_
+#endif  // INCLUDE_COMPRESSION_VOCABULARY_H_
