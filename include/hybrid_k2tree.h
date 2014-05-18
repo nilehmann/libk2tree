@@ -21,28 +21,29 @@ class K2TreeBuilder;
 
 
 /** 
- * K2Tree implementation using an hybrid aproach as described in section 5.1.
+ * <em>k<sup>2</sup></em>-tree implementation using an hybrid aproach as
+ * described in section 5.1.
  */
 class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   friend class K2TreeBuilder;
   friend class base_hybrid<HybridK2Tree>;
  public:
   /**
-   * Loads a K2Tree from a file.
+   * Loads a tree from a file.
    *
    * @param in Input stream pointing to the file storing the tree.
    */
   explicit HybridK2Tree(ifstream *in);
 
   /** 
-   * Saves the k2tree to a file.
+   * Saves the tree to a file.
    *
    * @param out Output stream
    */
   void Save(ofstream *out) const;
 
   /**
-   * Returns memory usage of the structure.
+   * Returns memory usage.
    *
    * @return Size in bytes.
    */
@@ -54,7 +55,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   bool operator==(const HybridK2Tree &rhs) const;
 
   /**
-   * Returns number of words of kl*kl bits in the leaf level.
+   * Returns the number of words of \f$k_l^2\f$ bits in the leaf level.
    *
    * @return Number of words.
    */
@@ -63,13 +64,13 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   }
 
   /**
-   * Return the number of unsigned chars necesary to store the words 
-   * in the leaf level, ie, kl*kl/(8*sizeof(uchar))
+   * Return the number of unsigned chars necesary to store a word
+   * in the leaf level.
    *
-   * @return Size of the words.
+   * @return Size of a word.
    */
   uint WordSize() const {
-    return Ceil(kl_*kl_, 8);
+    return Ceil(kl_*kl_, kUcharBits);
   }
 
   /**
@@ -78,7 +79,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @param fun Pointer to function, functor or lambda expecting a pointer to
    * the first position of each word.
    */
-  template<class Function>
+  template<typename Function>
   void Words(Function fun) const {
     uint cnt = WordsCnt();
     uint size = WordSize();
@@ -89,7 +90,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
       std::fill(word, word + size, 0);
       for (int j = 0; j < kl_*kl_; ++j, ++bit) {
         if (L_.GetBit(bit))
-          word[j/8] |= (1 << (j%8));
+          word[j/kUcharBits] |= (1 << (j%kUcharBits));
       }
       fun(word);
       delete [] word;
@@ -97,17 +98,19 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   }
 
   /**
-   * Construct a K2Tree with the same information but with compressed leaves.
+   * Builds a <em>k<sup>2</sup></em>-tree with the same information but
+   * compressing the leaves.
    *
    * @return Pointer to the new tree.
    */
   shared_ptr<CompressedHybrid> CompressLeaves() const;
 
   /**
-   * Construct a K2Tree with the same information but with compressed leaves
-   * using the specified vocabulary.
+   * Builds a <em>k<sup>2</sup></em>-tree with the same information but
+   * compressing the leaves and using the specified vocabulary.
    *
-   * @param table Hash table asociating each words to it corresponding frequency
+   * @param table Hash table asociating each word with their corresponding
+   * frequency.
    * @param voc Word vocabulary sorted by frequency.
    * @return Pointer to the new tree.
    */
@@ -117,11 +120,11 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
 
  private:
   /** BitArray containing leaf nodes. */
-  BitArray<uint, uint> L_;
+  BitArray<uint> L_;
 
-  /* 
+  /**
    * Builds a tree with and hybrid aproach using the specified data that
-   * correctly represent a k2tree.
+   * correctly represents an hybrid <em>k<sup>2</sup></em>-tree.
    *
    * @param T Bit array with the internal nodes.
    * @param L Bit array with the leafs.
@@ -130,24 +133,23 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @param kl Arity of the level height-1.
    * @param max_level_k1 Last level with arity k1.
    * @param height Height of the tree.
-   * @param cnt Number of object in the relation.
+   * @param cnt Number of object in the original matrix.
    * @param size Size of the expanded matrix.
    */
-  HybridK2Tree(const BitArray<uint, uint> &T,
-               const BitArray<uint, uint> &L,
+  HybridK2Tree(const BitArray<uint> &T,
+               const BitArray<uint> &L,
                int k1, int k2, int kl, int max_level_k1, int height,
                uint cnt, uint size);
 
-
   /**
-   * Iterate over the childs in the leaf corresponding to the information in 
+   * Iterates over the leaf children corresponding to the information in 
    * the specified frame and calls fun for every child that is 1.
    *
    * @param f Frame containing the information required.
    * @param fun Pointer to function, functor or lambda to call for every bit
-   * that is one. The function expect a unsigned int as argument.
+   * that is one. The function expect an unsigned int as argument.
    */
-  template<class Function, class Impl>
+  template<typename Function, typename Impl>
   void LeafBits(const Frame &f, uint div_level, Function fun) const {
     uint z = FirstChild(f.z, height_-1, kl_) + Impl::Offset(f, kl_, div_level);
     for (int j  = 0; j < kl_; ++j) {
@@ -158,14 +160,14 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   }
 
   /**
-   * Iterates over the childs in the leaf corresponding to the information in
+   * Iterates over the leaf children corresponding to the information in
    * the specified frame and calls fun for every child that is 1.
    *
    * @param f Frame containing the information required.
    * @param fun Pointer to function, functor or lambda to call for every bit
    * that is one. The function expect two unsigned int as arguments.
    */
-  template<class Function>
+  template<typename Function>
   void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
     uint div_p1, div_p2, div_q1, div_q2;
     uint dp, dq;
@@ -188,7 +190,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   /**
    * Check if the child of the specified nodes is 1 or 0.
    *
-   * @param z Position representing the internal node.
+   * @param z Position in T representing the internal node.
    * @param child Number of the child.
    * @return True if the child is 1, false otherwise.
    */

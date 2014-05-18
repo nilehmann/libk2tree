@@ -12,5 +12,9 @@
 namespace libk2tree {
 typedef unsigned int uint;
 typedef unsigned char uchar;
+/** Number of bits in a byte */
+const int kByteBits = 8;
+/** Number of bits in an unsigned char */
+const int kUcharBits = kByteBits*sizeof(uchar);
 }  // namespace libk2tree
 #endif  // INCLUDE_LIBK2TREE_BASIC_H_

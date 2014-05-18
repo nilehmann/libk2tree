@@ -107,7 +107,7 @@ class K2TreeBuilder {
   struct Node {
     union {
       /** Stores the children of the level height_-1 (the leafs) */
-      BitArray<uchar, uint> *data_;
+      BitArray<uchar> *data_;
       /** Pointers to children of internal nodes. */
       Node **children_;
     };

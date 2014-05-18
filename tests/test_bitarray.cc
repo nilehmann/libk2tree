@@ -9,17 +9,19 @@
 
 
 #include <gtest/gtest.h>
+#include <libk2tree_basic.h>
 #include <utils/bitarray.h>
 
-using  ::libk2tree::utils::BitArray;
+using ::libk2tree::utils::BitArray;
+using ::libk2tree::uchar;
 
 TEST(BitArrayChar, Constructor) {
-  BitArray<char, unsigned int> bs(1000);
+  BitArray<uchar> bs(1000);
   for (int i = 0; i < 1000; ++i)
     ASSERT_EQ(0, bs.GetBit(i));
 }
 TEST(BitArray, SetBit0) {
-  BitArray<char, unsigned int> bs(3);
+  BitArray<uchar> bs(3);
   bs.SetBit(0);
   ASSERT_EQ(1, bs.GetBit(0));
 }
@@ -27,7 +29,7 @@ TEST(BitArrayChar, SetBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitArray<char, unsigned int> bs(N);
+    BitArray<uchar> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -41,7 +43,7 @@ TEST(BitArrayChar, CleanBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitArray<char, unsigned int> bs(N);
+    BitArray<uchar> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -53,7 +55,7 @@ TEST(BitArrayChar, CleanBit) {
 
 
 TEST(BitArrayInt, Constructor) {
-  BitArray<unsigned, unsigned int> bs(1000);
+  BitArray<uint> bs(1000);
 
   for (int i = 0; i < 1000; ++i)
     ASSERT_EQ(0, bs.GetBit(i));
@@ -62,7 +64,7 @@ TEST(BitArrayInt, SetBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitArray<unsigned, unsigned int> bs(N);
+    BitArray<uint> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -77,7 +79,7 @@ TEST(BitArrayInt, CleanBit) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitArray<unsigned, unsigned int> bs(N);
+    BitArray<uint> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
@@ -90,13 +92,13 @@ TEST(BitArray, CopyConstructor) {
   srand(time(NULL));
   for (int i = 0; i < 100; ++i) {
     size_t N = rand()%10000 + 1000;
-    BitArray<unsigned, unsigned int> bs(N);
+    BitArray<uint> bs(N);
 
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
       bs.SetBit(pos);
     }
-    BitArray<unsigned, unsigned int> bs2(bs);
+    BitArray<uint> bs2(bs);
     for (int j = 0; j < 100 ; ++j) {
       size_t pos = rand()%N;
       ASSERT_EQ(bs.GetBit(pos), bs2.GetBit(pos));

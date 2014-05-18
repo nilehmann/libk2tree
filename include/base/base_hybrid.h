@@ -254,7 +254,7 @@ class base_hybrid {
     }
   }
 
-  base_hybrid(const BitArray<uint, uint> &T,
+  base_hybrid(const BitArray<uint> &T,
                int k1, int k2, int kl, int max_level_k1, int height,
                uint cnt, uint size)
       : base_hybrid(

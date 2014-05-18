@@ -77,8 +77,8 @@ void K2TreeBuilder::AddLink(uint p, uint q) {
 
 
 shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
-  BitArray<uint, uint> T(internal_nodes_);
-  BitArray<uint, uint> L(leafs_);
+  BitArray<uint> T(internal_nodes_);
+  BitArray<uint> L(leafs_);
   queue<Node*> q;
   q.push(root);
 
@@ -149,7 +149,7 @@ K2TreeBuilder::Node *K2TreeBuilder::CreateNode(int level) {
       n->children_[i] = NULL;
     internal_nodes_ += k*k;
   } else {
-    n->data_ = new BitArray<uchar, uint>(kl_*kl_);
+    n->data_ = new BitArray<uchar>(kl_*kl_);
     leafs_ += kl_*kl_;
   }
   return n;

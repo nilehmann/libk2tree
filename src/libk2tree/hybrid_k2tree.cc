@@ -17,8 +17,8 @@ using utils::SaveValue;
 using std::make_shared;
 
 
-HybridK2Tree::HybridK2Tree(const BitArray<uint, uint> &T,
-                           const BitArray<uint, uint> &L,
+HybridK2Tree::HybridK2Tree(const BitArray<uint> &T,
+                           const BitArray<uint> &L,
                            int k1, int k2, int kl, int max_level_k1,
                            int height, uint cnt, uint size)
     : base_hybrid(T, k1, k2, kl, max_level_k1, height, cnt, size),

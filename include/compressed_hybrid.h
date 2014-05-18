@@ -34,7 +34,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * Loads a K2Tree from a file.
    *
    * @param in Input stream pointing to the file storing the tree.
-   * @see Save(ofstream*out, bool save_voc = true) const
+   * @see Save()
    */
   explicit CompressedHybrid(ifstream *in);
 
@@ -50,7 +50,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   /** 
    * Saves the k2tree to a file.
    *
-   * @param out Stream poiting to file.
+   * @param out Stream pointing to file.
    * @param save_voc Wheter or not to save the vocabulary.
    */
   void Save(ofstream *out, bool save_voc = true) const;
@@ -101,6 +101,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
 
   /**
    * Returns word containing the bit at the given position
+   *
    * @param pos Position of the bit in the complete sequence of bit of the last
    * level
    * @return Pointer to the the first position of the word.
@@ -127,7 +128,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
     uint z = first + Impl::Offset(f, kl_, div_level);
     for (int j  = 0; j < kl_; ++j) {
       uint pos = z - first;
-      if ((word[pos/8] >> (pos%8)) & 1)
+      if ((word[pos/kUcharBits] >> (pos%kUcharBits)) & 1)
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
       z = Impl::NextChild(z, kl_);
     }
@@ -158,7 +159,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
       for (uint j = div_q1; j <= div_q2; ++j) {
         dq = f.dq + div_level*j;
         uint pos = z + j - first;
-        if ((word[pos/8] >> (pos%8)) &1)
+        if ((word[pos/kUcharBits] >> (pos%kUcharBits)) &1)
           fun(dp, dq);
       }
     }
@@ -174,17 +175,17 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   bool GetChildInLeaf(uint z, int child) const {
     z = FirstChild(z, height_ - 1, kl_);
     const uchar *word = getWord(z - T_->getLength());
-    return (word[child/8] >> (child%8)) & 1;
+    return (word[child/kUcharBits] >> (child%kUcharBits)) & 1;
   }
 
   /**
    * Return the number of unsigned chars necesary to store the words 
-   * in the leaf level, ie, kl*kl/(8*sizeof(uchar))
+   * in the leaf level, ie, \f$\frac{k_l^2}{kUcharBits}\f$
    *
    * @return Size of the words.
    */
   uint WordSize() const {
-    return Ceil(kl_*kl_, 8);
+    return Ceil(kl_*kl_, kUcharBits);
   }
 };
 }  // namespace libk2tree
