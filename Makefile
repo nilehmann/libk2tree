@@ -1,4 +1,4 @@
-CXX = clang++
+//CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = -Iinclude/ -Idacs/
 
@@ -14,13 +14,16 @@ DACS = dacs
 
 FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG
 //FLAGS = -std=c++11 -O3  -g -Wall -Wextra -Wpedantic
-LIBRARIES = -L$(DACS) -lcds -lboost_filesystem -lboost_system -ldacs\
-						-lboost_program_options
+LIBRARIES = -Llib -L$(DACS) -lcds -lboost_filesystem -lboost_system -lk2tree\
+						-ldacs -lboost_program_options
 
 
 .PHONY: clean style test all
 
-all: dacs test build_k2tree time qry_gen
+lib: $(K2TREE_OBJ)
+	ar rvs lib/libk2tree.a $(K2TREE_OBJ)
+
+all: lib test build_k2tree time qry_gen
 
 # DACS
 dacs: $(DACS)/libdacs.a
@@ -41,9 +44,9 @@ test: bin/test
 #	@echo " [CMP LNK] Linking test"
 #	@$(CXX) -isystem $(GTEST)/include -lpthread $(INCLUDE) $(FLAGS) $(TESTS_SRC) $(K2TREE_OBJ) $(LIBRARIES)\
 #					$(GTEST)/libgtest.a -o bin/test
-bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_OBJ) 
+bin/test: $(GTEST)/libgtest.a  $(TESTS_OBJ) 
 	@echo " [LNK] Linking test"
-	@$(CXX) -isystem $(GTEST)/include -lpthread  $(TESTS_OBJ) $(K2TREE_OBJ) $(LIBRARIES)\
+	@$(CXX) -isystem $(GTEST)/include $(TESTS_OBJ) -lpthread  $(LIBRARIES)\
 					$(GTEST)/libgtest.a -o bin/test
 
 $(GTEST)/libgtest.a:
@@ -74,17 +77,17 @@ time: bin/time
 time_partition: bin/time_partition
 qry_gen: bin/qry_gen
 
-bin/qry_gen: $(K2TREE_OBJ) obj/src/qry_gen.o
+bin/qry_gen:  obj/src/qry_gen.o
 	@echo " [LNK] Linking qry_gen"
-	@$(CXX) -lcds $(K2TREE_OBJ) obj/src/qry_gen.o $(LIBRARIES) -o bin/qry_gen
+	@$(CXX) obj/src/qry_gen.o $(LIBRARIES) -o bin/qry_gen
 
-bin/time: $(K2TREE_OBJ) obj/src/time.o
+bin/time:  obj/src/time.o
 	@echo " [LNK] Linking time"
-	@$(CXX) -lcds $(K2TREE_OBJ) $(FLAGS) obj/src/time.o $(LIBRARIES) -o bin/time
+	@$(CXX) $(FLAGS) obj/src/time.o $(LIBRARIES) -o bin/time
 
-bin/build_k2tree: $(K2TREE_OBJ) obj/src/build_k2tree.o
+bin/build_k2tree:  obj/src/build_k2tree.o
 	@echo " [LNK] Linking build_k2tree"
-	@$(CXX) -lcds $(K2TREE_OBJ) obj/src/build_k2tree.o $(LIBRARIES) -o bin/build_k2tree
+	@$(CXX) obj/src/build_k2tree.o $(LIBRARIES) -o bin/build_k2tree
 
 obj/src/build_k2tree.o: src/build_k2tree.cc
 	@echo " [C++] Compiling $<"

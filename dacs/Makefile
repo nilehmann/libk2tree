@@ -2,9 +2,9 @@ CPP=gcc
 //CXX=clang++
 
 OBJECTS=obj/basics.o obj/bitrankw32int.o obj/directcodes.o obj/dacs.o
-CPPFLAGS=-Wall -g3 
+//CPPFLAGS=-Wall -g3 
 #CPPFLAGS=-Wall -O9 -g -DNDEBUG 
-#CPPFLAGS=-Wall -O3 
+CPPFLAGS=-Wall -O3 
 DEST=.
 
 
