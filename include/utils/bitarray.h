@@ -22,7 +22,7 @@ namespace libk2tree {
 namespace utils {
 
 /**
- * Dynamic bit array implementation with an array of T as underlying
+ * Dynamic bitarray implementation with an array of T as underlying
  * representation. T should be an integral type.
  */
 template<typename T>
