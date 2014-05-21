@@ -2,10 +2,8 @@
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = -Iinclude/ -Idacs/
 
-
 TESTS_SRC = $(shell find tests -name *.cc)
 TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
-GTEST=gtest-1.7.0
 
 K2TREE_SRC = $(shell find src/libk2tree -name *.cc)
 K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
@@ -40,20 +38,11 @@ header: $(HEADERS)
 # TEST
 test: bin/test
 
-#bin/test: $(GTEST)/libgtest.a $(K2TREE_OBJ) $(TESTS_SRC) 
-#	@echo " [CMP LNK] Linking test"
-#	@$(CXX) -isystem $(GTEST)/include -lpthread $(INCLUDE) $(FLAGS) $(TESTS_SRC) $(K2TREE_OBJ) $(LIBRARIES)\
-#					$(GTEST)/libgtest.a -o bin/test
-bin/test: $(GTEST)/libgtest.a  $(TESTS_OBJ) 
+bin/test: $(TESTS_OBJ) 
 	@echo " [LNK] Linking test"
 	@$(CXX) -isystem $(GTEST)/include $(TESTS_OBJ) -lpthread  $(LIBRARIES)\
-					$(GTEST)/libgtest.a -o bin/test
+					-lgtest -o bin/test
 
-$(GTEST)/libgtest.a:
-	@echo " [BLD] Building libgtest"
-	@$(CXX) -isystem ${GTEST}/include -I${GTEST} \
-      -pthread -c ${GTEST}/src/gtest-all.cc -o $(GTEST)/gtest-all.o
-	@ar -rv $(GTEST)/libgtest.a $(GTEST)/gtest-all.o
 
 obj/tests/%.o: tests/%.cc
 	@echo " [C++] Compiling $<"
