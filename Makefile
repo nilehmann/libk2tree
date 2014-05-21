@@ -38,7 +38,7 @@ header: $(HEADERS)
 # TEST
 test: bin/test
 
-bin/test: $(TESTS_OBJ) 
+bin/test: $(TESTS_OBJ)
 	@echo " [LNK] Linking test"
 	@$(CXX) -isystem $(GTEST)/include $(TESTS_OBJ) -lpthread  $(LIBRARIES)\
 					-lgtest -o bin/test
