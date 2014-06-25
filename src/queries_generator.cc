@@ -7,6 +7,7 @@
  * ----------------------------------------------------------------------------
  */
 
+#include <utils/bitarray.h>
 #include <utils/utils.h>
 #include <fstream>
 #include <cstdio>
@@ -15,6 +16,7 @@
 using ::std::ofstream;
 using ::std::stoi;
 using libk2tree::utils::SaveValue;
+using ::libk2tree::utils::BitArray;
 typedef unsigned int uint;
 
 int main(int argc, char *argv[]) {

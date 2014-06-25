@@ -1,6 +1,6 @@
 //CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
-INCLUDE = -Iinclude/ -Idacs/
+INCLUDE = -Iinclude/
 
 TESTS_SRC = $(shell find tests -name *.cc)
 TESTS_OBJ = $(TESTS_SRC:%.cc=obj/%.o) 
