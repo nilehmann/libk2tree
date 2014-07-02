@@ -49,17 +49,18 @@ struct RangeFrame {
 struct DirectImpl;
 struct InverseImpl;
 
-/*
- * Teplate implementation for a compact representation of binary relations or
- * matrices using a k2tree. The template parameter specifies the integral type
- * able to hold the number of objects in the relation. The library gives
- * precompiled instances for uint (alias K2Tree) and size_t (alias LongK2Tree)
- * Object identifiers starts with 0.
+/**
+ * Base implementation for k2trees with an hybrid aproach.
+ * It provides all funcionality to represent and 
+ * traverse the internal nodes, but delegates the responsability to explore
+ * the leaf level.
+ * The template parameter specifies the concrete class implementing 
+ * LeafBits, RangeLeafBits and RangeLeafBits
  */
 template<class Hybrid>
 class base_hybrid {
  public:
-  /*
+  /**
    * Destructor
    */
   ~base_hybrid() {
@@ -67,14 +68,14 @@ class base_hybrid {
     delete [] offset_;
   }
 
-  /*
+  /**
    * Returns the number of objects in the original relation
    */
   inline uint cnt() const {
     return cnt_;
   }
 
-  /* 
+  /**
    * Checks if exist a link from object p to q.
    *
    * @param p Identifier of first object.
@@ -105,7 +106,7 @@ class base_hybrid {
     int child = p/div_level*kl_ + q/div_level;
     return GetChildInLeaf(z, child);
   }
-  /*
+  /**
    * Iterates over all links in the given row.
    *
    * @param p Row in the matrix.
@@ -118,7 +119,7 @@ class base_hybrid {
     Neighbors<Function, DirectImpl>(p, fun);
   }
 
-  /*
+  /**
    * Iterates over all links in the given column.
    *
    * @param q Column in the matrix.
@@ -131,7 +132,7 @@ class base_hybrid {
     Neighbors<Function, InverseImpl>(q, fun);
   }
 
-  /*
+  /**
    * Iterates over all links in the specified submatrix.
    *
    * @param p1 Starting row in the matrix.
