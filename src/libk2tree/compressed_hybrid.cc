@@ -37,12 +37,8 @@ CompressedHybrid::CompressedHybrid(ifstream *in,
 
 
 size_t CompressedHybrid::GetSize() const {
-  size_t size = T_->getSize();
-  // size += L_.GetSize();
+  size_t size = base_hybrid::GetSize();
   // TODO(nlehmann): Size of FTRep
-  size += height_*sizeof(uint);
-  size += (height_+1)*sizeof(uint);
-  size += 5*sizeof(int) + 2*sizeof(uint) + 2*sizeof(uint*);
   return size;
 }
 

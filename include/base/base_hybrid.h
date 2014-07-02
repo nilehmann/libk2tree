@@ -202,7 +202,13 @@ class base_hybrid {
    * Get size in bytes.
    */
   size_t GetSize() const {
-    return static_cast<const Hybrid&>(*this).GetSize();
+    size_t size;
+    size = 5*sizeof(int);
+    size += 2*sizeof(uint);
+    size += sizeof(uint*) + height_*sizeof(uint);
+    size += sizeof(uint*) + (height_+1)*sizeof(uint);
+    size += T_->getSize() + sizeof(shared_ptr<BitSequence>);
+    return size;
   }
 
 

@@ -2,6 +2,7 @@
 *.pyo
 *.a
 *.swp
+*.pyc
 bin/*
 !bin/delete.me
 html/

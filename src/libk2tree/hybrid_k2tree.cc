@@ -30,11 +30,8 @@ HybridK2Tree::HybridK2Tree(ifstream *in)
       L_(in) {}
 
 size_t HybridK2Tree::GetSize() const {
-  size_t size = T_->getSize();
+  size_t size = base_hybrid::GetSize();
   size += L_.GetSize();
-  size += height_*sizeof(uint);
-  size += (height_+1)*sizeof(uint);
-  size += 5*sizeof(int) + 2*sizeof(uint) + 2*sizeof(uint*);
   return size;
 }
 
