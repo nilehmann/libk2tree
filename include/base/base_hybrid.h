@@ -304,7 +304,7 @@ class base_hybrid {
    * @param level
    * @param k
    */
-  inline uint  FirstChild(uint z, int level, int k) const {
+  inline uint FirstChild(uint z, int level, int k) const {
     // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
     z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
     return z + offset_[level];
