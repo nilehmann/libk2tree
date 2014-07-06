@@ -94,7 +94,7 @@ class base_hybrid {
       k = GetK(level);
       div_level = N/k;
 
-      z = FirstChild(z, level, k);
+      z = Child(z, level, k);
       z += p/div_level*k + q/div_level;
 
       N = div_level, p %= div_level, q %= div_level;
@@ -104,7 +104,7 @@ class base_hybrid {
 
     div_level = N/kl_;
     int child = p/div_level*kl_ + q/div_level;
-    return GetChildInLeaf(z, child);
+    return ChildInLeaf(z, child);
   }
   /**
    * Iterates over all links in the given row.
@@ -163,7 +163,7 @@ class base_hybrid {
       uint cnt_level = range_queue.size();
       for (uint q = 0; q < cnt_level; ++q) {
         const RangeFrame &f = range_queue.front();
-        uint first = FirstChild(f.z, level, k);
+        uint first = Child(f.z, level, k);
 
         div_p1 = f.p1/div_level, rem_p1= f.p1%div_level;
         div_p2 = f.p2/div_level, rem_p2 = f.p2%div_level;
@@ -197,6 +197,35 @@ class base_hybrid {
     }
   }
 
+  /**
+   * Returns the child of the specified node
+   *
+   * @param z Position in T of the node.
+   * @param level Level of the node.
+   * @param k Level arity.
+   * @param i Child number between 0 and k*k.
+   *
+   * @return Position in T representing the child.
+   */
+  inline uint Child(uint z, int level, int k, int i = 0) const {
+    assert(level < height_);
+    // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
+    z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
+    return z + offset_[level+1] + i;
+  }
+
+  /**
+   * Gets the value of k in the given level.
+   *
+   * @param level
+   *
+   * @return Arity of the given level.
+   */
+  inline int GetK(int level) const {
+    if (level <= max_level_k1_)  return k1_;
+    else if (level < height_ - 1)  return k2_;
+    else  return kl_;
+  }
 
   /*
    * Get size in bytes.
@@ -302,30 +331,6 @@ class base_hybrid {
     T_->save(*out);
   }
 
-  /*
-   * Returns the position representing the first child of the specified node
-   *
-   * @param z Position of the node
-   * @param level
-   * @param k
-   */
-  inline uint FirstChild(uint z, int level, int k) const {
-    assert(level < height_);
-    // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
-    z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
-    return z + offset_[level+1];
-  }
-
-  /*
-   * Gets the k corresponding to the given level.
-   *
-   * @param level
-   */
-  inline int GetK(int level) const {
-    if (level <= max_level_k1_)  return k1_;
-    else if (level < height_ - 1)  return k2_;
-    else  return kl_;
-  }
 
   template<class Function, class Impl>
   void LeafBits(const Frame &f, uint div_level, Function fun) const {
@@ -339,8 +344,17 @@ class base_hybrid {
   }
 
 
-  bool GetChildInLeaf(uint z, int child) const {
-    return static_cast<const Hybrid&>(*this).GetChildInLeaf(z, child);
+  /**
+   * Checks a child of the given node in the leaf level. This functionality
+   * is delegated and must be implemented by a concrete hybrid k2tree.
+   *
+   * @param z Position in T of the node.
+   * @param child Child number between 0 and kL * kL.
+   *
+   * @return true if the child is 1 and false otherwise.
+   */
+  bool ChildInLeaf(uint z, int child) const {
+    return static_cast<const Hybrid&>(*this).ChildInLeaf(z, child);
   }
 
 
@@ -364,7 +378,7 @@ class base_hybrid {
       cnt_level = neighbors_queue.size();
       for (uint i = 0; i < cnt_level; ++i) {
         const Frame &f = neighbors_queue.front();
-        uint z = FirstChild(f.z, level, k) + Impl::Offset(f, k, div_level);
+        uint z = Child(f.z, level, k) + Impl::Offset(f, k, div_level);
         for (int j  = 0; j < k; ++j) {
           if (T_->access(z))
             neighbors_queue.push(Impl::NextFrame(f.p, f.q, z, j, div_level));

@@ -151,7 +151,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    */
   template<typename Function, typename Impl>
   void LeafBits(const Frame &f, uint div_level, Function fun) const {
-    uint z = FirstChild(f.z, height_-1, kl_) + Impl::Offset(f, kl_, div_level);
+    uint z = Child(f.z, height_-1, kl_) + Impl::Offset(f, kl_, div_level);
     for (int j  = 0; j < kl_; ++j) {
       if (L_.GetBit(z - T_->getLength()))
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
@@ -171,7 +171,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
     uint div_p1, div_p2, div_q1, div_q2;
     uint dp, dq;
-    uint first = FirstChild(f.z, height_ - 1, kl_);
+    uint first = Child(f.z, height_ - 1, kl_);
 
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
     for (uint i = div_p1; i <= div_p2; ++i) {
@@ -194,8 +194,8 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @param child Number of the child.
    * @return True if the child is 1, false otherwise.
    */
-  bool GetChildInLeaf(uint z, int child) const {
-    z = FirstChild(z, height_ - 1, kl_);
+  bool ChildInLeaf(uint z, int child) const {
+    z = Child(z, height_ - 1, kl_);
     return L_.GetBit(z + child - T_->getLength());
   }
 };

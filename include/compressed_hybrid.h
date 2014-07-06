@@ -101,6 +101,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
 
   /**
    * Returns word containing the bit at the given position
+   * It access the corresponding word in the DAC.
    *
    * @param pos Position of the bit in the complete sequence of bit of the last
    * level
@@ -112,7 +113,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   }
 
   /**
-   * Iterate over the childs in the leaf corresponding to the information in 
+   * Iterates over the children in the leaf corresponding to the information in 
    * the specified frame and calls fun for every child that is 1.
    *
    * @param f Frame containing the information required.
@@ -121,7 +122,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    */
   template<class Function, class Impl>
   void LeafBits(const Frame &f, uint div_level, Function fun) const {
-    uint first = FirstChild(f.z, height_ - 1, kl_);
+    uint first = Child(f.z, height_ - 1, kl_);
 
     const uchar *word = getWord(first - T_->getLength());
 
@@ -135,7 +136,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   }
 
   /**
-   * Iterates over the childs in the leaf corresponding to the information in
+   * Iterates over the children in the leaf corresponding to the information in
    * the specified frame and calls fun for every child that is 1.
    *
    * @param f Frame containing the information required.
@@ -146,7 +147,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
     uint div_p1, div_p2, div_q1, div_q2;
     uint dp, dq;
-    uint first = FirstChild(f.z, height_ - 1, kl_);
+    uint first = Child(f.z, height_ - 1, kl_);
 
     const uchar *word = getWord(first - T_->getLength());
 
@@ -170,10 +171,11 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    *
    * @param z Position representing the internal node.
    * @param child Number of the child.
+   *
    * @return True if the child is 1, false otherwise.
    */
-  bool GetChildInLeaf(uint z, int child) const {
-    z = FirstChild(z, height_ - 1, kl_);
+  bool ChildInLeaf(uint z, int child) const {
+    z = Child(z, height_ - 1, kl_);
     const uchar *word = getWord(z - T_->getLength());
     return (word[child/kUcharBits] >> (child%kUcharBits)) & 1;
   }
