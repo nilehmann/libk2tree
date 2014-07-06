@@ -71,7 +71,7 @@ bool CompressedHybrid::operator==(const CompressedHybrid &rhs) const {
 
   if (height_ != rhs.height_) return false;
 
-  for (int i = 0; i < height_; ++i)
+  for (int i = 0; i < height_ - 1; ++i)
     if (acum_rank_[i] != acum_rank_[i]) return false;
 
   for (int i = 0; i <= height_; ++i)

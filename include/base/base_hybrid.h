@@ -248,16 +248,21 @@ class base_hybrid {
         height_(height),
         cnt_(cnt),
         size_(size),
-        acum_rank_(new uint[height]),
+        acum_rank_(new uint[height-1]),
         offset_(new uint[height+1]),
         T_(T) {
-    acum_rank_[0] = offset_[0] = 0;
-    offset_[1] = k1*k1;
-    for (int level = 1; level < height; ++level) {
+    acum_rank_[0] = 0;
+    offset_[0] = offset_[1] = 0;
+    offset_[2] = k1*k1;
+    // To find the children of a node we need the accumulate rank
+    // until the previous level. The last level with children is
+    // height -1, so we only need acum_rank_ until level height - 2.
+    // We need the offset until level height (leaf level)
+    for (int level = 1; level <= height - 2; ++level) {
       int k = level <= max_level_k1? k1 : k2;
-      acum_rank_[level] = T_->rank1(offset_[level]-1);
-      offset_[level+1] = (acum_rank_[level]-acum_rank_[level-1])*k*k;
-      offset_[level+1] += offset_[level];
+      acum_rank_[level] = T_->rank1(offset_[level+1]-1);
+      offset_[level+2] = (acum_rank_[level]-acum_rank_[level-1])*k*k;
+      offset_[level+2] += offset_[level+1];
     }
   }
 
@@ -280,7 +285,7 @@ class base_hybrid {
         height_(LoadValue<int>(in)),
         cnt_(LoadValue<uint>(in)),
         size_(LoadValue<uint>(in)),
-        acum_rank_(LoadValue<uint>(in, height_)),
+        acum_rank_(LoadValue<uint>(in, height_-1)),
         offset_(LoadValue<uint>(in, height_+1)),
         T_(BitSequence::load(*in)) {}
 
@@ -292,7 +297,7 @@ class base_hybrid {
     SaveValue(out, height_);
     SaveValue(out, cnt_);
     SaveValue(out, size_);
-    SaveValue(out, acum_rank_, height_);
+    SaveValue(out, acum_rank_, height_-1);
     SaveValue(out, offset_, height_+1);
     T_->save(*out);
   }
@@ -305,9 +310,10 @@ class base_hybrid {
    * @param k
    */
   inline uint FirstChild(uint z, int level, int k) const {
+    assert(level < height_);
     // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
     z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
-    return z + offset_[level];
+    return z + offset_[level+1];
   }
 
   /*

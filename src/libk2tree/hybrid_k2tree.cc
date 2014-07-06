@@ -93,7 +93,7 @@ bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
 
   if (height_ != rhs.height_) return false;
 
-  for (int i = 0; i < height_; ++i)
+  for (int i = 0; i < height_ - 1; ++i)
     if (acum_rank_[i] != acum_rank_[i]) return false;
 
   for (int i = 0; i <= height_; ++i)
