@@ -174,7 +174,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    *
    * @return True if the child is 1, false otherwise.
    */
-  bool ChildInLeaf(uint z, int child) const {
+  bool CheckLeafChild(uint z, int child) const {
     z = Child(z, height_ - 1, kl_);
     const uchar *word = getWord(z - T_->getLength());
     return (word[child/kUcharBits] >> (child%kUcharBits)) & 1;

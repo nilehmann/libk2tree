@@ -194,7 +194,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @param child Number of the child.
    * @return True if the child is 1, false otherwise.
    */
-  bool ChildInLeaf(uint z, int child) const {
+  bool CheckLeafChild(uint z, int child) const {
     z = Child(z, height_ - 1, kl_);
     return L_.GetBit(z + child - T_->getLength());
   }

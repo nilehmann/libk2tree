@@ -104,7 +104,7 @@ class base_hybrid {
 
     div_level = N/kl_;
     int child = p/div_level*kl_ + q/div_level;
-    return ChildInLeaf(z, child);
+    return CheckLeafChild(z, child);
   }
   /**
    * Iterates over all links in the given row.
@@ -353,8 +353,8 @@ class base_hybrid {
    *
    * @return true if the child is 1 and false otherwise.
    */
-  bool ChildInLeaf(uint z, int child) const {
-    return static_cast<const Hybrid&>(*this).ChildInLeaf(z, child);
+  bool CheckLeafChild(uint z, int child) const {
+    return static_cast<const Hybrid&>(*this).CheckLeafChild(z, child);
   }
 
 
