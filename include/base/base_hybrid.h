@@ -111,12 +111,12 @@ class base_hybrid {
    *
    * @param p Row in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each
-   * object related to p.
-   * The function expect a parameter of type uint.
+   * object q such that p is related to q.
+   * The function expects a unique parameter of type unsigned int.
    */
   template<class Function>
   void DirectLinks(uint p, Function fun) const {
-    Neighbors<Function, DirectImpl>(p, fun);
+    Links<Function, DirectImpl>(p, fun);
   }
 
   /**
@@ -124,12 +124,12 @@ class base_hybrid {
    *
    * @param q Column in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each 
-   * object related to q.
-   * The function expect a parameter of type uint.
+   * object p such that p is related to q.
+   * The function expects a unique parameter of type unsigned int.
    */
   template<class Function>
   void InverseLinks(uint q, Function fun) const {
-    Neighbors<Function, InverseImpl>(q, fun);
+    Links<Function, InverseImpl>(q, fun);
   }
 
   /**
@@ -140,7 +140,9 @@ class base_hybrid {
    * @param q1 Starting column in the matrix.
    * @param q2 Ending column in the matrix.
    * @param fun Pointer to function, functor or lambda to be called for each 
-   * pair of objects. The function expect two parameters of type uint
+   * pair of objects (p,q) such that p is related to q and (p,q) lies inside
+   * the specified submatrix. The function expects two parameters of type
+   * unsigned int.
    */
   template<class Function>
   void RangeQuery(uint p1, uint p2, uint q1, uint q2, Function fun) const {
@@ -198,7 +200,7 @@ class base_hybrid {
   }
 
   /**
-   * Returns the child of the specified node
+   * Returns the i-th child of the specified node
    *
    * @param z Position in T of the node.
    * @param level Level of the node.
@@ -227,8 +229,10 @@ class base_hybrid {
     else  return kl_;
   }
 
-  /*
-   * Get size in bytes.
+  /**
+   * Returns the memory used by the structure.
+   * 
+   * @return Size in bytes.
    */
   size_t GetSize() const {
     size_t size;
@@ -258,7 +262,7 @@ class base_hybrid {
   uint size_;
   // Accumulated rank for each level.
   uint *acum_rank_;
-  // Accumulated number of nodes util each level, inclusive.
+  // Starting position in T of each level.
   uint *offset_;
   // Bit array with rank capability containing internal nodes.
   shared_ptr<BitSequence> T_;
@@ -283,9 +287,9 @@ class base_hybrid {
     acum_rank_[0] = 0;
     offset_[0] = offset_[1] = 0;
     offset_[2] = k1*k1;
-    // To find the children of a node we need the accumulate rank
+    // To find the children of a node we need the accumulated rank
     // until the previous level. The last level with children is
-    // height -1, so we only need acum_rank_ until level height - 2.
+    // height - 1, so we only need acum_rank_ until level height - 2.
     // We need the offset until level height (leaf level)
     for (int level = 1; level <= height - 2; ++level) {
       int k = level <= max_level_k1? k1 : k2;
@@ -362,7 +366,7 @@ class base_hybrid {
    * Template implementation for DirectLinks and InverseLinks
    */
   template<class Function, class Impl>
-  void Neighbors(uint object, Function fun) const {
+  void Links(uint object, Function fun) const {
     uint div_level;
     uint cnt_level;
     int k, level;
