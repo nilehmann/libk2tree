@@ -16,21 +16,24 @@
 namespace libk2tree {
 
 /**
- * K2Tree implementation partitioning the first level as described in section
- * 5.2. This representation use hybrid k2trees with compressed leaves as
- * substrees.
+ * <em>k<sup>2</sup></em>tree implementation partitioning the first level
+ * as described in section 5.2.
+ * This representation use hybrid <em>k<sup>2</sup></em>tree with compressed
+ * leaves as substrees.
  */
 class CompressedPartition: public base_partition<CompressedHybrid> {
  public:
   /**
-   * Loads a tree from a file
+   * Loads a tree from a file.
    *
    * @param in Input stream pointing to the file storing the tree.
+   * @see CompressedPartition::Save
+   * @see K2TreePartition::CompressLeaves
    */
   explicit CompressedPartition(std::ifstream *in);
 
   /**
-   * Saves tree to file
+   * Saves tree to file.
    *
    * @param out Output stream.
    */

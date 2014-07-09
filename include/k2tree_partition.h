@@ -17,26 +17,32 @@
 
 namespace libk2tree {
 /**
- * K2Tree implementation partitioning the first level as described in section
- * 5.2. This representation use hybrid k2trees as substrees.
+ * <em>k<sup>2</sup></em>tree implementation partitioning the first level as
+ * described in section 5.2.
+ * This representation use hybrid <em>k<sup>2</sup></em>trees without compressed
+ * leaves as substrees.
  */
 class K2TreePartition: public base_partition<HybridK2Tree> {
  public:
   /**
    * Loads tree from a file
+   *
+   * @param in Input stream.
+   * @see K2TreePartition::Save
+   * @see K2TreePartitionBuilder::K2TreePartitionBuilder
    */
   explicit K2TreePartition(std::ifstream *in);
 
   /**
-   * Returns number of words of size kl*kl in the leaf level.
-   * 
+   * Returns number of words of size kL*kL in the leaf level.
+   *
    * @return Number of words.
    */
   uint WordsCnt() const;
 
   /**
    * Return the number of unsigned chars needed to store a word in the leaf
-   * level, ie, kl*kl/(8*sizeof(uchar)).
+   * level, ie, kL*kL/(8*sizeof(uchar)).
    *
    * @return Size of the words.
    */
@@ -59,7 +65,8 @@ class K2TreePartition: public base_partition<HybridK2Tree> {
 
   /**
    * Constructs a new tree with the same information but compressing the leafs
-   * of each subtree. A common vocabulary is used to comprees each subtree.
+   * of each subtree. A common vocabulary including all words is used to
+   * compress each subtree.
    *
    * @param out Output stream to store the resulting tree.
    */

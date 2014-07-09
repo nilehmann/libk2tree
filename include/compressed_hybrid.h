@@ -23,32 +23,57 @@ using std::shared_ptr;
 using compression::Vocabulary;
 
 /**
- * K2Tree implementation using an hybrid aproach and compressed leaves as
- * described in section 5.1 and 5.3.
+ * <em>k<sup>2</sup></em>tree implementation with an hybrid approach and
+ * compressed leaves as described in section 5.1 and 5.3.
  */
 class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   friend class base_hybrid<CompressedHybrid>;
-  friend class HybridK2Tree;
  public:
+  /** 
+   * Builds a tree with the specified data that correctly represent a
+   * <em>k<sup>2</sup></em>tree.
+   *
+   * @param T Bit Sequence storing the internal nodes. Multiple instances
+   * can share the same sequence.
+   * @param compressL Compressed representation of the last level using direct
+   * addressable codes.
+   * @param vocabulary Pointer to vocabulary of the leafs. Multiple instances
+   * can share the same vocabulary.
+   * @param k1 Arity of the first levels.
+   * @param k2 Arity of the second part.
+   * @param kL Arity of the level height-1.
+   * @param max_level_k1 Last level with arity k1.
+   * @param height Height of the tree.
+   * @param cnt Number of object in the relation represented by the tree.
+   * @param size Size of the expanded matrix.
+   */
+  CompressedHybrid(shared_ptr<BitSequence> T,
+                   FTRep *compressL,
+                   shared_ptr<Vocabulary> vocabulary,
+                   int k1, int k2, int kL, int max_level_k1, int height,
+                   uint cnt, uint size);
+
   /**
-   * Loads a K2Tree from a file.
+   * Loads a tree from a file. If the file doesn't contain
+   * a valid representation this function yields an undefined behaviour.
    *
    * @param in Input stream pointing to the file storing the tree.
-   * @see Save()
+   * @see CompressedHybrid::Save
    */
   explicit CompressedHybrid(ifstream *in);
 
   /**
-   * Creates a K2Tree loading it from a file but using voc as vocabulary.
+   * Creates a tree loading it from a file but using the specified vocabulary.
+   * This method is used when a series of trees share the same vocabulary.
    *
    * @param in Input stream pointing to the file storing the tree.
-   * @param voc Vocabulary for the leaf.
-   * @see Save(ofstream*out, bool save_voc = true) const
+   * @param voc Vocabulary of the leaf level.
+   * @see CompressedHybrid::Save
    */
   CompressedHybrid(ifstream *in, shared_ptr<Vocabulary> voc);
 
   /** 
-   * Saves the k2tree to a file.
+   * Saves the tree to a file.
    *
    * @param out Stream pointing to file.
    * @param save_voc Wheter or not to save the vocabulary.
@@ -77,44 +102,24 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   /** Pointer to vocabulary */
   shared_ptr<Vocabulary> vocabulary_;
 
-  /** 
-   * Builds a tree with the specified data that correctly represent a k2tree.
-   *
-   * @param T Bit Sequence storing the internal nodes. Multiple instances
-   * can share the same sequence.
-   * @param compressL Compressed representation of the last level using direct
-   * addressable codes.
-   * @param vocabulary Pointer to vocabulary of the leafs.
-   * @param k1 Arity of the first levels.
-   * @param k2 Arity of the second part.
-   * @param kl Arity of the level height-1.
-   * @param max_level_k1 Last level with arity k1.
-   * @param height Height of the tree.
-   * @param cnt Number of object in the relation represented by the tree.
-   * @param size Size of the expanded matrix.
-   */
-  CompressedHybrid(shared_ptr<BitSequence> T,
-                   FTRep *compressL,
-                   shared_ptr<Vocabulary> vocabulary,
-                   int k1, int k2, int kl, int max_level_k1, int height,
-                   uint cnt, uint size);
-
   /**
    * Returns word containing the bit at the given position
    * It access the corresponding word in the DAC.
    *
-   * @param pos Position of the bit in the complete sequence of bit of the last
-   * level
-   * @return Pointer to the the first position of the word.
+   * @param pos Position in the complete sequence of bit of the last level.
+   * @return Pointer to the first position of the word.
    */
-  const uchar *getWord(uint pos) const {
-    uint iword = accessFT(compressL_, pos/(kl_*kl_));
+  const uchar *GetWord(uint pos) const {
+    uint iword = accessFT(compressL_, pos/(kL_*kL_));
     return vocabulary_->get(iword);
   }
 
   /**
-   * Iterates over the children in the leaf corresponding to the information in 
-   * the specified frame and calls fun for every child that is 1.
+   * Iterates over the children in the leaf corresponding to the node  
+   * specified in the given frame and calls fun reporting the object for
+   * every child that is 1.
+   * This function makes one access to the DAC to obtain the word containing
+   * the \a kL_<sup>2</sup> children.
    *
    * @param f Frame containing the information required.
    * @param fun Pointer to function, functor or lambda to call for every bit
@@ -122,22 +127,24 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    */
   template<class Function, class Impl>
   void LeafBits(const Frame &f, uint div_level, Function fun) const {
-    uint first = Child(f.z, height_ - 1, kl_);
+    uint first = Child(f.z, height_ - 1, kL_);
 
-    const uchar *word = getWord(first - T_->getLength());
+    const uchar *word = GetWord(first - T_->getLength());
 
-    uint z = first + Impl::Offset(f, kl_, div_level);
-    for (int j  = 0; j < kl_; ++j) {
+    uint z = first + Impl::Offset(f, kL_, div_level);
+    for (int j  = 0; j < kL_; ++j) {
       uint pos = z - first;
       if ((word[pos/kUcharBits] >> (pos%kUcharBits)) & 1)
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
-      z = Impl::NextChild(z, kl_);
+      z = Impl::NextChild(z, kL_);
     }
   }
 
   /**
-   * Iterates over the children in the leaf corresponding to the information in
-   * the specified frame and calls fun for every child that is 1.
+   * Iterates over the children in the leaf lying in the range corresponding to
+   * the given frame and calls fun reporting the link for every child that is 1.
+   * This function makes one access to the DAC to obtain the word containing
+   * the \a kL_<sup>2</sup> children.
    *
    * @param f Frame containing the information required.
    * @param fun Pointer to function, functor or lambda to call for every bit
@@ -147,13 +154,13 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
     uint div_p1, div_p2, div_q1, div_q2;
     uint dp, dq;
-    uint first = Child(f.z, height_ - 1, kl_);
+    uint first = Child(f.z, height_ - 1, kL_);
 
-    const uchar *word = getWord(first - T_->getLength());
+    const uchar *word = GetWord(first - T_->getLength());
 
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
     for (uint i = div_p1; i <= div_p2; ++i) {
-      uint z = first + kl_*i;
+      uint z = first + kL_*i;
       dp = f.dp + div_level*i;
 
       div_q1 = f.q1/div_level, div_q2 = f.q2/div_level;
@@ -175,19 +182,19 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * @return True if the child is 1, false otherwise.
    */
   bool CheckLeafChild(uint z, int child) const {
-    z = Child(z, height_ - 1, kl_);
-    const uchar *word = getWord(z - T_->getLength());
+    z = Child(z, height_ - 1, kL_);
+    const uchar *word = GetWord(z - T_->getLength());
     return (word[child/kUcharBits] >> (child%kUcharBits)) & 1;
   }
 
   /**
-   * Return the number of unsigned chars necesary to store the words 
-   * in the leaf level, ie, \f$\frac{k_l^2}{kUcharBits}\f$
+   * Return the number of unsigned chars necessary to store a word 
+   * in the leaf level, ie, \f$\frac{k_L^2}{kUcharBits}\f$
    *
    * @return Size of the words.
    */
   uint WordSize() const {
-    return Ceil(kl_*kl_, kUcharBits);
+    return Ceil(kL_*kL_, kUcharBits);
   }
 };
 }  // namespace libk2tree

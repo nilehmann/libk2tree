@@ -50,12 +50,11 @@ struct DirectImpl;
 struct InverseImpl;
 
 /**
- * Base implementation for k2trees with an hybrid aproach.
- * It provides all funcionality to represent and 
- * traverse the internal nodes, but delegates the responsability to explore
- * the leaf level.
- * The template parameter specifies the concrete class implementing 
- * LeafBits, RangeLeafBits and RangeLeafBits
+ * Base implementation for <em>k<sup>2</sup></em>tree with an hybrid approach.
+ * It provides all functionality to represent and traverse the internal nodes,
+ * but delegates the responsibility to explore the leaf level.
+ * The template parameter specifies a concrete class implementing 
+ * CheckLeafChild, RangeLeafBits and RangeLeafBits
  */
 template<class Hybrid>
 class base_hybrid {
@@ -80,6 +79,9 @@ class base_hybrid {
    *
    * @param p Identifier of first object.
    * @param q Identifier of second object.
+   *
+   * @return True if exists a link between the specified objects, false
+   * otherwise.
    */
   bool CheckLink(uint p, uint q) const {
     uint N, div_level;
@@ -102,10 +104,11 @@ class base_hybrid {
     if (!T_->access(z))
       return false;
 
-    div_level = N/kl_;
-    int child = p/div_level*kl_ + q/div_level;
+    div_level = N/kL_;
+    int child = p/div_level*kL_ + q/div_level;
     return CheckLeafChild(z, child);
   }
+
   /**
    * Iterates over all links in the given row.
    *
@@ -190,7 +193,7 @@ class base_hybrid {
       N = div_level;
     }
 
-    div_level = N/kl_;
+    div_level = N/kL_;
     uint cnt_level = range_queue.size();
     for (uint q = 0; q < cnt_level; ++q) {
       const RangeFrame &f = range_queue.front();
@@ -226,7 +229,7 @@ class base_hybrid {
   inline int GetK(int level) const {
     if (level <= max_level_k1_)  return k1_;
     else if (level < height_ - 1)  return k2_;
-    else  return kl_;
+    else  return kL_;
   }
 
   /**
@@ -246,37 +249,53 @@ class base_hybrid {
 
 
  protected:
-  // Arity of the first part.
+  /** Arity of the first part. */
   int k1_;
-  // Arity of the second part.
+  /** Arity of the second part. */
   int k2_;
-  // Arity of the level height-1.
-  int kl_;
-  // Last level with arity k1.
+  /** Arity of the level height-1. */
+  int kL_;
+  /** Last level with arity k1. */
   int max_level_k1_;
-  // Height of the tree.
+  /** Height of the tree. */
   int height_;
-  // Number of object.
+  /** Number of object. */
   uint cnt_;
-  // Size of the expanded matrix.
+  /** Size of the expanded matrix. */
   uint size_;
-  // Accumulated rank for each level.
+  /** Accumulated rank for each level. */
   uint *acum_rank_;
-  // Starting position in T of each level.
+  /** Starting position in T of each level. */
   uint *offset_;
-  // Bit array with rank capability containing internal nodes.
+  /** Bit array with rank capability containing internal nodes. */
   shared_ptr<BitSequence> T_;
 
+  /** Queue to traverse the tree in a range query */
   static ArrayQueue<RangeFrame> range_queue;
+  /** Queue to traverse the tree */
   static ArrayQueue<Frame> neighbors_queue;
 
 
+  /**
+   * Builds a tree with and hybrid approach using the specified data that
+   * correctly represents an hybrid <em>k<sup>2</sup></em>-tree.
+   *
+   * @param T Bit array with rank capability storing the internal nodes.
+   * This can be shared be multiple instances.
+   * @param k1 Arity of the first levels.
+   * @param k2 Arity of the second part.
+   * @param kL Arity of the level height-1.
+   * @param max_level_k1 Last level with arity k1.
+   * @param height Height of the tree.
+   * @param cnt Number of object in the original matrix.
+   * @param size Size of the expanded matrix.
+   */
   base_hybrid(shared_ptr<BitSequence> T,
-               int k1, int k2, int kl, int max_level_k1, int height,
+               int k1, int k2, int kL, int max_level_k1, int height,
                uint cnt, uint size)
       : k1_(k1),
         k2_(k2),
-        kl_(kl),
+        kL_(kL),
         max_level_k1_(max_level_k1),
         height_(height),
         cnt_(cnt),
@@ -313,7 +332,7 @@ class base_hybrid {
   explicit base_hybrid(ifstream *in)
       : k1_(LoadValue<int>(in)),
         k2_(LoadValue<int>(in)),
-        kl_(LoadValue<int>(in)),
+        kL_(LoadValue<int>(in)),
         max_level_k1_(LoadValue<int>(in)),
         height_(LoadValue<int>(in)),
         cnt_(LoadValue<uint>(in)),
@@ -322,10 +341,14 @@ class base_hybrid {
         offset_(LoadValue<uint>(in, height_+1)),
         T_(BitSequence::load(*in)) {}
 
+  /**
+   * Save the information into a file.
+   * @param out Output Stream
+   */
   void Save(ofstream *out) const {
     SaveValue(out, k1_);
     SaveValue(out, k2_);
-    SaveValue(out, kl_);
+    SaveValue(out, kL_);
     SaveValue(out, max_level_k1_);
     SaveValue(out, height_);
     SaveValue(out, cnt_);
@@ -362,8 +385,11 @@ class base_hybrid {
   }
 
 
-  /*
+  /**
    * Template implementation for DirectLinks and InverseLinks
+   *
+   * @param object
+   * @param fun 
    */
   template<class Function, class Impl>
   void Links(uint object, Function fun) const {
@@ -393,7 +419,7 @@ class base_hybrid {
       N = div_level;
     }
 
-    div_level = N/kl_;
+    div_level = N/kL_;
     cnt_level = neighbors_queue.size();
     for (uint i = 0; i < cnt_level; ++i) {
       Frame &f = neighbors_queue.front();
@@ -402,6 +428,7 @@ class base_hybrid {
     }
   }
 };
+
 
 struct DirectImpl {
   inline static Frame FirstFrame(uint p) {

@@ -20,17 +20,20 @@ using std::shared_ptr;
 using boost::filesystem::path;
 
 /**
- * Implements a builder for the aproach of section 5.2, partitioning the first
- * level and constructing a separate k2tree for each submatrix. Submatrices are
- * stored on disk after beeing built. If we consider the representation as a
- * matrix of submatrices, then they have to be built in row-wise order.
+ * Implements a builder for the approach of section 5.2, partitioning the first
+ * level and constructing a separate <em>k<sup>2</sup></em>tree for each
+ * submatrix. Submatrices are stored on disk after being built. If we consider
+ * the representation as a matrix of submatrices, then they have to be built in
+ * row-wise order.
  */
 class K2TreePartitionBuilder {
  public:
   /**
-   * Creates a builder partitioning the matrix in submatrix of size
-   * submatrix_size. Independently builds a tree with an hybrid aproach
-   * for each submatrix.
+   * Creates a builder partitioning the matrix in submatrices of the given size.
+   * Independently builds a tree with an hybrid approach for each submatrix.
+   * The partial construction of each subtree is maintained in a temporary file.
+   * After all subtrees have been built, the tree is saved in the given file and
+   * can be loaded.
    *
    * @param cnt Number of objects in the relation or matrix.
    * @param submatrix_size Size of submatrices.
@@ -39,6 +42,8 @@ class K2TreePartitionBuilder {
    * @param kl Arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    * @param file Name of the file to store the structure.
+   *
+   * @see K2TreePartition::K2TreePartition
    */
   K2TreePartitionBuilder(uint cnt, uint submatrix_size,
                          int k1, int k2, int kl, int k1_levels,
@@ -63,7 +68,9 @@ class K2TreePartitionBuilder {
   void BuildSubtree();
 
   /**
-   * Returns true if all submatrices have been built.
+   * Checks if all submatrices have been built.
+   *
+   * @return True if all submatrices have been built, false otherwise.
    */
   inline bool Ready() const {
     return ready_;
@@ -71,25 +78,38 @@ class K2TreePartitionBuilder {
 
   /**
    * Returns the number of objects in the relation or matrix.
+   *
+   * @return Number of objects.
    */
   inline bool cnt() const {
     return cnt_;
   }
 
   /**
-   * Returns the row of the current submatrix beeing built.
+   * Returns the row of the current submatrix beeing built in the row-wise
+   * traversal.
+   *
+   * @return Number of row of the current submatrix.
    */
   inline int row() const {
     return row_;
   }
 
   /**
-   * Returns the col of the current submatrix beeing build.
+   * Returns the column of the current submatrix beeing build in the row-wise
+   * traversal.
+   *
+   * @return Number of column of the current submatrix.
    */
   inline int col() const {
     return col_;
   }
 
+  /**
+   * Returns the number of division.
+   *
+   * @return Arity of the first level.
+   */
   inline int k0() const {
     return k0_;
   }
@@ -115,7 +135,7 @@ class K2TreePartitionBuilder {
   path tmp_;
   /** Name of the resulting file. */
   path file_;
-  /** 
+  /**
    * File stream to save the partial submatrices. Points to temporary file until
    * all the submatrices have been built.
    */

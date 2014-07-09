@@ -74,7 +74,7 @@ shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
   delete [] codewords;
 
   return shared_ptr<CompressedHybrid>(new CompressedHybrid(T_, compressL, voc,
-                                                           k1_, k2_, kl_,
+                                                           k1_, k2_, kL_,
                                                            max_level_k1_,
                                                            height_,
                                                            cnt_, size_));
@@ -99,7 +99,7 @@ bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
   for (int i = 0; i <= height_; ++i)
     if (offset_[i] != offset_[i]) return false;
 
-  return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kl_ == rhs.kl_ &&
+  return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kL_ == rhs.kL_ &&
          max_level_k1_ == rhs.max_level_k1_ && size_ == rhs.size_ &&
          cnt_ == rhs.cnt_;
 }

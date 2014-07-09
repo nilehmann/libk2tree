@@ -20,21 +20,21 @@ namespace libk2tree {
 using std::shared_ptr;
 
 /**
- * Implements the construction of section 3.3.3, building a regular tree (not compressed)
- * inserting one link (1 in the matrix) at a time.
+ * Implements the construction of section 3.3.3, building a regular tree
+ * (with pointers) inserting one link (1 in the matrix) at a time.
  */
 class K2TreeBuilder {
  public:
   /**
-   * Creates a builder for a tree with an hybrid aproach.
+   * Creates a builder for a tree with an hybrid approach.
    *
    * @param cnt Number of object in the relation.
    * @param k1 arity of the first levels.
    * @param k2 arity of the second part.
-   * @param kl arity of the level height-1.
+   * @param kL arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    */
-  K2TreeBuilder(uint cnt, int k1, int k2, int kl, int k1_levels);
+  K2TreeBuilder(uint cnt, int k1, int k2, int kL, int k1_levels);
 
   /**
    * Creates a link from object p to q. Creating a link out of the range of
@@ -63,18 +63,37 @@ class K2TreeBuilder {
    */
   void Clear();
 
+  /**
+   * Returns the resulting height of the tree.
+   * @return Height of the tree.
+   */
   inline int height() const {
     return height_;
   }
 
-  inline uint leafs() const {
-    return leafs_;
+  /**
+   * Returns number nodes in the last level.
+   *
+   * @return Number of leaves.
+   */
+  inline uint leaves() const {
+    return leaves_;
   }
 
+  /**
+   * Returns the number of distinct links inserted int the tree.
+   *
+   * @return Number of link.
+   */
   inline uint edges() const {
     return edges_;
   }
 
+  /**
+   * Returns the number of non-leaf nodes.
+   *
+   * @return Number of internal nodes.
+   */
   inline uint internal_nodes() const {
     return internal_nodes_;
   }
@@ -91,13 +110,13 @@ class K2TreeBuilder {
   /** Arity of the second part */
   int k2_;
   /** Arity of the level height-1 */
-  int kl_;
+  int kL_;
   /** Last level with arity k1. Each node in this level has 0 or k1 children. */
   int max_level_k1_;
   /** Height of the tree, also the number of the leaf level. */
   int height_;
   /** Number of nodes on the last level. */
-  uint leafs_;
+  uint leaves_;
   /** Number of 1s on the matrix. */
   uint edges_;
   /** Number of internal nodes. */
@@ -106,19 +125,25 @@ class K2TreeBuilder {
   /** Struct to store the tree. */
   struct Node {
     union {
-      /** Stores the children of the level height_-1 (the leafs) */
+      /** Stores the children in a node of level height_-1 (the leaves) */
       BitArray<uchar> *data_;
       /** Pointers to children of internal nodes. */
       Node **children_;
     };
   };
   /**
-   * Creates a node for the specified level using an appropiate k
+   * Creates a node for the specified level using an appropriate k
+   *
+   * @param level Level
+   * @return New node storing union data corresponding to the level.
    */
   Node *CreateNode(int level);
   /**
-   * Frees memory allocated for n assuming it was built for the
+   * Frees memory allocated for the given node assuming it was built for the
    * specified level. Recursively deletes children of internal nodes.
+   *
+   * @param n Node.
+   * @param level Level containing the node.
    */
   void DeleteNode(Node *n, int level);
 

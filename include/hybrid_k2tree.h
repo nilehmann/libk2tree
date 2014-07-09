@@ -21,17 +21,36 @@ class K2TreeBuilder;
 
 
 /** 
- * <em>k<sup>2</sup></em>-tree implementation using an hybrid aproach as
+ * <em>k<sup>2</sup></em>-tree implementation using an hybrid approach as
  * described in section 5.1.
  */
 class HybridK2Tree : public base_hybrid<HybridK2Tree> {
-  friend class K2TreeBuilder;
   friend class base_hybrid<HybridK2Tree>;
  public:
+  /**
+   * Builds a tree with and hybrid approach using the specified data that
+   * correctly represents an hybrid <em>k<sup>2</sup></em>-tree.
+   *
+   * @param T Bit array with the internal nodes.
+   * @param L Bit array with the leafs.
+   * @param k1 Arity of the first levels.
+   * @param k2 Arity of the second part.
+   * @param kL Arity of the level height-1.
+   * @param max_level_k1 Last level with arity k1.
+   * @param height Height of the tree.
+   * @param cnt Number of object in the original matrix.
+   * @param size Size of the expanded matrix.
+   */
+  HybridK2Tree(const BitArray<uint> &T,
+               const BitArray<uint> &L,
+               int k1, int k2, int kL, int max_level_k1, int height,
+               uint cnt, uint size);
+
   /**
    * Loads a tree from a file.
    *
    * @param in Input stream pointing to the file storing the tree.
+   * @see HybridK2Tree::Save
    */
   explicit HybridK2Tree(ifstream *in);
 
@@ -60,17 +79,17 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @return Number of words.
    */
   uint WordsCnt() const {
-    return L_.length()/kl_/kl_;
+    return L_.length()/kL_/kL_;
   }
 
   /**
-   * Return the number of unsigned chars necesary to store a word
+   * Return the number of unsigned chars necessary to store a word
    * in the leaf level.
    *
    * @return Size of a word.
    */
   uint WordSize() const {
-    return Ceil(kl_*kl_, kUcharBits);
+    return Ceil(kL_*kL_, kUcharBits);
   }
 
   /**
@@ -88,7 +107,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
     for (uint i = 0; i < cnt; ++i) {
       uchar *word = new uchar[size];
       std::fill(word, word + size, 0);
-      for (int j = 0; j < kl_*kl_; ++j, ++bit) {
+      for (int j = 0; j < kL_*kL_; ++j, ++bit) {
         if (L_.GetBit(bit))
           word[j/kUcharBits] |= (1 << (j%kUcharBits));
       }
@@ -107,9 +126,9 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
 
   /**
    * Builds a <em>k<sup>2</sup></em>-tree with the same information but
-   * compressing the leaves and using the specified vocabulary.
+   * compressing the leaves using the specified vocabulary.
    *
-   * @param table Hash table asociating each word with their corresponding
+   * @param table Hash table associating each word with their corresponding
    * frequency.
    * @param voc Word vocabulary sorted by frequency.
    * @return Pointer to the new tree.
@@ -123,27 +142,11 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   BitArray<uint> L_;
 
   /**
-   * Builds a tree with and hybrid aproach using the specified data that
-   * correctly represents an hybrid <em>k<sup>2</sup></em>-tree.
-   *
-   * @param T Bit array with the internal nodes.
-   * @param L Bit array with the leafs.
-   * @param k1 Arity of the first levels.
-   * @param k2 Arity of the second part.
-   * @param kl Arity of the level height-1.
-   * @param max_level_k1 Last level with arity k1.
-   * @param height Height of the tree.
-   * @param cnt Number of object in the original matrix.
-   * @param size Size of the expanded matrix.
-   */
-  HybridK2Tree(const BitArray<uint> &T,
-               const BitArray<uint> &L,
-               int k1, int k2, int kl, int max_level_k1, int height,
-               uint cnt, uint size);
-
-  /**
-   * Iterates over the leaf children corresponding to the information in 
-   * the specified frame and calls fun for every child that is 1.
+   * Iterates over the children in the leaf corresponding to the node  
+   * specified in the given frame and calls fun reporting the object for
+   * every child that is 1.
+   * This function simple access the position in the bit array representing the
+   * last level.
    *
    * @param f Frame containing the information required.
    * @param fun Pointer to function, functor or lambda to call for every bit
@@ -151,17 +154,19 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    */
   template<typename Function, typename Impl>
   void LeafBits(const Frame &f, uint div_level, Function fun) const {
-    uint z = Child(f.z, height_-1, kl_) + Impl::Offset(f, kl_, div_level);
-    for (int j  = 0; j < kl_; ++j) {
+    uint z = Child(f.z, height_-1, kL_) + Impl::Offset(f, kL_, div_level);
+    for (int j  = 0; j < kL_; ++j) {
       if (L_.GetBit(z - T_->getLength()))
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
-      z = Impl::NextChild(z, kl_);
+      z = Impl::NextChild(z, kL_);
     }
   }
 
   /**
-   * Iterates over the leaf children corresponding to the information in
-   * the specified frame and calls fun for every child that is 1.
+   * Iterates over the children in the leaf lying in the range corresponding to
+   * the given frame and calls fun reporting the link for every child that is 1.
+   * This function simple access the position in the bit array representing the
+   * last level.
    *
    * @param f Frame containing the information required.
    * @param fun Pointer to function, functor or lambda to call for every bit
@@ -171,11 +176,11 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
     uint div_p1, div_p2, div_q1, div_q2;
     uint dp, dq;
-    uint first = Child(f.z, height_ - 1, kl_);
+    uint first = Child(f.z, height_ - 1, kL_);
 
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
     for (uint i = div_p1; i <= div_p2; ++i) {
-      uint z = first + kl_*i;
+      uint z = first + kL_*i;
       dp = f.dp + div_level*i;
 
       div_q1 = f.q1/div_level, div_q2 = f.q2/div_level;
@@ -195,7 +200,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @return True if the child is 1, false otherwise.
    */
   bool CheckLeafChild(uint z, int child) const {
-    z = Child(z, height_ - 1, kl_);
+    z = Child(z, height_ - 1, kL_);
     return L_.GetBit(z + child - T_->getLength());
   }
 };
