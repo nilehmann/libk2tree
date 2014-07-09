@@ -145,7 +145,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * Iterates over the children in the leaf corresponding to the node  
    * specified in the given frame and calls fun reporting the object for
    * every child that is 1.
-   * This function simple access the position in the bit array representing the
+   * This function simply access the position in the bit array representing the
    * last level.
    *
    * @param f Frame containing the information required.
