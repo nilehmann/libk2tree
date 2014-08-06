@@ -29,7 +29,7 @@ K2TreeBuilder::K2TreeBuilder(uint cnt,
       max_level_k1_(k1_levels-1),
       height_(-1),
       leaves_(0),
-      edges_(0),
+      links_(0),
       internal_nodes_(0),  // we dont consider the root
       root() {
   // we extend the size of the matrix to be the product of the arities in all
@@ -71,7 +71,7 @@ void K2TreeBuilder::AddLink(uint p, uint q) {
   div_level = N/kL_;
   child = p/div_level*kL_ + q/div_level;
   if (!n->data_->GetBit(child))
-    edges_++;
+    links_++;
   n->data_->SetBit(child);
 }
 
@@ -122,7 +122,7 @@ shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
 
   HybridK2Tree *tree = new HybridK2Tree(T, L, k1_, k2_, kL_,
                                         max_level_k1_,
-                                        height_, cnt_, size_);
+                                        height_, cnt_, size_, links_);
   return shared_ptr<HybridK2Tree>(tree);
 }
 
@@ -130,7 +130,7 @@ shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
 
 void K2TreeBuilder::Clear() {
   DeleteNode(root, 0);
-  leaves_ = internal_nodes_ = edges_ = 0;
+  leaves_ = internal_nodes_ = links_ = 0;
   root = CreateNode(0);
 }
 

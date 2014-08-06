@@ -18,8 +18,8 @@ CompressedHybrid::CompressedHybrid(shared_ptr<BitSequence> T,
                                    FTRep *compressL,
                                    shared_ptr<Vocabulary> vocabulary,
                                    int k1, int k2, int kL, int max_level_k1,
-                                   int height, uint cnt, uint size)
-    : base_hybrid(T, k1, k2, kL, max_level_k1, height, cnt, size),
+                                   int height, uint cnt, uint size, uint links)
+    : base_hybrid(T, k1, k2, kL, max_level_k1, height, cnt, size, links),
       compressL_(compressL),
       vocabulary_(vocabulary) {}
 

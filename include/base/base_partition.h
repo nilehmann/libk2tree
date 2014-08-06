@@ -23,7 +23,7 @@ using utils::SaveValue;
 template<class K2Tree>
 class base_partition {
  public:
-  /*
+  /**
    * Loads a tree previously saved with a K2TreePartitionBuilder
    */
   explicit base_partition(std::ifstream *in)
@@ -33,7 +33,8 @@ class base_partition {
         subtrees_(k0_) {}
 
 
-  /* Checks if exist a link from object p to q.
+  /** 
+   * Checks if exist a link from object p to q.
    *
    * This member function effectively calls member CheckLink of the
    * corresponding subtree.
@@ -46,7 +47,19 @@ class base_partition {
     return t.CheckLink(p % submatrix_size_, q % submatrix_size_);
   }
 
-  /*
+  /**
+   * Returns number of links in the relation (ones in the matrix)
+   * @return Number of links
+   */
+  uint links() const {
+    uint l = 0;
+    for (int i = 0; i < k0_; ++i)
+      for (int j = 0; j < k0_; ++j)
+        l += subtrees_[i][j].links();
+    return l;
+  }
+
+  /**
    * Iterates over all links in the given row.
    * 
    * This member function effectively calls member DirectLinks of the

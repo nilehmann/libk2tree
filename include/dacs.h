@@ -6,13 +6,13 @@
  * this stuff is worth it, you can buy me a beer in return Nicolás Lehmann
  * ----------------------------------------------------------------------------
  *
- * This file contain declaration of function implementing DAC to use inside C++. 
- * It also contains implementations of the LoadFT and SaveFT functions using 
+ * This file contain declaration of function implementing DAC to use inside C++.
+ * It also contains implementations of the LoadFT and SaveFT functions using
  * file streams.
  */
 
-#ifndef DACS_DACS_H_
-#define DACS_DACS_H_
+#ifndef INCLUDE_DACS_H_
+#define INCLUDE_DACS_H_
 
 extern "C" {
 typedef unsigned int uint;
@@ -20,8 +20,8 @@ typedef unsigned int uint;
 struct sFTRep;
 typedef struct sFTRep FTRep;
 
-FTRep* createFT(uint *list,uint listLength);
-uint accessFT(FTRep * listRep,uint param);
+FTRep* createFT(uint *list, uint listLength);
+uint accessFT(FTRep * listRep, uint param);
 uint * decompressFT(FTRep * listRep, uint n);
 void destroyFT(FTRep * listRep);
 }
@@ -44,4 +44,4 @@ void SaveFT(std::ofstream *out, FTRep *rep);
  */
 FTRep *LoadFT(std::ifstream *in);
 bool equalsFT(FTRep *lhs, FTRep *rhs);
-#endif  // DACS_DACS_H_
+#endif  // INCLUDE_DACS_H_

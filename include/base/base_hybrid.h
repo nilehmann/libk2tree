@@ -69,9 +69,18 @@ class base_hybrid {
 
   /**
    * Returns the number of objects in the original relation
+   * @return Number of objects in the relation.
    */
   inline uint cnt() const {
     return cnt_;
+  }
+
+  /**
+   * Returns the number of links (ones in the matrix).
+   * @return Number of links.
+   */
+  inline uint links() const {
+    return links_;
   }
 
   /**
@@ -263,6 +272,8 @@ class base_hybrid {
   uint cnt_;
   /** Size of the expanded matrix. */
   uint size_;
+  /** Number of links */
+  uint links_;
   /** Accumulated rank for each level. */
   uint *acum_rank_;
   /** Starting position in T of each level. */
@@ -292,7 +303,7 @@ class base_hybrid {
    */
   base_hybrid(shared_ptr<BitSequence> T,
                int k1, int k2, int kL, int max_level_k1, int height,
-               uint cnt, uint size)
+               uint cnt, uint size, uint links)
       : k1_(k1),
         k2_(k2),
         kL_(kL),
@@ -300,6 +311,7 @@ class base_hybrid {
         height_(height),
         cnt_(cnt),
         size_(size),
+        links_(links),
         acum_rank_(new uint[height-1]),
         offset_(new uint[height+1]),
         T_(T) {
@@ -319,15 +331,15 @@ class base_hybrid {
   }
 
   base_hybrid(const BitArray<uint> &T,
-               int k1, int k2, int kl, int max_level_k1, int height,
-               uint cnt, uint size)
+              int k1, int k2, int kl, int max_level_k1, int height,
+              uint cnt, uint size, uint links)
       : base_hybrid(
             shared_ptr<BitSequence>(
                 new BitSequenceRG(
                     const_cast<uint*>(T.GetRawData()),
                     T.length(),
                     20)),
-            k1, k2, kl, max_level_k1, height, cnt, size) {}
+            k1, k2, kl, max_level_k1, height, cnt, size, links) {}
 
   explicit base_hybrid(ifstream *in)
       : k1_(LoadValue<int>(in)),

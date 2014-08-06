@@ -85,8 +85,8 @@ class K2TreeBuilder {
    *
    * @return Number of link.
    */
-  inline uint edges() const {
-    return edges_;
+  inline uint links() const {
+    return links_;
   }
 
   /**
@@ -117,8 +117,8 @@ class K2TreeBuilder {
   int height_;
   /** Number of nodes on the last level. */
   uint leaves_;
-  /** Number of 1s on the matrix. */
-  uint edges_;
+  /** Number of links in the relation (ones in the matrix). */
+  uint links_;
   /** Number of internal nodes. */
   uint internal_nodes_;
 

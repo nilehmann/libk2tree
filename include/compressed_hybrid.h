@@ -51,7 +51,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
                    FTRep *compressL,
                    shared_ptr<Vocabulary> vocabulary,
                    int k1, int k2, int kL, int max_level_k1, int height,
-                   uint cnt, uint size);
+                   uint cnt, uint size, uint links);
 
   /**
    * Loads a tree from a file. If the file doesn't contain

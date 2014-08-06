@@ -50,7 +50,7 @@ TEST(K2TreeBuilder, 1) {
   AddLinks(&tb);
   ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leaves());
-  ASSERT_EQ(12, tb.edges());
+  ASSERT_EQ(12, tb.links());
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 2) {
@@ -58,7 +58,7 @@ TEST(K2TreeBuilder, 2) {
   AddLinks(&tb);
   ASSERT_EQ(29, tb.internal_nodes());
   ASSERT_EQ(36, tb.leaves());
-  ASSERT_EQ(12, tb.edges());
+  ASSERT_EQ(12, tb.links());
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 3) {
@@ -66,7 +66,7 @@ TEST(K2TreeBuilder, 3) {
   AddLinks(&tb);
   ASSERT_EQ(17, tb.internal_nodes());
   ASSERT_EQ(54, tb.leaves());
-  ASSERT_EQ(12, tb.edges());
+  ASSERT_EQ(12, tb.links());
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 4) {
@@ -74,7 +74,7 @@ TEST(K2TreeBuilder, 4) {
   AddLinks(&tb);
   ASSERT_EQ(27, tb.internal_nodes());
   ASSERT_EQ(36, tb.leaves());
-  ASSERT_EQ(12, tb.edges());
+  ASSERT_EQ(12, tb.links());
   ASSERT_EQ(3, tb.height());
 }
 TEST(K2TreeBuilder, 5) {
@@ -82,6 +82,6 @@ TEST(K2TreeBuilder, 5) {
   AddLinks(&tb);
   ASSERT_EQ(36, tb.internal_nodes());
   ASSERT_EQ(36, tb.leaves());
-  ASSERT_EQ(12, tb.edges());
+  ASSERT_EQ(12, tb.links());
   ASSERT_EQ(4, tb.height());
 }

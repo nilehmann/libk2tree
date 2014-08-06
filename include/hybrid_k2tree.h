@@ -44,7 +44,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   HybridK2Tree(const BitArray<uint> &T,
                const BitArray<uint> &L,
                int k1, int k2, int kL, int max_level_k1, int height,
-               uint cnt, uint size);
+               uint cnt, uint size, uint links);
 
   /**
    * Loads a tree from a file.
