@@ -57,19 +57,31 @@ shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
     shared_ptr<Vocabulary> voc) const {
   uint cnt = WordsCnt();
   uint size = WordSize();
-  uint *codewords = new uint[cnt];
+  uint *codewords;
+  try {
+    codewords = new uint[cnt];
+  } catch (std::bad_alloc ba) {
+    std::cerr << "[HybridK2Tree::CompressLeaves] Error: " << ba.what() << "\n";
+    exit(1);
+  }
 
   int i = 0;
   Words([&] (const uchar *word) {
     uint addr;
     if (!table.search(word, size, &addr)) {
-      fprintf(stderr, "Word not found\n");
+      std::cerr << "[HybridK2Tree::CompressLeaves] Error: Word not found\n";
       exit(1);
     }
     codewords[i++] = table[addr].codeword;
   });
 
-  FTRep *compressL = createFT(codewords, cnt);
+  FTRep *compressL;
+  try {
+    compressL = createFT(codewords, cnt);
+  } catch (...) {
+    std::cerr << "[HybridK2Tree::CompressLeaves] Error: Could not create DAC\n";
+    exit(1);
+  }
 
   delete [] codewords;
 

@@ -51,7 +51,8 @@ class K2TreeBuilder {
   shared_ptr<HybridK2Tree> Build() const;
 
   /**
-   * Builds a k2tree with the current structure and saves it to a file
+   * Builds a k2tree with the current structure and saves it to a file.
+   * @param out Buffer to save the tree.
    */
   void Build(std::ofstream *out) const {
     shared_ptr<HybridK2Tree> tree = Build();
@@ -115,7 +116,7 @@ class K2TreeBuilder {
   int max_level_k1_;
   /** Height of the tree, also the number of the leaf level. */
   int height_;
-  /** Number of nodes on the last level. */
+  /** Number of nodes in the last level. */
   uint leaves_;
   /** Number of links in the relation (ones in the matrix). */
   uint links_;
@@ -125,9 +126,9 @@ class K2TreeBuilder {
   /** Struct to store the tree. */
   struct Node {
     union {
-      /** Stores the children in a node of level height_-1 (the leaves) */
+      /** Stores the children of a node in level height_-1 (the leaves) */
       BitArray<uchar> *data_;
-      /** Pointers to children of internal nodes. */
+      /** Array of pointers to children of internal nodes. */
       Node **children_;
     };
   };
@@ -140,7 +141,7 @@ class K2TreeBuilder {
   Node *CreateNode(int level);
   /**
    * Frees memory allocated for the given node assuming it was built for the
-   * specified level. Recursively deletes children of internal nodes.
+   * specified level. Recursively delete children first.
    *
    * @param n Node.
    * @param level Level containing the node.
@@ -148,7 +149,7 @@ class K2TreeBuilder {
   void DeleteNode(Node *n, int level);
 
   /**
-   * Root of the tree
+   * Root of the tree. This is never NULL.
    */
   Node *root;
 };
