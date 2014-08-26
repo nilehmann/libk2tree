@@ -212,19 +212,20 @@ class base_hybrid {
   }
 
   /**
-   * Returns the i-th child of the specified node
+   * Returns the position of the i-th child of the specified node
    *
    * @param z Position in T of the node.
-   * @param level Level of the node.
+   * @param level Level of the node between 0 and height_ - 1.
    * @param k Level arity.
-   * @param i Child number between 0 and k*k.
+   * @param i Child number between 0 and k<sup>2</sup> - 1.
    *
    * @return Position in T representing the child.
    */
-  inline uint Child(uint z, int level, int k, int i = 0) const {
+  inline uint Child(uint z, int level, int kl, int i = 0) const {
     assert(level < height_);
-    // child_l(x,i) = rank(T_l, z - 1)*kl*kl + i - 1;
-    z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*k*k : 0;
+    // child_l(x,i) = rank(T_l, z - 1)*k_l^2 + i (0 <= i < k_l^2);
+    // child_l(x,i) = (rank(T, x -1) - rank_{l-1})*k_l^2 + offset_{l+1} + i
+    z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*kl*kl : 0;
     return z + offset_[level+1] + i;
   }
 
