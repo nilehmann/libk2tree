@@ -19,14 +19,14 @@ using utils::SaveValue;
 
 namespace compression {
 
-Vocabulary::Vocabulary(uint cnt, uint size)
+Vocabulary::Vocabulary(size_t cnt, uint size)
     : cnt_(cnt),
       size_(size),
       data_(new uchar[cnt*size_]) {}
 
 Vocabulary::Vocabulary(std::ifstream *in)
-    : cnt_(LoadValue<uint>(in)),
-      size_(LoadValue<size_t>(in)),
+    : cnt_(LoadValue<size_t>(in)),
+      size_(LoadValue<uint>(in)),
       data_(LoadValue<uchar>(in, cnt_*size_)) {}
 
 void Vocabulary::Save(std::ofstream *out) {
@@ -37,26 +37,28 @@ void Vocabulary::Save(std::ofstream *out) {
 
 
 void Vocabulary::print() const {
-  for (uint i = 0; i < cnt_; ++i)
+  for (size_t i = 0; i < cnt_; ++i)
     print(i);
+  printf("\n");
 }
-void Vocabulary::print(uint i) const {
+void Vocabulary::print(size_t i) const {
   const uchar *word = (*this)[i];
+  printf("[");
   for (uint bit = 0; bit < size_*sizeof(uchar)*8; ++bit) {
     if ((word[bit/sizeof(uchar)/8] >> (bit%(sizeof(uchar)*8))) & 1)
-      fprintf(stderr, "1");
+      printf("1");
     else
-      fprintf(stderr, "0");
+      printf("0");
   }
-  fprintf(stderr, "\n");
+  printf("]");
 }
 
-void Vocabulary::assign(uint p, const uchar* val) {
+void Vocabulary::assign(size_t p, const uchar* val) {
   std::copy(val, val + size_, data_ + p*size_);
 }
 
 
-void Vocabulary::swap(uint a, uint b) {
+void Vocabulary::swap(size_t a, size_t b) {
   for (uint i = 0; i < size_; ++i)
     std::swap(data_[a*size_ + i], data_[b*size_ + i]);
 }
@@ -75,17 +77,17 @@ bool Vocabulary::operator==(const Vocabulary &rhs) const {
   return true;
 }
 
-uint Vocabulary::quicksort(uint left, uint right) {
+size_t Vocabulary::quicksort(size_t left, size_t right) {
   if (left == right)
     return 0;
   if (left == right - 1)
     return 1;
 
-  uint i, j, k;
+  size_t i, j, k;
   i = j = k = left;
   while (k < right - 1) {
     // We use the last element as pivot.
-    char cmp = strcmp((*this)[k], (*this)[right-1], size_);
+    int cmp = strcmp((*this)[k], (*this)[right-1], size_);
 
     if (cmp == 0) {
       swap(j, k);
@@ -103,12 +105,11 @@ uint Vocabulary::quicksort(uint left, uint right) {
   swap(j, right - 1);
   ++j;
 
-  uint unique;
+  size_t unique;
   unique = quicksort(left, i);
   unique += quicksort(j, right);
   return unique + 1;
 }
-
 
 }  // namespace compression
 }  // namespace libk2tree

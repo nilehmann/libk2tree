@@ -17,8 +17,6 @@
 
 namespace libk2tree {
 using compression::HashTable;
-class K2TreeBuilder;
-
 
 /** 
  * <em>k<sup>2</sup></em>-tree implementation using an hybrid approach as
@@ -43,8 +41,8 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    */
   HybridK2Tree(const BitArray<uint> &T,
                const BitArray<uint> &L,
-               int k1, int k2, int kL, int max_level_k1, int height,
-               uint cnt, uint size, uint links);
+               uint k1, uint k2, uint kL, uint max_level_k1, uint height,
+               cnt_size cnt, cnt_size size, size_t links);
 
   /**
    * Loads a tree from a file.
@@ -78,13 +76,12 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    *
    * @return Number of words.
    */
-  uint WordsCnt() const {
+  size_t WordsCnt() const {
     return L_.length()/kL_/kL_;
   }
 
   /**
-   * Return the number of unsigned chars necessary to store a word
-   * in the leaf level.
+   * Return the number of bytes necessary to store a word.
    *
    * @return Size of a word.
    */
@@ -96,20 +93,20 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * Iterates over the words in the leaf level.
    *
    * @param fun Pointer to function, functor or lambda expecting a pointer to
-   * the first position of each word.
+   * each word.
    */
   template<typename Function>
   void Words(Function fun) const {
-    uint cnt = WordsCnt();
+    size_t cnt = WordsCnt();
     uint size = WordSize();
 
-    uint bit = 0;
-    for (uint i = 0; i < cnt; ++i) {
+    size_t bit = 0;
+    for (size_t i = 0; i < cnt; ++i) {
       uchar *word = new uchar[size];
       std::fill(word, word + size, 0);
-      for (int j = 0; j < kL_*kL_; ++j, ++bit) {
+      for (uint j = 0; j < kL_*kL_; ++j, ++bit) {
         if (L_.GetBit(bit))
-          word[j/kUcharBits] |= (1 << (j%kUcharBits));
+          word[j/kUcharBits] |= (uchar) (1 << (j%kUcharBits));
       }
       fun(word);
       delete [] word;
@@ -122,7 +119,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    *
    * @return Pointer to the new tree.
    */
-  shared_ptr<CompressedHybrid> CompressLeaves() const;
+  std::shared_ptr<CompressedHybrid> CompressLeaves() const;
 
   /**
    * Builds a <em>k<sup>2</sup></em>-tree with the same information but
@@ -133,9 +130,9 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @param voc Word vocabulary sorted by frequency.
    * @return Pointer to the new tree.
    */
-  shared_ptr<CompressedHybrid> CompressLeaves(
+  std::shared_ptr<CompressedHybrid> CompressLeaves(
       const HashTable &table,
-      shared_ptr<Vocabulary> voc) const;
+      std::shared_ptr<Vocabulary> voc) const;
 
  private:
   /** BitArray containing leaf nodes. */
@@ -153,9 +150,9 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * that is one. The function expect an unsigned int as argument.
    */
   template<typename Function, typename Impl>
-  void LeafBits(const Frame &f, uint div_level, Function fun) const {
-    uint z = Child(f.z, height_-1, kL_) + Impl::Offset(f, kL_, div_level);
-    for (int j  = 0; j < kL_; ++j) {
+  void LeafBits(const Frame &f, cnt_size div_level, Function fun) const {
+    size_t z = Child(f.z, height_-1, kL_) + Impl::Offset(f, kL_, div_level);
+    for (uint j  = 0; j < kL_; ++j) {
       if (L_.GetBit(z - T_->getLength()))
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
       z = Impl::NextChild(z, kL_);
@@ -173,18 +170,19 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * that is one. The function expect two unsigned int as arguments.
    */
   template<typename Function>
-  void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
-    uint div_p1, div_p2, div_q1, div_q2;
-    uint dp, dq;
-    uint first = Child(f.z, height_ - 1, kL_);
+  void RangeLeafBits(const RangeFrame &f, cnt_size div_level,
+                     Function fun) const {
+    cnt_size div_p1, div_p2, div_q1, div_q2;
+    cnt_size dp, dq;
+    size_t first = Child(f.z, height_ - 1, kL_);
 
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
-    for (uint i = div_p1; i <= div_p2; ++i) {
-      uint z = first + kL_*i;
+    for (cnt_size i = div_p1; i <= div_p2; ++i) {
+      size_t z = first + kL_*i;
       dp = f.dp + div_level*i;
 
       div_q1 = f.q1/div_level, div_q2 = f.q2/div_level;
-      for (uint j = div_q1; j <= div_q2; ++j) {
+      for (cnt_size j = div_q1; j <= div_q2; ++j) {
         dq = f.dq + div_level*j;
         if (L_.GetBit(z+j - T_->getLength()))
           fun(dp, dq);
@@ -199,7 +197,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * @param child Number of the child.
    * @return True if the child is 1, false otherwise.
    */
-  bool CheckLeafChild(uint z, int child) const {
+  bool CheckLeafChild(size_t z, uint child) const {
     z = Child(z, height_ - 1, kL_);
     return L_.GetBit(z + child - T_->getLength());
   }

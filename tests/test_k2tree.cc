@@ -23,16 +23,16 @@ using ::std::ifstream;
 using ::std::ofstream;
 
 
-shared_ptr<HybridK2Tree> Build(int k1, int k2, int kl, int k1_levels,
-                               vector<vector<bool>> *matrix, int e = -1) {
-  int n = rand()%5000+1;
+shared_ptr<HybridK2Tree> Build(uint k1, uint k2, uint kl, uint k1_levels,
+                               vector<vector<bool>> *matrix, uint e = 0) {
+  uint n = rand()%5000+1;
   K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
   matrix->resize(n, vector<bool>(n, false));
-  if (e == -1)
-    e = rand()%(n*10) + 1;
-  for (int i = 0; i < e; ++i) {
-    int p = rand()%n;
-    int q = rand()%n;
+  if (e == 0)
+    e = (uint) rand()%(n*10) + 1;
+  for (uint i = 0; i < e; ++i) {
+    uint p = (uint) rand()%n;
+    uint q = (uint) rand()%n;
     (*matrix)[p][q] = true;
     tb.AddLink(p, q);
   }
@@ -40,33 +40,33 @@ shared_ptr<HybridK2Tree> Build(int k1, int k2, int kl, int k1_levels,
 }
 
 
-void CheckLink(int k1, int k2, int kl, int k1_levels) {
+void CheckLink(uint k1, uint k2, uint kl, uint k1_levels) {
   vector<vector<bool>> matrix;
   shared_ptr<HybridK2Tree > tree = Build(k1, k2, kl, k1_levels, &matrix);
   TestCheckLink(*tree, matrix);
 }
-void DirectLinks(int k1, int k2, int kl, int k1_levels) {
+void DirectLinks(uint k1, uint k2, uint kl, uint k1_levels) {
   vector<vector<bool> > matrix;
   shared_ptr<HybridK2Tree > tree = Build(k1, k2, kl, k1_levels, &matrix);
   TestDirectLinks(*tree, matrix);
 }
-void InverseLinks(int k1, int k2, int kl, int k1_levels) {
+void InverseLinks(uint k1, uint k2, uint kl, uint k1_levels) {
   vector<vector<bool> > matrix;
   shared_ptr<HybridK2Tree > tree = Build(k1, k2, kl, k1_levels, &matrix);
   TestInverseLinks(*tree, matrix);
 }
-void RangeQuery(int k1, int k2, int kl, int k1_levels) {
+void RangeQuery(uint k1, uint k2, uint kl, uint k1_levels) {
   vector<vector<bool> > matrix;
   shared_ptr<HybridK2Tree > tree = Build(k1, k2, kl, k1_levels, &matrix);
   TestRangeQuery(*tree, matrix);
 }
-void TestSave(int k1, int k2, int kl, int k1_levels) {
-  int n = rand()%100000+1;
+void TestSave(uint k1, uint k2, uint kl, uint k1_levels) {
+  uint n = rand()%100000+1;
   K2TreeBuilder tb(n, k1, k2, kl, k1_levels);
-  int e = n > 10 ? rand()%(n/10) + 1 : 1;
-  for (int i = 0; i < e; ++i) {
-    int p = rand()%n;
-    int q = rand()%n;
+  uint e = n > 10 ? (uint) rand()%(n/10) + 1 : 1;
+  for (uint i = 0; i < e; ++i) {
+    uint p = (uint) rand()%n;
+    uint q = (uint) rand()%n;
     tb.AddLink(p, q);
   }
   shared_ptr<HybridK2Tree > tree = tb.Build();
@@ -86,7 +86,7 @@ void TestSave(int k1, int k2, int kl, int k1_levels) {
 
 // CHECK Link
 TEST(HybridK2Tree, CheckEdge1) {
-  srand(time(NULL));
+  srand((uint) time(NULL));
   CheckLink(3, 2, 2, 1);
 }
 TEST(HybridK2Tree, CheckEdge2) {
@@ -109,7 +109,7 @@ TEST(HybridK2Tree, DirectLinks3) {
 
 // INVERSE LINKS
 TEST(HybridK2Tree, InverseLinks1) {
-  srand(time(NULL));
+  srand((uint) time(NULL));
   InverseLinks(3, 2, 2, 1);
 }
 TEST(HybridK2Tree, InverseLinks2) {
@@ -121,7 +121,7 @@ TEST(HybridK2Tree, InverseLinks3) {
 
 // RANGE QUERY
 TEST(HybridK2Tree, RangeQuery1) {
-  srand(time(NULL));
+  srand((uint) time(NULL));
   RangeQuery(3, 2, 2, 1);
 }
 TEST(HybridK2Tree, RangeQuery2) {
@@ -133,7 +133,7 @@ TEST(HybridK2Tree, RangeQuery3) {
 
 // SAVE
 TEST(HybridK2Tree, Save1) {
-  srand(time(NULL));
+  srand((uint) time(NULL));
   TestSave(3, 2, 2, 1);
 }
 TEST(HybridK2Tree, Save2) {

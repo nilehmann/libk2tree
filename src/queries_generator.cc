@@ -14,27 +14,25 @@
 #include <string>
 
 using ::std::ofstream;
-using ::std::stoi;
 using libk2tree::utils::SaveValue;
 using ::libk2tree::utils::BitArray;
 typedef unsigned int uint;
 
 int main(int argc, char *argv[]) {
   if (argc < 4) {
-    printf("Usage: %s file cnt_qry nodes\n", argv[0]);
+    printf("Usage: %s file nodes cnt_qry\n", argv[0]);
     exit(0);
   }
-  srand(time(NULL));
+  srand((uint) time(NULL));
 
-  uint cnt_qry = stoi(argv[2]);
-  uint nodes = stoi(argv[3]);
+  uint nodes = (uint) std::stoi(argv[2]);
+  uint cnt_qry = (uint) std::stoi(argv[3]);
 
   ofstream out;
   out.open(argv[1], ofstream::out);
   SaveValue<uint>(&out, cnt_qry);
-  uint i;
-  for (i = 0; i < cnt_qry; ++i)
-    SaveValue<uint>(&out, rand()%nodes);
+  for (uint i = 0; i < cnt_qry; ++i)
+    SaveValue<uint>(&out, (uint) rand()%nodes);
 }
 
 

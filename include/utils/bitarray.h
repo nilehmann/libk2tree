@@ -18,6 +18,9 @@
 #include <algorithm>
 
 
+#include <iostream>
+
+
 namespace libk2tree {
 namespace utils {
 
@@ -37,11 +40,11 @@ class BitArray {
    *
    * @param length Number of bits.
    */
-  explicit BitArray(uint length) :
+  explicit BitArray(size_t length) :
       length_(length),
-      data_(new T[Ceil<uint>(length_, bits_)]) {
-    for (uint i = 0; i < Ceil<uint>(length_, bits_); ++i)
-      this->data_[i] = 0;
+      data_(new T[Ceil<size_t>(length_, bits_)]) {
+    for (size_t i = 0; i < Ceil<size_t>(length_, bits_); ++i)
+      data_[i] = 0;
   }
 
   /**
@@ -50,26 +53,23 @@ class BitArray {
    * @param in Input stream.
    */
   explicit BitArray(ifstream *in) :
-      length_(LoadValue<uint>(in)),
-      data_(LoadValue<T>(in, Ceil<uint>(length_, bits_))) {}
+      length_(LoadValue<size_t>(in)),
+      data_(LoadValue<T>(in, Ceil<size_t>(length_, bits_))) {}
 
   /**
    * Copy constructor
    */
   BitArray(const BitArray<T>& rhs) :
       length_(rhs.length()),
-      data_(new T[Ceil<uint>(length_, bits_)]) {
-    uint size = Ceil<uint>(length_, bits_);
+      data_(new T[Ceil<size_t>(length_, bits_)]) {
+    size_t size = Ceil<size_t>(length_, bits_);
     std::copy(rhs.data_, rhs.data_ + size, data_);
   }
 
-  /**
-   * Declaration of methods to prevent the copy assignment.
-   */
   BitArray &operator=(const BitArray& rhs) {
     delete [] data_;
     length_ = rhs.length_;
-    uint size = Ceil<uint>(length_, bits_);
+    size_t size = Ceil<size_t>(length_, bits_);
     data_ = new T[size];
     std::copy(rhs.data_, rhs.data_ + size, data_);
   }
@@ -81,7 +81,7 @@ class BitArray {
    */
   void Save(ofstream *out) const {
     SaveValue(out, length_);
-    SaveValue(out, data_, Ceil<uint>(length_, bits_));
+    SaveValue(out, data_, Ceil<size_t>(length_, bits_));
   }
 
   /** 
@@ -89,9 +89,9 @@ class BitArray {
    *
    * @return Size in bytes.
    */
-  inline size_t GetSize() const {
+  size_t GetSize() const {
     size_t size = sizeof(int) + sizeof(uint);
-    size += sizeof(uint)*(Ceil<uint>(length_, bits_)) + sizeof(uint*);
+    size += sizeof(uint)*(Ceil<size_t>(length_, bits_)) + sizeof(uint*);
     return size;
   }
 
@@ -100,7 +100,7 @@ class BitArray {
    *
    * @param p Position to set.
    */
-  inline void SetBit(uint p) {
+  void SetBit(size_t p) {
     data_[p/bits_] |= (1 << (p%bits_));
   }
 
@@ -109,7 +109,7 @@ class BitArray {
    *
    * @param p Position to clean.
    */
-  inline void CleanBit(uint p) {
+  void CleanBit(size_t p) {
     data_[p/bits_] &= ~(1 << (p%bits_));
   }
 
@@ -119,7 +119,7 @@ class BitArray {
    * @param p Position
    * @return True if the bit is 1, false otherwise.
    */
-  inline bool GetBit(uint p) const {
+  bool GetBit(size_t p) const {
     return (data_[p/bits_] >> (p%bits_) ) & 1;
   }
 
@@ -128,7 +128,7 @@ class BitArray {
    *
    * @return Number of bits in the bitarray.
    */
-  inline uint length() const {
+  size_t length() const {
     return length_;
   }
 
@@ -137,7 +137,7 @@ class BitArray {
    *
    * @return Pointer to the first position of the underlying array.
    */
-  inline const T *GetRawData() const {
+  const T *GetRawData() const {
     return data_;
   }
 
@@ -150,7 +150,7 @@ class BitArray {
   /** Number of bits on T. */
   static const int bits_ = sizeof(T)*kByteBits;
   /** Number of bits in the array. */
-  uint length_;
+  size_t length_;
   /** Array to hold bits. */
   T * data_;
 };

@@ -15,12 +15,6 @@
 namespace libk2tree {
 namespace utils {
 
-int LogCeil(double N, int base) {
-  int log;
-  double pow;
-  for (pow = 1, log = 0; pow < N; pow *= base, ++log) {}
-  return log;
-}
 
 int SquaringPow(int base, int exp) {
   // Iterative aproach that increase pow
@@ -32,13 +26,13 @@ int SquaringPow(int base, int exp) {
   return pow;
 }
 
-/*
+/**
  * Find the smallest prime greater or equal to n
  */
-uint NearestPrime(uint n) {
+size_t NearestPrime(size_t n) {
   /* the prime number being sought */
-  int pos;
-  int i;
+  size_t pos;
+  size_t i;
 
   for (pos = n; ; pos++) {
     // checks if those values from 2 to $\sqrt{pos}$ can be factors of $pos$
@@ -50,14 +44,14 @@ uint NearestPrime(uint n) {
   return pos;
 }
 
-char strcmp(const uchar *w1, const uchar *w2, uint size) {
+int strcmp(const uchar *w1, const uchar *w2, uint size) {
   uint i = 0;
   while (i < size - 1 && *w1 == *w2) {
     ++w1;
     ++w2;
     ++i;
   }
-  return *w1 - *w2;
+  return (int) *w1 - (int) *w2;
 }
 
 }  // namespace utils

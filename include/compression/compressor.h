@@ -20,22 +20,22 @@
 
 namespace libk2tree {
 namespace compression {
-using std::vector;
 using std::shared_ptr;
 
-/*
+/**
  * Creates new k2tree with the leaves compressed.
  * @param tree
+ * @param build 
  */
 template<class K2Tree, class Fun>
 void FreqVoc(const K2Tree &tree, Fun build) {
   try {
-    uint cnt = tree.WordsCnt();
+    size_t cnt = tree.WordsCnt();
     uint size = tree.WordSize();
 
     Vocabulary words(cnt, size);
 
-    uint pos = 0;
+    size_t pos = 0;
     tree.Words([&] (const uchar *word) {
       words.assign(pos, word);
       ++pos;
@@ -43,14 +43,14 @@ void FreqVoc(const K2Tree &tree, Fun build) {
 
 
     // Count number of different words
-    uint diff_cnt = words.sort();
+    size_t diff_cnt = words.sort();
 
     // Insert words in hash
     HashTable table(diff_cnt);
-    vector<uint> posInHash;
+    std::vector<size_t> posInHash;
     posInHash.reserve(diff_cnt);
-    for (uint i = 0; i < cnt; ++i) {
-      uint addr;
+    for (size_t i = 0; i < cnt; ++i) {
+      size_t addr;
       if (!table.search(words[i], size, &addr)) {
         table.add(words[i], size, addr);
         posInHash.push_back(addr);
@@ -59,14 +59,13 @@ void FreqVoc(const K2Tree &tree, Fun build) {
       }
     }
 
-
     // Sort words by frequency
-    std::sort(posInHash.begin(), posInHash.end(), [&](uint a, uint b) {
+    std::sort(posInHash.begin(), posInHash.end(), [&](size_t a, size_t b) {
       return table[a].weight > table[b].weight;
     });
 
     shared_ptr<Vocabulary> voc(new Vocabulary(diff_cnt, size));
-    for (uint i = 0; i < diff_cnt; ++i) {
+    for (size_t i = 0; i < diff_cnt; ++i) {
       Nword &w = table[posInHash[i]];
       w.codeword = i;
       voc->assign(i, w.word);

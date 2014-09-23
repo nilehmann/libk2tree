@@ -41,7 +41,7 @@ class CompressedPartition: public base_partition<CompressedHybrid> {
 
  private:
   /** Vocabulary of the leaves. This vocabulary is shared by all subtrees */
-  shared_ptr<Vocabulary> vocabulary_;
+  std::shared_ptr<Vocabulary> vocabulary_;
 };
 }  // namespace libk2tree
 

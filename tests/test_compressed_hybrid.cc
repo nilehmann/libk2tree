@@ -23,16 +23,16 @@ using ::std::shared_ptr;
 using ::std::vector;
 using ::std::pair;
 
-shared_ptr<CompressedHybrid> Build(vector<vector<bool>> *matrix, int e = -1) {
-  int n = rand()%50000+1;
+shared_ptr<CompressedHybrid> Build(vector<vector<bool>> *matrix, uint e = 0) {
+  uint n = rand()%50000+1;
   K2TreeBuilder tb(n, 4, 2, 8, 4);
   matrix->resize(n, vector<bool>(n, false));
 
-  if (e == -1)
-    e = n > 100 ? rand()%(n/100) + 1 : 1;
-  for (int i = 0; i < e; ++i) {
-    int p = rand()%n;
-    int q = rand()%n;
+  if (e == 0)
+    e = n > 100 ? (uint) rand()%(n/100) + 1 : 1;
+  for (uint i = 0; i < e; ++i) {
+    uint p = (uint) rand()%n;
+    uint q = (uint) rand()%n;
     (*matrix)[p][q] = true;
     tb.AddLink(p, q);
   }
@@ -43,7 +43,7 @@ shared_ptr<CompressedHybrid> Build(vector<vector<bool>> *matrix, int e = -1) {
 TEST(CompressedHybrid, DirectLinks) {
   time_t t = time(NULL);
   fprintf(stderr, "TIME: %ld\n", t);
-  srand(t);
+  srand((uint) t);
   vector<vector<bool>> matrix;
   shared_ptr<CompressedHybrid> tree = Build(&matrix);
 

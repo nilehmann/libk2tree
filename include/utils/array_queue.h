@@ -11,37 +11,67 @@
 #define INCLUDE_UTILS_ARRAY_QUEUE_H_
 
 #include <libk2tree_basic.h>
+#include <type_traits>
+#include <utility>
 
 namespace libk2tree {
 namespace utils {
 
-template<class T>
+/**
+ * Queue implemented with a fixed size array.
+ */
+template<class T, size_t Capacity = 10485760>
 class ArrayQueue {
  public:
-  explicit ArrayQueue(uint capacity = 10485760)
-      : data_(reinterpret_cast<T*>(::operator new (sizeof(T) * capacity))),
+  explicit ArrayQueue()
+      : data_(reinterpret_cast<T*>(::operator new (sizeof(T) * Capacity))),
         start_(0),
         end_(0) {}
 
   template<typename... Args>
   void emplace_back(Args... args) {
-    new (&data_[end_]) T(args...);
+    new (&data_[end_]) T(std::forward<Args...>(args...));
     ++end_;
   }
 
+  /**
+   * Add value to the end of the queue
+   */
   void push(const T &val) {
     new (&data_[end_]) T(val);
     ++end_;
   }
+
+  /**
+   * Add value to the end of the queue
+   */
   void push(T &&val) {
     new (&data_[end_]) T(val);
     ++end_;
   }
 
-  T &front() {
+  /**
+   * Returns the value in the front of the queue.
+   *
+   * @return Const reference to the value.
+   */
+  const T &front() const {
     return data_[start_];
   }
 
+  /**
+   * Returns the value in the front of the queue.
+   *
+   * @return Reference to the value.
+   */
+  T &front() {
+    return const_cast<T&>(static_cast<const ArrayQueue&>(*this).front());
+  }
+
+
+  /**
+   * Removes element at front.
+   */
   void pop() {
     ++start_;
   }
@@ -50,7 +80,7 @@ class ArrayQueue {
     start_ = end_ = 0;
   }
 
-  uint size() {
+  size_t size() const {
     return end_ - start_;
   }
 
@@ -59,9 +89,12 @@ class ArrayQueue {
   }
 
  private:
+  /** Array with the elements */
   T *data_;
-  uint start_;
-  uint end_;
+  /** Position of the first element */
+  size_t start_;
+  /** Position of the last element */
+  size_t end_;
 };
 
 

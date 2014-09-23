@@ -28,27 +28,27 @@ typedef unsigned int uint;
 
 shared_ptr<CompressedPartition>
 BuildCompressed(vector<vector<bool>> *matrix) {
-  int n = 1000;
+  uint n = 1000;
 
-  int e = rand()%(n*10) + 1;
+  uint e = (uint) rand()%(n*10) + 1;
 
   matrix->resize(n, vector<bool>(n, false));
-  for (int i = 0; i < e; ++i) {
-    int p = rand()%n;
-    int q = rand()%n;
+  for (uint i = 0; i < e; ++i) {
+    uint p = (uint) rand()%n;
+    uint q = (uint) rand()%n;
     (*matrix)[p][q] = true;
   }
 
-  int k0 = 10;
-  int subm = n/k0;
+  uint k0 = 10;
+  uint subm = n/k0;
 
   string tmp = "temp_file_construction";
 
   K2TreePartitionBuilder b(n, subm, 4, 2, 2, 3, tmp);
-  for (int row = 0; row < k0; ++row) {
-    for (int col = 0; col < k0; ++col) {
-      for (int i = 0; i < subm; ++i) {
-        for (int j = 0; j < subm; ++j) {
+  for (uint row = 0; row < k0; ++row) {
+    for (uint col = 0; col < k0; ++col) {
+      for (uint i = 0; i < subm; ++i) {
+        for (uint j = 0; j < subm; ++j) {
           if ((*matrix)[i + row*subm][j + col*subm])
             b.AddLink(i + row*subm, j + col*subm);
         }
@@ -78,7 +78,7 @@ BuildCompressed(vector<vector<bool>> *matrix) {
 TEST(CompressedPartition, CheckLink) {
   time_t t = time(NULL);
   fprintf(stderr, "TIME: %ld\n", t);
-  srand(t);
+  srand((uint) t);
 
   vector<vector<bool>> matrix;
   shared_ptr<CompressedPartition> tree = BuildCompressed(&matrix);

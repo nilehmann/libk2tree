@@ -49,47 +49,66 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace libk2tree {
 namespace compression {
 using utils::NearestPrime;
-using std::vector;
 
 struct Nword {
   Nword() : word(NULL), len(0), weight(0), codeword(0) {}
   const uchar *word;
   uint len;
   uint weight;
-  uint codeword;
+  size_t codeword;
 };
 
 class HashTable {
  public:
-  HashTable(uint sizeVoc, double occup_hash= 1.5);
-  uint add(const uchar *aWord, uint len, uint addr);
-  bool search(const uchar *aWord, uint len, uint *returnedAddr) const;
+  HashTable(size_t sizeVoc, double occup_hash= 1.5);
 
-  Nword  &operator[](uint i) {
-    return hash[i];
+  /**
+   * Adds a word to the hash in the specific addres.
+   *
+   * @param aWord Word
+   * @param len Length of the word
+   * @param addr Position in the table to store the word.
+   * @return Position in the table where the word has stored.
+   */
+  size_t add(const uchar *aWord, uint len, size_t addr);
+  /**
+   * Search a word in the table. After return returnedAddr hold an address in
+   * the table. In case the word is found, the address correspond to the word
+   * position. In case the word is not present, the address holds the position
+   * where to store the word
+   *
+   * @param aWord Word
+   * @param len Length of the word
+   * @param returnedAddr Pointer to store the address.
+   * @return Ture in case the word is present and false otherwise.
+   */
+  bool search(const uchar *aWord, uint len, size_t *returnedAddr) const;
+
+  Nword &operator[](size_t i) {
+    return hash_[i];
   }
 
-  const Nword &operator[](uint i) const {
-    return hash[i];
+  const Nword &operator[](size_t i) const {
+    return hash_[i];
   }
 
-  uint numEleme() {
-    return NumElem;
+  size_t num_elem() {
+    return num_elem_;
   }
 
  private:
-  //  entries in the hash table.
-  uint TAM_HASH;
-  // elements already added to the hash table.
-  uint NumElem;
-  // holds a hashTable of words
-  vector<Nword> hash;
+  /**  entries in the hash table.*/
+  size_t tam_hash_;
+  /** elements already added to the hash table.*/
+  size_t num_elem_;
+  /** holds a hashTable of words*/
+  std::vector<Nword> hash_;
 
   /*------------------------------------------------------------------
    Modification of Zobel's bitwise function to have into account the 
    lenght of the key explicetely 
    ---------------------------------------------------------------- */
-  uint hashFunction(const uchar *aWord, uint len) const;
+  size_t hashFunction(const uchar *aWord, uint len) const;
 
   /*------------------------------------------------------------------
    Modification of Zobel's scmp function compare two strings

@@ -16,7 +16,6 @@
 #include <fstream>
 
 namespace libk2tree {
-using std::shared_ptr;
 using boost::filesystem::path;
 
 /**
@@ -45,8 +44,8 @@ class K2TreePartitionBuilder {
    *
    * @see K2TreePartition::K2TreePartition
    */
-  K2TreePartitionBuilder(uint cnt, uint submatrix_size,
-                         int k1, int k2, int kl, int k1_levels,
+  K2TreePartitionBuilder(cnt_size cnt, cnt_size submatrix_size,
+                         uint k1, uint k2, uint kl, uint k1_levels,
                          const path &file);
 
   /**
@@ -58,7 +57,7 @@ class K2TreePartitionBuilder {
    * @param p Identifier of the first object.
    * @param q Identifier of the second object.
    */
-  void AddLink(uint p, uint q);
+  void AddLink(cnt_size p, cnt_size q);
 
   /**
    * Builds a k2tree for the current submatrix and moves to the next submatrix.
@@ -72,7 +71,7 @@ class K2TreePartitionBuilder {
    *
    * @return True if all submatrices have been built, false otherwise.
    */
-  inline bool Ready() const {
+  bool Ready() const {
     return ready_;
   }
 
@@ -81,7 +80,7 @@ class K2TreePartitionBuilder {
    *
    * @return Number of objects.
    */
-  inline bool cnt() const {
+  cnt_size cnt() const {
     return cnt_;
   }
 
@@ -91,7 +90,7 @@ class K2TreePartitionBuilder {
    *
    * @return Number of row of the current submatrix.
    */
-  inline int row() const {
+  uint row() const {
     return row_;
   }
 
@@ -101,7 +100,7 @@ class K2TreePartitionBuilder {
    *
    * @return Number of column of the current submatrix.
    */
-  inline int col() const {
+  uint col() const {
     return col_;
   }
 
@@ -110,7 +109,7 @@ class K2TreePartitionBuilder {
    *
    * @return Arity of the first level.
    */
-  inline int k0() const {
+  uint k0() const {
     return k0_;
   }
 
@@ -118,15 +117,15 @@ class K2TreePartitionBuilder {
 
  private:
   /** Number of objects in the relation or matrix. */
-  uint cnt_;
+  cnt_size cnt_;
   /** Size of each submatrix. */
-  uint submatrix_size_;
+  cnt_size submatrix_size_;
   /** Value of k for the first level, ie, there are k0*k0 submatrices. */
-  int k0_;
+  uint k0_;
   /** Row of the current submatrix in the matrix of submatrices. */
-  int row_;
+  uint row_;
   /** Col of the current submatrix in the matrix of submatrices. */
-  int col_;
+  uint col_;
   /** Whether all submatrices have been built or not */
   bool ready_;
   /** Builder for the current submatrix. */
@@ -139,7 +138,7 @@ class K2TreePartitionBuilder {
    * File stream to save the partial submatrices. Points to temporary file until
    * all the submatrices have been built.
    */
-  ofstream out_;
+  std::ofstream out_;
 };
 }  // namespace libk2tree
 

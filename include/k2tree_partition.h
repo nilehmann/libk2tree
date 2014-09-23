@@ -38,7 +38,7 @@ class K2TreePartition: public base_partition<HybridK2Tree> {
    *
    * @return Number of words.
    */
-  uint WordsCnt() const;
+  size_t WordsCnt() const;
 
   /**
    * Return the number of unsigned chars needed to store a word in the leaf
@@ -58,8 +58,8 @@ class K2TreePartition: public base_partition<HybridK2Tree> {
    */
   template<class Function>
   void Words(Function fun) const {
-    for (int row = 0; row < k0_; ++row)
-      for (int col = 0; col < k0_; ++col)
+    for (uint row = 0; row < k0_; ++row)
+      for (uint col = 0; col < k0_; ++col)
         subtrees_[row][col].Words(fun);
   }
 

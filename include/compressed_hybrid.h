@@ -19,7 +19,6 @@
 
 
 namespace libk2tree {
-using std::shared_ptr;
 using compression::Vocabulary;
 
 /**
@@ -49,9 +48,9 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    */
   CompressedHybrid(shared_ptr<BitSequence> T,
                    FTRep *compressL,
-                   shared_ptr<Vocabulary> vocabulary,
-                   int k1, int k2, int kL, int max_level_k1, int height,
-                   uint cnt, uint size, uint links);
+                   std::shared_ptr<Vocabulary> vocabulary,
+                   uint k1, uint k2, uint kL, uint max_level_k1, uint height,
+                   cnt_size cnt, cnt_size size, size_t links);
 
   /**
    * Loads a tree from a file. If the file doesn't contain
@@ -100,7 +99,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   /** Compressed representation of the leafs using dacs */
   FTRep * compressL_;
   /** Pointer to vocabulary */
-  shared_ptr<Vocabulary> vocabulary_;
+  std::shared_ptr<Vocabulary> vocabulary_;
 
   /**
    * Returns word containing the bit at the given position
@@ -109,7 +108,8 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * @param pos Position in the complete sequence of bit of the last level.
    * @return Pointer to the first position of the word.
    */
-  const uchar *GetWord(uint pos) const {
+  const uchar *GetWord(size_t pos) const {
+    // TODO Port to 64-bits
     uint iword = accessFT(compressL_, pos/(kL_*kL_));
     return vocabulary_->get(iword);
   }
@@ -126,14 +126,14 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * that is one. The function expect a unsigned int as argument.
    */
   template<class Function, class Impl>
-  void LeafBits(const Frame &f, uint div_level, Function fun) const {
-    uint first = Child(f.z, height_ - 1, kL_);
+  void LeafBits(const Frame &f, cnt_size div_level, Function fun) const {
+    size_t first = Child(f.z, height_ - 1, kL_);
 
     const uchar *word = GetWord(first - T_->getLength());
 
-    uint z = first + Impl::Offset(f, kL_, div_level);
-    for (int j  = 0; j < kL_; ++j) {
-      uint pos = z - first;
+    size_t z = first + Impl::Offset(f, kL_, div_level);
+    for (uint j = 0; j < kL_; ++j) {
+      size_t pos = z - first;
       if ((word[pos/kUcharBits] >> (pos%kUcharBits)) & 1)
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
       z = Impl::NextChild(z, kL_);
@@ -151,22 +151,22 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * that is one. The function expect two unsigned int as arguments.
    */
   template<class Function>
-  void RangeLeafBits(const RangeFrame &f, uint div_level, Function fun) const {
-    uint div_p1, div_p2, div_q1, div_q2;
-    uint dp, dq;
-    uint first = Child(f.z, height_ - 1, kL_);
+  void RangeLeafBits(const RangeFrame &f, cnt_size div_level, Function fun) const {
+    cnt_size div_p1, div_p2, div_q1, div_q2;
+    cnt_size dp, dq;
+    size_t first = Child(f.z, height_ - 1, kL_);
 
     const uchar *word = GetWord(first - T_->getLength());
 
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
-    for (uint i = div_p1; i <= div_p2; ++i) {
-      uint z = first + kL_*i;
+    for (cnt_size i = div_p1; i <= div_p2; ++i) {
+      size_t z = first + kL_*i;
       dp = f.dp + div_level*i;
 
       div_q1 = f.q1/div_level, div_q2 = f.q2/div_level;
-      for (uint j = div_q1; j <= div_q2; ++j) {
+      for (cnt_size j = div_q1; j <= div_q2; ++j) {
         dq = f.dq + div_level*j;
-        uint pos = z + j - first;
+        size_t pos = z + j - first;
         if ((word[pos/kUcharBits] >> (pos%kUcharBits)) &1)
           fun(dp, dq);
       }
@@ -174,14 +174,14 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
   }
 
   /**
-   * Check if the child of the specified nodes is 1 or 0.
+   * Check if a child of the specified nodes is 1 or 0.
    *
    * @param z Position representing the internal node.
    * @param child Number of the child.
    *
    * @return True if the child is 1, false otherwise.
    */
-  bool CheckLeafChild(uint z, int child) const {
+  bool CheckLeafChild(size_t z, uint child) const {
     z = Child(z, height_ - 1, kL_);
     const uchar *word = GetWord(z - T_->getLength());
     return (word[child/kUcharBits] >> (child%kUcharBits)) & 1;

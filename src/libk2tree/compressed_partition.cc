@@ -17,22 +17,21 @@ using utils::SaveValue;
 CompressedPartition::CompressedPartition(std::ifstream *in)
     : base_partition(in),
       vocabulary_(new Vocabulary(in)) {
-  for (int i = 0; i < k0_; ++i) {
+  for (uint i = 0; i < k0_; ++i) {
     subtrees_[i].reserve(k0_);
-    for (int j = 0; j < k0_; ++j)
+    for (uint j = 0; j < k0_; ++j)
       subtrees_[i].emplace_back(in, vocabulary_);
   }
 }
 
 void CompressedPartition::Save(std::ofstream *out) const {
-  SaveValue(out, cnt_);
-  SaveValue(out, submatrix_size_);
-  SaveValue(out, k0_);
+  base_partition::Save(out);
   vocabulary_->Save(out);
-
-  for (int i = 0; i < k0_; ++i)
-    for (int j = 0; j < k0_; ++j)
+  for (uint i = 0; i < k0_; ++i) {
+    for (uint j = 0; j < k0_; ++j)
       subtrees_[i][j].Save(out, false);
+  }
+
 }
 
 }  // namespace libk2tree

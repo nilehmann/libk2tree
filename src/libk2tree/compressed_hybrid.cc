@@ -16,9 +16,10 @@ using utils::SaveValue;
 
 CompressedHybrid::CompressedHybrid(shared_ptr<BitSequence> T,
                                    FTRep *compressL,
-                                   shared_ptr<Vocabulary> vocabulary,
-                                   int k1, int k2, int kL, int max_level_k1,
-                                   int height, uint cnt, uint size, uint links)
+                                   std::shared_ptr<Vocabulary> vocabulary,
+                                   uint k1, uint k2, uint kL,
+                                   uint max_level_k1, uint height,
+                                   cnt_size cnt, cnt_size size, size_t links)
     : base_hybrid(T, k1, k2, kL, max_level_k1, height, cnt, size, links),
       compressL_(compressL),
       vocabulary_(vocabulary) {}
@@ -71,10 +72,10 @@ bool CompressedHybrid::operator==(const CompressedHybrid &rhs) const {
 
   if (height_ != rhs.height_) return false;
 
-  for (int i = 0; i < height_ - 1; ++i)
+  for (uint i = 0; i < height_ - 1; ++i)
     if (acum_rank_[i] != acum_rank_[i]) return false;
 
-  for (int i = 0; i <= height_; ++i)
+  for (uint i = 0; i <= height_; ++i)
     if (offset_[i] != offset_[i]) return false;
 
   return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kL_ == rhs.kL_ &&

@@ -9,12 +9,16 @@
 
 #ifndef INCLUDE_LIBK2TREE_BASIC_H_
 #define INCLUDE_LIBK2TREE_BASIC_H_
+#include <cstdlib>
 namespace libk2tree {
 typedef unsigned int uint;
 typedef unsigned char uchar;
+/** Size for number of objects */
+//typedef size_t cnt_size;
+typedef uint cnt_size;
 /** Number of bits in a byte */
-const int kByteBits = 8;
+const uint kByteBits = 8;
 /** Number of bits in an unsigned char */
-const int kUcharBits = kByteBits*sizeof(uchar);
+const uint kUcharBits = kByteBits*sizeof(uchar);
 }  // namespace libk2tree
 #endif  // INCLUDE_LIBK2TREE_BASIC_H_

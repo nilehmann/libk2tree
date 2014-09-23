@@ -19,8 +19,9 @@ using std::make_shared;
 
 HybridK2Tree::HybridK2Tree(const BitArray<uint> &T,
                            const BitArray<uint> &L,
-                           int k1, int k2, int kl, int max_level_k1,
-                           int height, uint cnt, uint size, uint links)
+                           uint k1, uint k2, uint kl,
+                           uint max_level_k1, uint height,
+                           cnt_size cnt, cnt_size size, size_t links)
     : base_hybrid(T, k1, k2, kl, max_level_k1, height, cnt, size, links),
       L_(L) {}
 
@@ -55,8 +56,9 @@ shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves() const {
 shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
     const HashTable &table,
     shared_ptr<Vocabulary> voc) const {
-  uint cnt = WordsCnt();
+  size_t cnt = WordsCnt();
   uint size = WordSize();
+  // TODO Port to 64-bits
   uint *codewords;
   try {
     codewords = new uint[cnt];
@@ -65,18 +67,20 @@ shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
     exit(1);
   }
 
-  int i = 0;
+  size_t i = 0;
   Words([&] (const uchar *word) {
-    uint addr;
+    size_t addr;
     if (!table.search(word, size, &addr)) {
       std::cerr << "[HybridK2Tree::CompressLeaves] Error: Word not found\n";
       exit(1);
     }
+    // TODO Port to 64-bits
     codewords[i++] = table[addr].codeword;
   });
 
   FTRep *compressL;
   try {
+    // TODO Port to 64-bits
     compressL = createFT(codewords, cnt);
   } catch (...) {
     std::cerr << "[HybridK2Tree::CompressLeaves] Error: Could not create DAC\n";
@@ -93,8 +97,6 @@ shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
                                                            links_));
 }
 
-
-
 bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
   if (T_->getLength() != rhs.T_->getLength()) return false;
   for (size_t i = 0; i < T_->getLength(); ++i)
@@ -106,10 +108,10 @@ bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
 
   if (height_ != rhs.height_) return false;
 
-  for (int i = 0; i < height_ - 1; ++i)
+  for (uint i = 0; i < height_ - 1; ++i)
     if (acum_rank_[i] != acum_rank_[i]) return false;
 
-  for (int i = 0; i <= height_; ++i)
+  for (uint i = 0; i <= height_; ++i)
     if (offset_[i] != offset_[i]) return false;
 
   return k1_ == rhs.k1_ && k2_ == rhs.k2_ && kL_ == rhs.kL_ &&

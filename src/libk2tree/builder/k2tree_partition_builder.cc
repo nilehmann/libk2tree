@@ -15,19 +15,18 @@
 
 namespace libk2tree {
 using utils::Ceil;
-using std::shared_ptr;
 using utils::SaveValue;
 using boost::filesystem::unique_path;
 using boost::filesystem::rename;
 
-K2TreePartitionBuilder::K2TreePartitionBuilder(uint cnt,
-                                               uint submatrix_size,
-                                               int k1, int k2, int kl,
-                                               int k1_levels,
+K2TreePartitionBuilder::K2TreePartitionBuilder(cnt_size cnt,
+                                               cnt_size submatrix_size,
+                                               uint k1, uint k2, uint kl,
+                                               uint k1_levels,
                                                const path &file)
     : cnt_(cnt),
       submatrix_size_(submatrix_size),
-      k0_(Ceil(cnt, submatrix_size)),
+      k0_((uint) Ceil(cnt, submatrix_size)),
       row_(0),
       col_(0),
       ready_(false),
@@ -41,7 +40,7 @@ K2TreePartitionBuilder::K2TreePartitionBuilder(uint cnt,
 }
 
 
-void K2TreePartitionBuilder::AddLink(uint p, uint q) {
+void K2TreePartitionBuilder::AddLink(cnt_size p, cnt_size q) {
   assert(p >= row_*submatrix_size_ && p < (row_+1)*submatrix_size_);
   assert(q >= col_*submatrix_size_ && q < (col_+1)*submatrix_size_);
   assert(!Ready());
