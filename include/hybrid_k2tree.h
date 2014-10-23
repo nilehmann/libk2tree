@@ -150,7 +150,8 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * that is one. The function expect an unsigned int as argument.
    */
   template<typename Function, typename Impl>
-  void LeafBits(const Frame &f, cnt_size div_level, Function fun) const {
+  void LeafBits(const Frame &f, Divider<cnt_size> div_level,
+                Function fun) const {
     size_t z = Child(f.z, height_-1, kL_) + Impl::Offset(f, kL_, div_level);
     for (uint j  = 0; j < kL_; ++j) {
       if (L_.GetBit(z - T_->getLength()))
@@ -170,7 +171,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    * that is one. The function expect two unsigned int as arguments.
    */
   template<typename Function>
-  void RangeLeafBits(const RangeFrame &f, cnt_size div_level,
+  void RangeLeafBits(const RangeFrame &f, Divider<cnt_size> div_level,
                      Function fun) const {
     cnt_size div_p1, div_p2, div_q1, div_q2;
     cnt_size dp, dq;
@@ -179,11 +180,11 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
     for (cnt_size i = div_p1; i <= div_p2; ++i) {
       size_t z = first + kL_*i;
-      dp = f.dp + div_level*i;
+      dp = f.dp + (cnt_size) div_level*i;
 
       div_q1 = f.q1/div_level, div_q2 = f.q2/div_level;
       for (cnt_size j = div_q1; j <= div_q2; ++j) {
-        dq = f.dq + div_level*j;
+        dq = f.dq + (cnt_size) div_level*j;
         if (L_.GetBit(z+j - T_->getLength()))
           fun(dp, dq);
       }

@@ -15,7 +15,7 @@ typedef unsigned int uint;
 typedef unsigned char uchar;
 /** Size for number of objects */
 //typedef size_t cnt_size;
-typedef uint cnt_size;
+typedef size_t cnt_size;
 /** Number of bits in a byte */
 const uint kByteBits = 8;
 /** Number of bits in an unsigned char */

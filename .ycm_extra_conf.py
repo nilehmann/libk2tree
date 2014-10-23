@@ -38,6 +38,7 @@ flags = [
     '-Wall',
     '-Wextra',
     '-Werror',
+    '-Wreorder',
     '-DNDEBUG',
     '-Wconversion',
     # THIS IS IMPORTANT! Without a "-std=<something>" flag, clang won't know which

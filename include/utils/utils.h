@@ -16,6 +16,8 @@
 #include <libk2tree_basic.h>
 #include <fstream>
 #include <cassert>
+#include <type_traits>
+#include <boost/type_traits.hpp>
 
 namespace libk2tree {
 namespace utils {
@@ -64,19 +66,19 @@ _Size Pow(uint base, uint exp) {
 
 /**
  * Saves a value into an ofstream.
+ * The type must be TriviallyCopyable
  */
 template <typename T>
 void SaveValue(ofstream *out, T val) {
-  static_assert(std::is_pod<T>::value, "Template parameter is not pod");
   out->write(reinterpret_cast<char *>(&val), sizeof(T));
 }
 
 /**
  * Loads a value from an istream.
+ * The type must be TriviallyCopyable
  */
 template <typename T>
 T LoadValue(ifstream *in) {
-  static_assert(std::is_pod<T>::value, "Template parameter is not pod");
   T ret;
   in->read(reinterpret_cast<char *>(&ret), sizeof(T));
   return ret;
@@ -84,20 +86,20 @@ T LoadValue(ifstream *in) {
 
 /**
  * Saves len values into an ofstream.
+ * The type must be TriviallyCopyable
  */
 template <typename T>
 void SaveValue(ofstream *out, T *val, size_t length) {
-  static_assert(std::is_pod<T>::value, "Template parameter is not pod");
   out->write(reinterpret_cast<char *>(val),
              (std::streamsize) (length * sizeof(T)));
 }
 
 /**
  * Loads len values from an istream.
+ * The type must be TriviallyCopyable
  */
 template <typename T>
 T *LoadValue(ifstream *in, size_t length) {
-  static_assert(std::is_pod<T>::value, "Template parameter is not pod");
   T *ret = new T[length];
   in->read(reinterpret_cast<char *>(ret),
            (std::streamsize) (length * sizeof(T)));

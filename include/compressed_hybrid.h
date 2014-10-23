@@ -126,7 +126,8 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * that is one. The function expect a unsigned int as argument.
    */
   template<class Function, class Impl>
-  void LeafBits(const Frame &f, cnt_size div_level, Function fun) const {
+  void LeafBits(const Frame &f, Divider<cnt_size> div_level,
+                Function fun) const {
     size_t first = Child(f.z, height_ - 1, kL_);
 
     const uchar *word = GetWord(first - T_->getLength());
@@ -151,7 +152,8 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * that is one. The function expect two unsigned int as arguments.
    */
   template<class Function>
-  void RangeLeafBits(const RangeFrame &f, cnt_size div_level, Function fun) const {
+  void RangeLeafBits(const RangeFrame &f, Divider<cnt_size> div_level,
+                     Function fun) const {
     cnt_size div_p1, div_p2, div_q1, div_q2;
     cnt_size dp, dq;
     size_t first = Child(f.z, height_ - 1, kL_);
@@ -161,11 +163,11 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
     for (cnt_size i = div_p1; i <= div_p2; ++i) {
       size_t z = first + kL_*i;
-      dp = f.dp + div_level*i;
+      dp = f.dp + (cnt_size) div_level*i;
 
       div_q1 = f.q1/div_level, div_q2 = f.q2/div_level;
       for (cnt_size j = div_q1; j <= div_q2; ++j) {
-        dq = f.dq + div_level*j;
+        dq = f.dq + (cnt_size) div_level*j;
         size_t pos = z + j - first;
         if ((word[pos/kUcharBits] >> (pos%kUcharBits)) &1)
           fun(dp, dq);

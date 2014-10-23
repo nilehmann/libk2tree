@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
+#include <type_traits>
 
 #if ! LIBDIVIDE_HAS_STDINT_TYPES && (! LIBDIVIDE_VC || _MSC_VER >= 1600)
 /* Only Visual C++ 2010 and later include stdint.h */
@@ -73,14 +74,13 @@ typedef unsigned __int8 uint8_t;
 #include <smmintrin.h>
 #endif
 
-// We place libdivide within the libdivide namespace, and that goes in an
-// anonymous namespace so that the functions are only visible to files that
-// #include this header and don't get external linkage. At least that's the
-// theory.
-namespace {
 namespace libremainder {
 
-int32_t libdivide__count_leading_zeros32(uint32_t val) {
+// We place this section in an anonymous namespace so that the functions are
+// only visible to files that #include this header and don't get external
+// linkage. At least that's the theory.
+namespace {
+int32_t count_leading_zeros32(uint32_t val) {
 #if __GNUC__ || __has_builtin(__builtin_clzll)
   // Fast way to count leading zeros
   return __builtin_clz(val);    
@@ -99,7 +99,7 @@ int32_t libdivide__count_leading_zeros32(uint32_t val) {
   return result;    
 #endif
 }
-int32_t libdivide__count_trailing_zeros32(uint32_t val) {
+int32_t count_trailing_zeros32(uint32_t val) {
 #if __GNUC__ || __has_builtin(__builtin_ctz)
   // Fast way to count trailing zeros
   return __builtin_ctz(val);
@@ -120,10 +120,10 @@ int32_t libdivide__count_trailing_zeros32(uint32_t val) {
 #endif
 }
 
-// libdivide_64_div_32_to_32: divides a 64 bit uint {u1, u0} by a 32 bit
+// _64_div_32_to_32: divides a 64 bit uint {u1, u0} by a 32 bit
 // uint {v}. The result must fit in 32 bits. Returns the quotient directly
 // and the remainder in *r
-uint32_t libdivide__64_div_32_to_32(uint32_t u1, uint32_t u0,
+uint32_t _64_div_32_to_32(uint32_t u1, uint32_t u0,
                                     uint32_t v, 
                                     uint32_t *r) {
 #if (LIBDIVIDE_IS_i386 || LIBDIVIDE_IS_X86_64) && LIBDIVIDE_GCC_STYLE_ASM
@@ -140,7 +140,7 @@ uint32_t libdivide__64_div_32_to_32(uint32_t u1, uint32_t u0,
   return result;
 #endif
 }
-int32_t libdivide__count_trailing_zeros64(uint64_t val) {
+int32_t count_trailing_zeros64(uint64_t val) {
 #if __LP64__ && (__GNUC__ || __has_builtin(__builtin_ctzll))
   // Fast way to count trailing zeros.  Note that we disable this in 32 bit
   // because gcc does something horrible - it calls through to a dynamically
@@ -156,12 +156,12 @@ int32_t libdivide__count_trailing_zeros64(uint64_t val) {
   // val = 0
   uint32_t lo = val & 0xFFFFFFFF;
   if (lo != 0)
-    return libdivide__count_trailing_zeros32(lo);
-  return 32 + libdivide__trailing_zeros32(val >> 32);
+    return count_trailing_zeros32(lo);
+  return 32 + trailing_zeros32(val >> 32);
 #endif
 }
 
-int32_t libdivide__count_leading_zeros64(uint64_t val) {
+int32_t count_leading_zeros64(uint64_t val) {
 #if __GNUC__ || __has_builtin(__builtin_clzll)
   // Fast way to count leading zeros
   return __builtin_clzll(val);
@@ -181,7 +181,7 @@ int32_t libdivide__count_leading_zeros64(uint64_t val) {
 #endif
 }
 
-uint64_t libdivide__128_div_64_to_64(uint64_t u1, uint64_t u0,
+uint64_t _128_div_64_to_64(uint64_t u1, uint64_t u0,
                            uint64_t v,
                            uint64_t *r) {
 #if LIBDIVIDE_IS_X86_64 && LIBDIVIDE_GCC_STYLE_ASM
@@ -212,7 +212,7 @@ uint64_t libdivide__128_div_64_to_64(uint64_t u1, uint64_t u0,
   }    
   
   // count leading zeros
-  s = libdivide__count_leading_zeros64(v); // 0 <= s <= 63.
+  s = count_leading_zeros64(v); // 0 <= s <= 63.
   if (s > 0) {
     v = v << s;               // Normalize divisor.
     un64 = (u1 << s) | ((u0 >> (64 - s)) & (-s >> 31));
@@ -255,13 +255,13 @@ again2:
 #endif
 }
 
-static inline uint32_t libdivide__mullhi_u32(uint32_t x, uint32_t y) {
+static inline uint32_t mullhi_u32(uint32_t x, uint32_t y) {
   uint64_t xl = x, yl = y;
   uint64_t rl = xl * yl;
   return (uint32_t)(rl >> 32);
 }
  
-static uint64_t libdivide__mullhi_u64(uint64_t x, uint64_t y) {
+static uint64_t mullhi_u64(uint64_t x, uint64_t y) {
 #if HAS_INT128_T
   __uint128_t xl = x, yl = y;
   __uint128_t rl = xl * yl;
@@ -271,7 +271,7 @@ static uint64_t libdivide__mullhi_u64(uint64_t x, uint64_t y) {
   const uint32_t mask = 0xFFFFFFFF;
   const uint32_t x0 = (uint32_t)(x & mask), x1 = (uint32_t)(x >> 32);
   const uint32_t y0 = (uint32_t)(y & mask), y1 = (uint32_t)(y >> 32);
-  const uint32_t x0y0_hi = libdivide__mullhi_u32(x0, y0);
+  const uint32_t x0y0_hi = mullhi_u32(x0, y0);
   const uint64_t x0y1 = x0 * (uint64_t)y1;
   const uint64_t x1y0 = x1 * (uint64_t)y0;
   const uint64_t x1y1 = x1 * (uint64_t)y1;
@@ -284,54 +284,63 @@ static uint64_t libdivide__mullhi_u64(uint64_t x, uint64_t y) {
 
 const int32_t LIBDIVIDE_ADD_MARKER = 0x40;
 
-template<typename T>
-struct libdivide_unsigned_trait;
 
-template<>
-struct libdivide_unsigned_trait<uint32_t> {
-  static const int shift_mask = 0x1F;
-  static const int shift_path = 0x80;
+template<typename T>
+struct is_unsigned : std::integral_constant<bool, false> {};
+template<> struct is_unsigned<uint32_t> : std::integral_constant<bool, true> {};
+template<> struct is_unsigned<uint64_t> : std::integral_constant<bool, true> {};
+
+template<typename T>
+struct is_signed : std::integral_constant<bool, false> {};
+template<> struct is_unsigned<int32_t> : std::integral_constant<bool, true> {};
+template<> struct is_unsigned<int64_t> : std::integral_constant<bool, true> {};
+
+template<typename T> struct libdivide_unsigned_trait;
+template<> struct libdivide_unsigned_trait<uint32_t> {
+  static const uint8_t shift_mask = 0x1F;
+  static const uint8_t shift_path = 0x80;
   static const uint32_t one = 1;
 
   static uint32_t divide(uint32_t u1, uint32_t u2, uint32_t v, uint32_t *r) {
-    return libdivide__64_div_32_to_32(u1, u2, v, r);
+    return _64_div_32_to_32(u1, u2, v, r);
   }
 
   static uint32_t mullhi(uint32_t x, uint32_t y) {
-    return libdivide__mullhi_u32(x, y);
+    return mullhi_u32(x, y);
   }
 
   static int32_t count_trailing_zeros(uint32_t d) {
-    return libdivide__count_trailing_zeros32(d);
+    return count_trailing_zeros32(d);
   }
 
   static int32_t count_leading_zeros(uint32_t d) {
-    return libdivide__count_leading_zeros32(d);
+    return count_leading_zeros32(d);
   }
 };
 
-template<>
-struct libdivide_unsigned_trait<uint64_t> {
-  static const int shift_mask = 0x3F;
-  static const int shift_path = 0x80;
+template<> struct libdivide_unsigned_trait<uint64_t> {
+  static const uint8_t shift_mask = 0x3F;
+  static const uint8_t shift_path = 0x80;
   static const uint64_t one = 1ULL;
 
   static uint64_t divide(uint64_t u1, uint64_t u2, uint64_t v, uint64_t *r) {
-    return libdivide__128_div_64_to_64(u1, u2, v, r);
+    return _128_div_64_to_64(u1, u2, v, r);
   }
 
   static uint64_t mullhi(uint64_t x, uint64_t y) {
-    return libdivide__mullhi_u64(x, y);
+    return mullhi_u64(x, y);
   }
 
   static int32_t count_trailing_zeros(uint64_t d) {
-    return libdivide__count_trailing_zeros64(d);
+    return count_trailing_zeros64(d);
   }
 
   static int32_t count_leading_zeros(uint64_t d) {
-    return libdivide__count_leading_zeros64(d);
+    return count_leading_zeros64(d);
   }
 };
+
+}  // namespace
 
 // Explanation of "more" field: bit 6 is whether to use shift path.  If we are
 // using the shift path, bit 7 is whether the divisor is negative in the
@@ -357,15 +366,22 @@ struct libdivide_unsigned_trait<uint64_t> {
      //[6] add indicator
      //[7] indicates negative divisor
      //magic number of 0 indicates shift path (we ran out of bits!)
+     //
+//template<typename T> class Divider;
+
+
 
 template<typename T>
-struct Divider {
+class UnsignedImpl {
+  static_assert(is_unsigned<T>::value, "Template parameter is not "
+                                       "an unsigned type");
   typedef libdivide_unsigned_trait<T> LDUTrait; 
-  const T d_;
-  const T magic_;
-  const uint8_t more_;
+ public:
+  typedef T int_type;
 
-  Divider(T d) : d_(d), magic_(0), more_(0) {
+  UnsignedImpl() : d_(1), magic_(0), more_(LDUTrait::shift_path) {}
+
+  UnsignedImpl(T d) : d_(d), magic_(0), more_(0) {
     T magic;
     uint8_t more;
     if ((d & (d - 1)) == 0) {
@@ -405,37 +421,21 @@ struct Divider {
       // one from the shift because it's taken care of by the add indicator.
       // So floor_log_2_d happens to be correct in both cases.
     }
-    const_cast<T&>(magic_) = magic;
-    const_cast<uint8_t&>(more_) = more;
-    //magic_ = magic;
-    //more_ = more;
+    magic_ = magic;
+    more_ = more;
   }
+
+  T GetNumber() const {
+    return d_;
+  }
+
   int GetDivisionAlgorithm() const {
     if (more_ & LDUTrait::shift_path) return 0;
     else if (! (more_ & LIBDIVIDE_ADD_MARKER)) return 1;
     else return 2;
   }
 
-  int GetRemainderAlgorithm() const {
-    if (more_ & LDUTrait::shift_path) return 0;
-    else return 1;
-  }
-
   T PerformDivision(T numer) const {
-    //uint8_t more = more_;
-    //if (more & LDUTrait::shift_path) {
-        //return numer >> (more & LDUTrait::shift_mask);
-    //}
-    //else {
-        //T q = LDUTrait::mullhi(magic_, numer);
-        //if (true) { //more & LIBDIVIDE_ADD_MARKER) {
-            //T t = ((numer - q) >> 1) + q;
-            //return t >> (more & LDUTrait::shift_mask);
-        //}
-        //else {
-            //return q >> more; //all upper bits are 0 - don't need to mask them off
-        //}
-    //}
     switch (GetDivisionAlgorithm()) {
       case 0: return DivisionAlg0(numer);
       case 1: return DivisionAlg1(numer);
@@ -462,8 +462,13 @@ struct Divider {
     return t >> (more_ & LDUTrait::shift_mask);
   } 
 
+  int GetRemainderAlgorithm() const {
+    if (more_ & LDUTrait::shift_path) return 0;
+    else return 1;
+  }
+
   T PerformRemainder(T numer) const {
-    switch (GetRemainderAlgorithm()) {
+    switch (UnsignedImpl<T>::GetRemainderAlgorithm()) {
       case 0: return RemainderAlg0(numer);
       case 1: return RemainderAlg1(numer);
       default: exit(1);
@@ -478,9 +483,47 @@ struct Divider {
   T RemainderAlg1(T numer) const {
     assert(GetRemainderAlgorithm() == 1);
     return numer >= d_ ? numer - d_*PerformDivision(numer) : numer;
-    }
+  }
+
+ protected:
+  T d_;
+  T magic_;
+  int8_t more_;
 };
 
+
+template<typename T>
+struct get_divider_impl {
+  static_assert(is_unsigned<T>::value or is_signed<T>::value,
+                "Type has no divider implementation");
+  //typedef typename std::conditional<is_unsigned<T>::value,
+                           //UnsignedImpl<T>,
+                           //SignedImpl<T>>::type type;
+  typedef typename std::enable_if<is_unsigned<T>::value,
+                                  UnsignedImpl<T>>::type type;
+};
+
+template<typename T>
+class Divider {
+  typedef typename get_divider_impl<T>::type Impl;
+  Impl impl_;
+ public:
+  Divider() : impl_() {}
+  
+  Divider(T d) : impl_(d) {}
+
+  T PerformDivision(T numer) const {
+    return impl_.PerformDivision(numer);
+  }
+
+  T PerformRemainder(T numer) const {
+    return impl_.PerformRemainder(numer);
+  }
+
+  explicit operator T() const {
+    return impl_.GetNumber();
+  }
+};
 
 
 template<typename T>
@@ -492,7 +535,6 @@ T& operator/=(T &numer, const Divider<T> &denom) {
   return numer = numer / denom;
 }
 
-
 template<typename T>
 T operator%(T numer, const Divider<T> &denom) {
   return denom.PerformRemainder(numer);
@@ -503,5 +545,4 @@ T& operator%=(T &numer, const Divider<T> &denom) {
   return numer = numer % denom;
 }
 
-}  // namespace
-}  // namespace libdivide
+}  // namespace libremainder

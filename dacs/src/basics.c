@@ -102,24 +102,24 @@ uint bitread (uint *e, uint p, uint len)
   	// writes e[p..p+len-1] = s, len <= W
 
 void bitwrite (register uint *e, register uint p, 
-	       register uint len, register uint s)
-
-   { e += p/W; p %= W;
-     if (len == W)
-	  { *e |= (*e & ((1<<p)-1)) | (s << p);
-            if (!p) return;
-            e++;
-            *e = (*e & ~((1<<p)-1)) | (s >> (W-p));
-	  }
-     else { if (p+len <= W)
-	       { *e = (*e & ~(((1<<len)-1)<<p)) | (s << p);
-		 return;
-	       }
-	    *e = (*e & ((1<<p)-1)) | (s << p);
-            e++; len -= W-p;
-            *e = (*e & ~((1<<len)-1)) | (s >> (W-p));
-	  }
-   }
+	       register uint len, register uint s) { 
+    e += p/W; p %= W;
+    if (len == W) { 
+        *e |= (*e & ((1<<p)-1)) | (s << p);
+        if (!p) return;
+        e++;
+        *e = (*e & ~((1<<p)-1)) | (s >> (W-p));
+    }
+    else {
+        if (p+len <= W) { 
+            *e = (*e & ~(((1u<<len)-1)<<p)) | (s << p);
+            return;
+        }
+        *e = (*e & ((1<<p)-1)) | (s << p);
+        e++; len -= W-p;
+        *e = (*e & ~((1<<len)-1)) | (s >> (W-p));
+    }
+}
   	// writes e[p..p+len-1] = 0
 
 void bitzero (register uint *e, register uint p, 

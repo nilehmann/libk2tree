@@ -14,6 +14,7 @@
 #include <utils/bitarray.h>
 #include <utils/utils.h>
 #include <utils/array_queue.h>
+#include <utils/libremainder.h>
 #include <BitSequence.h>  // libcds
 #include <cstdlib>
 #include <queue>
@@ -30,6 +31,7 @@ using utils::Ceil;
 using utils::LoadValue;
 using utils::SaveValue;
 using utils::ArrayQueue;
+using libremainder::Divider;
 
 struct Frame {
   cnt_size p, q;
@@ -63,6 +65,7 @@ class base_hybrid {
   ~base_hybrid() {
     delete [] acum_rank_;
     delete [] offset_;
+    delete [] div_level_;
   }
 
   /**
@@ -91,27 +94,26 @@ class base_hybrid {
    * otherwise.
    */
   bool CheckLink(cnt_size p, cnt_size q) const {
-    cnt_size N, div_level;
+    Divider<cnt_size> div_level;
     size_t z;
     uint k;
-    N = size_;
     z = 0;
     for (uint level = 0; level < height_ - 1; ++level) {
       if (level > 0 && !T_->access(z))
         return false;
 
       k = GetK(level);
-      div_level = N/k;
+      div_level = div_level_[level];
 
       z = Child(z, level, k);
       z += p/div_level*k + q/div_level;
 
-      N = div_level, p %= div_level, q %= div_level;
+      p %= div_level, q %= div_level;
     }
     if (!T_->access(z))
       return false;
 
-    div_level = N/kL_;
+    div_level = div_level_[height_ - 1];
     uint child = (uint) (p/div_level*kL_ + q/div_level);
     return CheckLeafChild(z, child);
   }
@@ -160,7 +162,7 @@ class base_hybrid {
                   Function fun) const {
     assert(p1 <= p2 && q1 <= q2);
 
-    cnt_size div_level;
+    Divider<cnt_size> div_level;
     cnt_size div_p1, rem_p1, div_p2, rem_p2;
     cnt_size div_q1, rem_q1, div_q2, rem_q2;
     cnt_size dp, dq;
@@ -168,11 +170,10 @@ class base_hybrid {
     range_queue.clear();
 
     range_queue.push({p1, p2, q1, q2, 0, 0, 0});
-    cnt_size N = size_;
     uint level;
     for (level = 0; level < height_-1; ++level) {
       uint k = GetK(level);
-      div_level = N/k;
+      div_level = div_level_[level];
 
       uint cnt_level = (uint) range_queue.size();
       for (uint q = 0; q < cnt_level; ++q) {
@@ -183,26 +184,25 @@ class base_hybrid {
         div_p2 = f.p2/div_level, rem_p2 = f.p2%div_level;
         for (cnt_size i = div_p1; i <= div_p2; ++i) {
           size_t z = first + k*i;
-          dp = f.dp + div_level*i;
+          dp = f.dp + (cnt_size) div_level*i;
           p1 = i == div_p1 ? rem_p1 : 0;
-          p2 = i == div_p2 ? rem_p2 : div_level - 1;
+          p2 = i == div_p2 ? rem_p2 : (cnt_size) div_level - 1;
 
           div_q1 = f.q1/div_level, rem_q1 = f.q1%div_level;
           div_q2 = f.q2/div_level, rem_q2 = f.q2%div_level;
           for (cnt_size j = div_q1; j <= div_q2; ++j) {
-            dq = f.dq + div_level*j;
+            dq = f.dq + (cnt_size) div_level*j;
             q1 = j == div_q1 ? rem_q1 : 0;
-            q2 = j == div_q2 ? rem_q2 : div_level-1;
+            q2 = j == div_q2 ? rem_q2 : (cnt_size) div_level-1;
             if (T_->access(z+j))
               range_queue.push({p1, p2, q1, q2, dp, dq, z + j});
           }
         }
         range_queue.pop();
       }
-      N = div_level;
     }
 
-    div_level = N/kL_;
+    div_level = div_level_[height_ - 1];
     uint cnt_level = (uint) range_queue.size();
     for (uint q = 0; q < cnt_level; ++q) {
       const RangeFrame &f = range_queue.front();
@@ -276,12 +276,16 @@ class base_hybrid {
   cnt_size size_;
   /** Number of links */
   size_t links_;
+  /** Size of submatrices children of each level. */
+  Divider<cnt_size> *div_level_;
   /** Accumulated rank for each level. */
   size_t *acum_rank_;
   /** Starting position in T of each level. */
   size_t *offset_;
   /** Bit array with rank capability containing internal nodes. */
   shared_ptr<BitSequence> T_;
+
+
 
   /** Queue to traverse the tree in a range query */
   static ArrayQueue<RangeFrame> range_queue;
@@ -314,31 +318,38 @@ class base_hybrid {
         cnt_(cnt),
         size_(size),
         links_(links),
+        div_level_(new Divider<cnt_size>[height]),
         acum_rank_(new size_t[height-1]),
         offset_(new size_t[height+1]),
         T_(T) {
+    // To find the children of a node we need the accumulated rank until the
+    // previous level. The last level with children is  height - 1, so we only
+    // need acum_rank_ until level height - 2.
+    // We also need the offset of the next level, so we must have offset_ until
+    // level height (leaf level).
     acum_rank_[0] = 0;
     offset_[0] = offset_[1] = 0;
     offset_[2] = k1*k1;
-    // To find the children of a node we need the accumulated rank
-    // until the previous level. The last level with children is
-    // height - 1, so we only need acum_rank_ until level height - 2.
-    // We need the offset until level height (leaf level)
     for (uint level = 1; level <= height - 2; ++level) {
-      uint k = level <= max_level_k1? k1 : k2;
+      uint k = GetK(level);
       acum_rank_[level] = T_->rank1(offset_[level+1]-1);
       offset_[level+2] = (acum_rank_[level]-acum_rank_[level-1])*k*k;
       offset_[level+2] += offset_[level+1];
     }
+
+    // We need the size of the submatrices children until level height - 1
+    div_level_[0] = size_/GetK(0);
+    for (uint level = 1; level < height; ++level)
+      div_level_[level] = (cnt_size) div_level_[level-1]/GetK(level);
   }
 
-  base_hybrid(const BitArray<uint32_t> &T,
+  base_hybrid(const BitArray<uint> &T,
               uint k1, uint k2, uint kl, uint max_level_k1, uint height,
               cnt_size cnt, cnt_size size, size_t links)
       : base_hybrid(
             shared_ptr<BitSequence>(
                 new BitSequenceRG(
-                    const_cast<uint32_t*>(T.GetRawData()),
+                    const_cast<uint*>(T.GetRawData()),
                     T.length(),
                     20)),
             k1, k2, kl, max_level_k1, height, cnt, size, links) {}
@@ -352,6 +363,7 @@ class base_hybrid {
         cnt_(LoadValue<cnt_size>(in)),
         size_(LoadValue<cnt_size>(in)),
         links_(LoadValue<size_t>(in)),
+        div_level_(LoadValue<Divider<cnt_size>>(in, height_)),
         acum_rank_(LoadValue<size_t>(in, height_-1)),
         offset_(LoadValue<size_t>(in, height_+1)),
         T_(BitSequence::load(*in)) {}
@@ -369,6 +381,7 @@ class base_hybrid {
     SaveValue(out, cnt_);
     SaveValue(out, size_);
     SaveValue(out, links_);
+    SaveValue(out, div_level_, height_);
     SaveValue(out, acum_rank_, height_-1);
     SaveValue(out, offset_, height_+1);
     T_->save(*out);
@@ -376,12 +389,14 @@ class base_hybrid {
 
 
   template<class Function, class Impl>
-  void LeafBits(const Frame &f, cnt_size div_level, Function fun) const {
+  void LeafBits(const Frame &f, Divider<cnt_size> div_level,
+                Function fun) const {
     static_cast<const Hybrid&>(*this).
     template LeafBits<Function, Impl>(f, div_level, fun);
   }
   template<class Function>
-  void RangeLeafBits(const RangeFrame &f, cnt_size div_level, Function fun) const {
+  void RangeLeafBits(const RangeFrame &f, Divider<cnt_size> div_level,
+                     Function fun) const {
     static_cast<const Hybrid&>(*this).
     template RangeLeafBits<Function>(f, div_level, fun);
   }
@@ -409,20 +424,19 @@ class base_hybrid {
    */
   template<class Function, class Impl>
   void Links(cnt_size object, Function fun) const {
-    cnt_size div_level;
-    uint32_t cnt_level;
+    Divider<cnt_size> div_level;
+    uint cnt_level;
     uint k, level;
     // queue<Frame> neighbors_queue;
     neighbors_queue.clear();
 
     neighbors_queue.push(Impl::FirstFrame(object));
-    cnt_size N = size_;
     for (level = 0; level < height_ - 1; ++level) {
       k = GetK(level);
-      div_level = N/k;
+      div_level = div_level_[level];
 
       cnt_level = (uint) neighbors_queue.size();
-      for (uint32_t i = 0; i < cnt_level; ++i) {
+      for (uint i = 0; i < cnt_level; ++i) {
         const Frame &f = neighbors_queue.front();
         size_t z = Child(f.z, level, k) + Impl::Offset(f, k, div_level);
         for (uint j = 0; j < k; ++j) {
@@ -432,12 +446,11 @@ class base_hybrid {
         }
         neighbors_queue.pop();
       }
-      N = div_level;
     }
 
-    div_level = N/kL_;
+    div_level = div_level_[height_ - 1];
     cnt_level = (uint) neighbors_queue.size();
-    for (uint32_t i = 0; i < cnt_level; ++i) {
+    for (uint i = 0; i < cnt_level; ++i) {
       Frame &f = neighbors_queue.front();
       LeafBits<Function, Impl>(f, div_level, fun);
       neighbors_queue.pop();
@@ -454,10 +467,11 @@ struct DirectImpl {
     return z + 1;
   }
   inline static Frame NextFrame(cnt_size p, cnt_size q,
-                                size_t z, uint j, cnt_size div_level) {
-    return {p % div_level, q + div_level*j, z};
+                                size_t z, uint j, Divider<cnt_size> div_level) {
+    return {p % div_level, q + (cnt_size) div_level*j, z};
   }
-  inline static cnt_size Offset(const Frame &f, uint k, cnt_size div_level) {
+  inline static cnt_size Offset(const Frame &f, uint k,
+                                Divider<cnt_size> div_level) {
     return f.p/div_level*k;
   }
 
@@ -475,17 +489,17 @@ struct InverseImpl {
     return z + k;
   }
   inline static Frame NextFrame(cnt_size p, cnt_size q,
-                                size_t z, uint j, cnt_size div_level) {
-    return {p + div_level*j, q % div_level, z};
+                                size_t z, uint j, Divider<cnt_size> div_level) {
+    return {p + (cnt_size) div_level*j, q % div_level, z};
   }
-  inline static cnt_size Offset(const Frame &f, uint, cnt_size div_level) {
+  inline static cnt_size Offset(const Frame &f, uint,
+                                Divider<cnt_size> div_level) {
     return f.q/div_level;
   }
   inline static cnt_size Output(const Frame &f) {
     return f.p;
   }
 };
-
 
 template<class Hybrid>
 ArrayQueue<RangeFrame> base_hybrid<Hybrid>::range_queue;
