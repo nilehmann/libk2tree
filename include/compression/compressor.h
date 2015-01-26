@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <memory>
 #include <iostream>
+#include <climits>
 
 namespace libk2tree {
 namespace compression {
@@ -43,7 +44,15 @@ void FreqVoc(const K2Tree &tree, Fun build) {
 
 
     // Count number of different words
-    size_t diff_cnt = words.sort();
+    // We hope there are many repetead words. We need to encode each word in
+    // a 32-bit integer.
+    size_t res = words.sort();
+    if (res > INT_MAX) {
+      std::cerr << "[comperssion::FreqVoc] Too many different words ";
+      std::cerr << "in the vocabulary\n";
+      exit(1);
+    }
+    uint diff_cnt = (uint) res;
 
     // Insert words in hash
     HashTable table(diff_cnt);
@@ -65,7 +74,7 @@ void FreqVoc(const K2Tree &tree, Fun build) {
     });
 
     shared_ptr<Vocabulary> voc(new Vocabulary(diff_cnt, size));
-    for (size_t i = 0; i < diff_cnt; ++i) {
+    for (uint i = 0; i < diff_cnt; ++i) {
       Nword &w = table[posInHash[i]];
       w.codeword = i;
       voc->assign(i, w.word);

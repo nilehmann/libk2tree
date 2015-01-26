@@ -29,7 +29,7 @@ class K2TreePartitionBuilder {
  public:
   /**
    * Creates a builder partitioning the matrix in submatrices of the given size.
-   * Independently builds a tree with an hybrid approach for each submatrix.
+   * Independently builds a tree with a hybrid approach for each submatrix.
    * The partial construction of each subtree is maintained in a temporary file.
    * After all subtrees have been built, the tree is saved in the given file and
    * can be loaded.

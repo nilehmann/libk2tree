@@ -22,6 +22,8 @@ using ::libk2tree::CompressedHybrid;
 using ::std::shared_ptr;
 using ::std::vector;
 using ::std::pair;
+using ::std::ifstream;
+using ::std::ofstream;
 
 shared_ptr<CompressedHybrid> Build(vector<vector<bool>> *matrix, uint e = 0) {
   uint n = rand()%50000+1;

@@ -19,15 +19,15 @@ namespace libk2tree {
 using compression::HashTable;
 
 /** 
- * <em>k<sup>2</sup></em>-tree implementation using an hybrid approach as
+ * <em>k<sup>2</sup></em>-tree implementation using a hybrid approach as
  * described in section 5.1.
  */
 class HybridK2Tree : public base_hybrid<HybridK2Tree> {
   friend class base_hybrid<HybridK2Tree>;
  public:
   /**
-   * Builds a tree with and hybrid approach using the specified data that
-   * correctly represents an hybrid <em>k<sup>2</sup></em>-tree.
+   * Builds a tree with a hybrid approach using the specified data that
+   * correctly represents a hybrid <em>k<sup>2</sup></em>-tree.
    *
    * @param T Bit array with the internal nodes.
    * @param L Bit array with the leafs.
@@ -43,6 +43,8 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
                const BitArray<uint> &L,
                uint k1, uint k2, uint kL, uint max_level_k1, uint height,
                cnt_size cnt, cnt_size size, size_t links);
+
+  HybridK2Tree(cnt_size cnt, cnt_size size): base_hybrid(cnt, size), L_() {};
 
   /**
    * Loads a tree from a file.
@@ -154,7 +156,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
                 Function fun) const {
     size_t z = Child(f.z, height_-1, kL_) + Impl::Offset(f, kL_, div_level);
     for (uint j  = 0; j < kL_; ++j) {
-      if (L_.GetBit(z - T_->getLength()))
+      if (L_.GetBit(z - T_->GetLength()))
         fun(Impl::Output(Impl::NextFrame(f.p, f.q, z, j, div_level)));
       z = Impl::NextChild(z, kL_);
     }
@@ -185,7 +187,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
       div_q1 = f.q1/div_level, div_q2 = f.q2/div_level;
       for (cnt_size j = div_q1; j <= div_q2; ++j) {
         dq = f.dq + (cnt_size) div_level*j;
-        if (L_.GetBit(z+j - T_->getLength()))
+        if (L_.GetBit(z+j - T_->GetLength()))
           fun(dp, dq);
       }
     }
@@ -200,7 +202,7 @@ class HybridK2Tree : public base_hybrid<HybridK2Tree> {
    */
   bool CheckLeafChild(size_t z, uint child) const {
     z = Child(z, height_ - 1, kL_);
-    return L_.GetBit(z + child - T_->getLength());
+    return L_.GetBit(z + child - T_->GetLength());
   }
 };
 }  // namespace libk2tree

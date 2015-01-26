@@ -22,6 +22,8 @@ using ::libk2tree::K2TreePartition;
 using ::libk2tree::CompressedPartition;
 using ::boost::filesystem::remove;
 using ::std::shared_ptr;
+using ::std::ifstream;
+using ::std::ofstream;
 
 typedef unsigned int uint;
 
@@ -42,7 +44,7 @@ BuildCompressed(vector<vector<bool>> *matrix) {
   uint k0 = 10;
   uint subm = n/k0;
 
-  string tmp = "temp_file_construction";
+  std::string tmp = "temp_file_construction";
 
   K2TreePartitionBuilder b(n, subm, 4, 2, 2, 3, tmp);
   for (uint row = 0; row < k0; ++row) {
@@ -60,7 +62,7 @@ BuildCompressed(vector<vector<bool>> *matrix) {
   K2TreePartition tree(&in);
   in.close();
 
-  string filename = "compressed_partition";
+  std::string filename = "compressed_partition";
 
   ofstream out(filename, ofstream::out);
   tree.CompressLeaves(&out);
@@ -77,6 +79,7 @@ BuildCompressed(vector<vector<bool>> *matrix) {
 
 TEST(CompressedPartition, CheckLink) {
   time_t t = time(NULL);
+  //time_t t = 1422305059;
   fprintf(stderr, "TIME: %ld\n", t);
   srand((uint) t);
 

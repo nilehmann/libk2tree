@@ -388,10 +388,12 @@ class UnsignedImpl {
       // magic_ = 0;
       // We store d - 1 for remainder operation
       magic = d - 1;
-      more = LDUTrait::count_trailing_zeros(d) | LDUTrait::shift_path;
+      more = 
+        (uint8_t) (LDUTrait::count_trailing_zeros(d) | LDUTrait::shift_path);
     } else {
       const uint32_t 
-      floor_log_2_d = LDUTrait::shift_mask - LDUTrait::count_leading_zeros(d);
+      floor_log_2_d = 
+      (uint32_t)  (LDUTrait::shift_mask - LDUTrait::count_leading_zeros(d));
         
       T rem, proposed_m;
       proposed_m = LDUTrait::divide(LDUTrait::one << floor_log_2_d, 0, d, &rem);
@@ -401,7 +403,7 @@ class UnsignedImpl {
         
       // This power works if e < 2**floor_log_2_d.
       if (e < (LDUTrait::one << floor_log_2_d)) {
-        more = floor_log_2_d;
+        more = (uint8_t) floor_log_2_d;
       } else {
         // We have to use the general (bits + 1) algorithm.  We need to compute
         // (2**power) / d. However, we already have (2**(power-1))/d and its
@@ -412,7 +414,7 @@ class UnsignedImpl {
         proposed_m += proposed_m; 
         const T twice_rem = rem + rem;
         if (twice_rem >= d || twice_rem < rem) proposed_m += 1;
-          more = floor_log_2_d | LIBDIVIDE_ADD_MARKER;
+          more = (uint8_t) (floor_log_2_d | LIBDIVIDE_ADD_MARKER);
       }
       magic = 1 + proposed_m;
       // more's shift should in general be ceil_log_2_d. But if we used the
@@ -488,7 +490,7 @@ class UnsignedImpl {
  protected:
   T d_;
   T magic_;
-  int8_t more_;
+  uint8_t more_;
 };
 
 

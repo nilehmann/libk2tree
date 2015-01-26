@@ -15,16 +15,19 @@
 #include <utils/utils.h>
 #include <utils/array_queue.h>
 #include <utils/libremainder.h>
-#include <BitSequence.h>  // libcds
+#include <libcds2/immutable/bitsequence.h>
+#include <libcds2/array.h>
+#include <libcds2/libcds.h>
 #include <cstdlib>
 #include <queue>
 #include <memory>
 
 
 namespace libk2tree {
+using cds::immutable::BitSequence;
+using cds::immutable::BitSequenceOneLevelRank;
+using cds::basic::ArrayTpl;
 using utils::BitArray;
-using cds_static::BitSequence;
-using cds_static::BitSequenceRG;
 using std::ifstream;
 using std::ofstream;
 using utils::Ceil;
@@ -50,7 +53,7 @@ struct DirectImpl;
 struct InverseImpl;
 
 /**
- * Base implementation for <em>k<sup>2</sup></em>tree with an hybrid approach.
+ * Base implementation for <em>k<sup>2</sup></em>tree with a hybrid approach.
  * It provides all functionality to represent and traverse the internal nodes,
  * but delegates the responsibility to explore the leaf level.
  * The template parameter specifies a concrete class implementing 
@@ -99,7 +102,7 @@ class base_hybrid {
     uint k;
     z = 0;
     for (uint level = 0; level < height_ - 1; ++level) {
-      if (level > 0 && !T_->access(z))
+      if (level > 0 && !T_->Access(z))
         return false;
 
       k = GetK(level);
@@ -110,7 +113,7 @@ class base_hybrid {
 
       p %= div_level, q %= div_level;
     }
-    if (!T_->access(z))
+    if (!T_->Access(z))
       return false;
 
     div_level = div_level_[height_ - 1];
@@ -194,7 +197,7 @@ class base_hybrid {
             dq = f.dq + (cnt_size) div_level*j;
             q1 = j == div_q1 ? rem_q1 : 0;
             q2 = j == div_q2 ? rem_q2 : (cnt_size) div_level-1;
-            if (T_->access(z+j))
+            if (T_->Access(z+j))
               range_queue.push({p1, p2, q1, q2, dp, dq, z + j});
           }
         }
@@ -225,7 +228,7 @@ class base_hybrid {
     assert(level < height_);
     // child_l(x,i) = rank(T_l, z - 1)*k_l^2 + i (0 <= i < k_l^2);
     // child_l(x,i) = (rank(T, x -1) - rank_{l-1})*k_l^2 + offset_{l+1} + i
-    z = z > 0 ? (T_->rank1(z-1) - acum_rank_[level-1])*kl*kl : 0;
+    z = z > 0 ? (T_->Rank1(z-1) - acum_rank_[level-1])*kl*kl : 0;
     return z + offset_[level+1] + i;
   }
 
@@ -254,7 +257,7 @@ class base_hybrid {
     size += sizeof(size_t);
     size += sizeof(size_t*) + height_*sizeof(size_t);
     size += sizeof(size_t*) + (height_+1)*sizeof(size_t);
-    size += T_->getSize() + sizeof(shared_ptr<BitSequence>);
+    size += T_->GetSize() + sizeof(std::shared_ptr<BitSequence>);
     return size;
   }
 
@@ -283,7 +286,7 @@ class base_hybrid {
   /** Starting position in T of each level. */
   size_t *offset_;
   /** Bit array with rank capability containing internal nodes. */
-  shared_ptr<BitSequence> T_;
+  std::shared_ptr<BitSequence> T_;
 
 
 
@@ -292,10 +295,15 @@ class base_hybrid {
   /** Queue to traverse the tree */
   static ArrayQueue<Frame> neighbors_queue;
 
+  /** 
+   * Builds an empty tree
+   */
+  base_hybrid(cnt_size cnt, cnt_size size)
+      : base_hybrid(BitArray<uint>((int) 1), 1, 0, 1, 0, 2, cnt, size, 0) {}
 
   /**
-   * Builds a tree with and hybrid approach using the specified data that
-   * correctly represents an hybrid <em>k<sup>2</sup></em>-tree.
+   * Builds a tree with a hybrid approach using the specified data that
+   * correctly represents a hybrid <em>k<sup>2</sup></em>-tree.
    *
    * @param T Bit array with rank capability storing the internal nodes.
    * This can be shared be multiple instances.
@@ -307,7 +315,7 @@ class base_hybrid {
    * @param cnt Number of object in the original matrix.
    * @param size Size of the expanded matrix.
    */
-  base_hybrid(shared_ptr<BitSequence> T,
+  base_hybrid(std::shared_ptr<BitSequence> T,
               uint k1, uint k2, uint kL, uint max_level_k1, uint height,
               cnt_size cnt, cnt_size size, size_t links)
       : k1_(k1),
@@ -332,7 +340,7 @@ class base_hybrid {
     offset_[2] = k1*k1;
     for (uint level = 1; level <= height - 2; ++level) {
       uint k = GetK(level);
-      acum_rank_[level] = T_->rank1(offset_[level+1]-1);
+      acum_rank_[level] = T_->Rank1(offset_[level+1]-1);
       offset_[level+2] = (acum_rank_[level]-acum_rank_[level-1])*k*k;
       offset_[level+2] += offset_[level+1];
     }
@@ -347,11 +355,9 @@ class base_hybrid {
               uint k1, uint k2, uint kl, uint max_level_k1, uint height,
               cnt_size cnt, cnt_size size, size_t links)
       : base_hybrid(
-            shared_ptr<BitSequence>(
-                new BitSequenceRG(
-                    const_cast<uint*>(T.GetRawData()),
-                    T.length(),
-                    20)),
+            std::shared_ptr<BitSequence>(
+                new BitSequenceOneLevelRank(T.GetCDSArray(), 20)
+            ),
             k1, k2, kl, max_level_k1, height, cnt, size, links) {}
 
   explicit base_hybrid(ifstream *in)
@@ -366,7 +372,7 @@ class base_hybrid {
         div_level_(LoadValue<Divider<cnt_size>>(in, height_)),
         acum_rank_(LoadValue<size_t>(in, height_-1)),
         offset_(LoadValue<size_t>(in, height_+1)),
-        T_(BitSequence::load(*in)) {}
+        T_(BitSequence::Load(*in)) {}
 
   /**
    * Save the information into a file.
@@ -384,7 +390,7 @@ class base_hybrid {
     SaveValue(out, div_level_, height_);
     SaveValue(out, acum_rank_, height_-1);
     SaveValue(out, offset_, height_+1);
-    T_->save(*out);
+    T_->Save(*out);
   }
 
 
@@ -440,7 +446,7 @@ class base_hybrid {
         const Frame &f = neighbors_queue.front();
         size_t z = Child(f.z, level, k) + Impl::Offset(f, k, div_level);
         for (uint j = 0; j < k; ++j) {
-          if (T_->access(z))
+          if (T_->Access(z))
             neighbors_queue.push(Impl::NextFrame(f.p, f.q, z, j, div_level));
           z = Impl::NextChild(z, k);
         }

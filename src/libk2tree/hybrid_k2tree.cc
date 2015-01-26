@@ -42,23 +42,22 @@ void HybridK2Tree::Save(ofstream *out) const {
 }
 
 
-shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves() const {
-  shared_ptr<CompressedHybrid> t;
+std::shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves() const {
+  std::shared_ptr<CompressedHybrid> t;
 
   compression::FreqVoc(*this, [&] (const HashTable &table,
-                                   shared_ptr<Vocabulary> voc) {
+                                   std::shared_ptr<Vocabulary> voc) {
     t = CompressLeaves(table, voc);
   });
   return t;
 }
 
 
-shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
+std::shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
     const HashTable &table,
-    shared_ptr<Vocabulary> voc) const {
+    std::shared_ptr<Vocabulary> voc) const {
   size_t cnt = WordsCnt();
   uint size = WordSize();
-  // TODO Port to 64-bits
   uint *codewords;
   try {
     codewords = new uint[cnt];
@@ -74,7 +73,6 @@ shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
       std::cerr << "[HybridK2Tree::CompressLeaves] Error: Word not found\n";
       exit(1);
     }
-    // TODO Port to 64-bits
     codewords[i++] = table[addr].codeword;
   });
 
@@ -89,18 +87,20 @@ shared_ptr<CompressedHybrid> HybridK2Tree::CompressLeaves(
 
   delete [] codewords;
 
-  return shared_ptr<CompressedHybrid>(new CompressedHybrid(T_, compressL, voc,
-                                                           k1_, k2_, kL_,
-                                                           max_level_k1_,
-                                                           height_,
-                                                           cnt_, size_,
-                                                           links_));
+  return std::shared_ptr<CompressedHybrid>(
+      new CompressedHybrid(T_, compressL, voc,
+                           k1_, k2_, kL_,
+                           max_level_k1_,
+                           height_,
+                           cnt_, size_,
+                           links_)
+      );
 }
 
 bool HybridK2Tree::operator==(const HybridK2Tree &rhs) const {
-  if (T_->getLength() != rhs.T_->getLength()) return false;
-  for (size_t i = 0; i < T_->getLength(); ++i)
-    if (T_->access(i) != rhs.T_->access(i)) return false;
+  if (T_->GetLength() != rhs.T_->GetLength()) return false;
+  for (size_t i = 0; i < T_->GetLength(); ++i)
+    if (T_->Access(i) != rhs.T_->Access(i)) return false;
 
   if (L_.length() != rhs.L_.length()) return false;
   for (size_t i = 0; i < L_.length(); ++i)

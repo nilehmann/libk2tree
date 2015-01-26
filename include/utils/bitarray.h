@@ -16,6 +16,7 @@
 #include <utils/utils.h>
 #include <type_traits>
 #include <algorithm>
+#include <libcds2/array.h>
 
 
 #include <iostream>
@@ -48,6 +49,11 @@ class BitArray {
   }
 
   /**
+   * Creates a bit array of length 0
+   */
+  BitArray() : length_(0), data_(NULL) {};
+
+  /**
    * Constructs a bitarray from a file.
    *
    * @param in Input stream.
@@ -55,6 +61,19 @@ class BitArray {
   explicit BitArray(ifstream *in) :
       length_(LoadValue<size_t>(in)),
       data_(LoadValue<T>(in, Ceil<size_t>(length_, bits_))) {}
+
+  /**
+   * Constructs a cds Array
+   */
+  cds::basic::ArrayTpl<1> *GetCDSArray() const {
+    cds::basic::ArrayTpl<1> *arr = new cds::basic::ArrayTpl<1>(length());
+
+    for (size_t i = 0; i < length(); ++i)
+      arr->SetField(i, GetBit(i));
+
+    return arr;
+  }
+
 
   /**
    * Copy constructor

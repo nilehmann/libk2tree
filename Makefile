@@ -1,4 +1,4 @@
-#CXX = clang++
+CXX = clang++
 HEADERS = $(shell find include tests -name *.h)
 INCLUDE = -Iinclude/
 
@@ -11,9 +11,9 @@ K2TREE_OBJ = $(K2TREE_SRC:%.cc=obj/%.o)
 DACS = dacs
 
 FLAGS = -std=c++11 -O3 -Wall -Wextra -Wpedantic -DNDEBUG
-#FLAGS = -std=c++11 -O0 -g -Wall -Wextra -Wpedantic\
+FLAGS = -std=c++11 -O2 -g -Wall -Wextra -Wpedantic\
 				-Wconversion -Wsign-conversion
-LIBRARIES = -Llib -L$(DACS) -lcds -lboost_filesystem -lboost_system -lk2tree\
+LIBRARIES = -Llib -L$(DACS) -lcds2 -lboost_filesystem -lboost_system -lk2tree\
 						-ldacs -lboost_program_options
 
 

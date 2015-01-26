@@ -25,7 +25,7 @@ namespace libk2tree {
 class K2TreeBuilder {
  public:
   /**
-   * Creates a builder for a tree with an hybrid approach.
+   * Creates a builder for a tree with a hybrid approach.
    *
    * @param cnt Number of object in the relation.
    * @param k1 arity of the first levels.
@@ -33,7 +33,12 @@ class K2TreeBuilder {
    * @param kL arity of the level height-1.
    * @param k1_levels Number of levels with arity k1.
    */
-  K2TreeBuilder(cnt_size cnt, uint k1, uint k2, uint kL, uint k1_levels);
+  K2TreeBuilder(cnt_size cnt, uint k1, uint k2, uint kL, uint k1_levels) noexcept;
+
+  /**
+   * Move constructor
+   */
+  K2TreeBuilder(K2TreeBuilder &&lhs) noexcept;
 
   /**
    * Creates a link from object p to q. Creating a link out of the range of
@@ -119,7 +124,10 @@ class K2TreeBuilder {
   size_t leaves_;
   /** Number of links in the relation (ones in the matrix). */
   size_t links_;
-  /** Number of internal nodes. */
+  /** 
+   * Number of internal nodes, ie, nodes not in the last level. 
+   * It also counts leaves not in the last level
+   */
   size_t internal_nodes_;
 
   /** Struct to store the tree. */
@@ -150,7 +158,7 @@ class K2TreeBuilder {
   /**
    * Root of the tree. This is never NULL.
    */
-  Node *root_;
+  mutable Node *root_;
 };
 
 

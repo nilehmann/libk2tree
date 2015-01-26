@@ -20,7 +20,7 @@ using utils::BitArray;
 
 K2TreeBuilder::K2TreeBuilder(cnt_size cnt,
                              uint k1, uint k2, uint kL,
-                             uint k1_levels)
+                             uint k1_levels) noexcept
     : cnt_(cnt),
       size_(0),
       k1_(k1),
@@ -31,7 +31,8 @@ K2TreeBuilder::K2TreeBuilder(cnt_size cnt,
       leaves_(0),
       links_(0),
       internal_nodes_(0),  // we do not consider the root
-      root_() {
+      root_(NULL) {
+  assert(k1 != 0 && k2 != 0 && kL_ != 0 && k1_levels != 0);
   // we extend the size of the matrix to be the product of the arities in all
   // levels (section 5.1). There are k1_levels levels with arity k1, one with
   // arity kL and we must find the numbers of levels with arity k2, ie, the
@@ -44,13 +45,29 @@ K2TreeBuilder::K2TreeBuilder(cnt_size cnt,
 
   height_ = k1_levels + x + 1;
   size_ = powk1 * Pow<uint>(k2, x) * kL;
-
-  // The tree has always a root
-  root_ = CreateNode(0);
+}
+K2TreeBuilder::K2TreeBuilder(K2TreeBuilder::K2TreeBuilder &&lhs) noexcept
+    : cnt_(lhs.cnt_),
+      size_(lhs.size_),
+      k1_(lhs.k1_),
+      k2_(lhs.k2_),
+      kL_(lhs.kL_),
+      max_level_k1_(lhs.max_level_k1_),
+      height_(lhs.height_),
+      leaves_(lhs.leaves_),
+      links_(lhs.links_),
+      internal_nodes_(lhs.internal_nodes_),
+      root_(lhs.root_) {
+  lhs.root_ = NULL;
+  internal_nodes_ = 0;
+  links_ = 0;
+  leaves_ = 0;
 }
 
 
 void K2TreeBuilder::AddLink(cnt_size p, cnt_size q) {
+  if (root_ == NULL)
+    root_ = CreateNode(0);
   Node *n = root_;
   cnt_size N = size_, div_level;
   uint child;
@@ -76,11 +93,15 @@ void K2TreeBuilder::AddLink(cnt_size p, cnt_size q) {
 }
 
 
-shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
+std::shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
   try {
+    if (root_ == NULL)
+      return std::shared_ptr<HybridK2Tree>(new HybridK2Tree(cnt_, size_));
+
     BitArray<uint> T(internal_nodes_);
     BitArray<uint> L(leaves_);
-    queue<Node*> q;
+    
+    std::queue<Node*> q;
     q.push(root_);
 
     uint cnt_level;
@@ -124,7 +145,7 @@ shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
     HybridK2Tree *tree = new HybridK2Tree(T, L, k1_, k2_, kL_,
                                           max_level_k1_,
                                           height_, cnt_, size_, links_);
-    return shared_ptr<HybridK2Tree>(tree);
+    return std::shared_ptr<HybridK2Tree>(tree);
   } catch(std::bad_alloc ba) {
     std::cerr << "[K2TreeBuilder::Build] Error: " << ba.what();
     exit(1);
@@ -139,7 +160,7 @@ shared_ptr<HybridK2Tree> K2TreeBuilder::Build() const {
 void K2TreeBuilder::Clear() {
   DeleteNode(root_, 0);
   leaves_ = internal_nodes_ = links_ = 0;
-  root_ = CreateNode(0);
+  root_ = NULL;
 }
 
 

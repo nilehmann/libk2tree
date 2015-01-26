@@ -55,7 +55,7 @@ struct Nword {
   const uchar *word;
   uint len;
   uint weight;
-  size_t codeword;
+  uint codeword;
 };
 
 class HashTable {

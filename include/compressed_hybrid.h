@@ -22,7 +22,7 @@ namespace libk2tree {
 using compression::Vocabulary;
 
 /**
- * <em>k<sup>2</sup></em>tree implementation with an hybrid approach and
+ * <em>k<sup>2</sup></em>tree implementation with a hybrid approach and
  * compressed leaves as described in section 5.1 and 5.3.
  */
 class CompressedHybrid: public base_hybrid<CompressedHybrid> {
@@ -46,7 +46,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * @param cnt Number of object in the relation represented by the tree.
    * @param size Size of the expanded matrix.
    */
-  CompressedHybrid(shared_ptr<BitSequence> T,
+  CompressedHybrid(std::shared_ptr<BitSequence> T,
                    FTRep *compressL,
                    std::shared_ptr<Vocabulary> vocabulary,
                    uint k1, uint k2, uint kL, uint max_level_k1, uint height,
@@ -69,7 +69,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    * @param voc Vocabulary of the leaf level.
    * @see CompressedHybrid::Save
    */
-  CompressedHybrid(ifstream *in, shared_ptr<Vocabulary> voc);
+  CompressedHybrid(ifstream *in, std::shared_ptr<Vocabulary> voc);
 
   /** 
    * Saves the tree to a file.
@@ -130,7 +130,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
                 Function fun) const {
     size_t first = Child(f.z, height_ - 1, kL_);
 
-    const uchar *word = GetWord(first - T_->getLength());
+    const uchar *word = GetWord(first - T_->GetLength());
 
     size_t z = first + Impl::Offset(f, kL_, div_level);
     for (uint j = 0; j < kL_; ++j) {
@@ -158,7 +158,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
     cnt_size dp, dq;
     size_t first = Child(f.z, height_ - 1, kL_);
 
-    const uchar *word = GetWord(first - T_->getLength());
+    const uchar *word = GetWord(first - T_->GetLength());
 
     div_p1 = f.p1/div_level, div_p2 = f.p2/div_level;
     for (cnt_size i = div_p1; i <= div_p2; ++i) {
@@ -185,7 +185,7 @@ class CompressedHybrid: public base_hybrid<CompressedHybrid> {
    */
   bool CheckLeafChild(size_t z, uint child) const {
     z = Child(z, height_ - 1, kL_);
-    const uchar *word = GetWord(z - T_->getLength());
+    const uchar *word = GetWord(z - T_->GetLength());
     return (word[child/kUcharBits] >> (child%kUcharBits)) & 1;
   }
 

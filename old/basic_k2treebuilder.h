@@ -38,7 +38,7 @@ template<class _Size>
 class basic_k2treebuilder {
  public:
   /* 
-   * Creates a builder for a tree with an hybrid aproach.
+   * Creates a builder for a tree with a hybrid aproach.
    *
    * @param cnt Number of object in the relation.
    * @param k1 arity of the first levels.

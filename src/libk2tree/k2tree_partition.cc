@@ -41,12 +41,12 @@ void K2TreePartition::CompressLeaves(std::ofstream *out) const {
   SaveValue(out, k0_);
 
   compression::FreqVoc(*this, [&] (const HashTable &table,
-                                   shared_ptr<Vocabulary> voc) {
+                                   std::shared_ptr<Vocabulary> voc) {
     voc->Save(out);
     for (uint i = 0; i < k0_; ++i) {
       for (uint j = 0; j < k0_; ++j) {
         const HybridK2Tree &subtree = subtrees_[i][j];
-        shared_ptr<CompressedHybrid> t = subtree.CompressLeaves(table, voc);
+        std::shared_ptr<CompressedHybrid> t = subtree.CompressLeaves(table, voc);
         t->Save(out, false);
       }
     }

@@ -267,7 +267,7 @@ class basic_k2tree {
 
  private:
   /* 
-   * Builds a k2tree with and hybrid aproach. This construtor should
+   * Builds a k2tree with a hybrid aproach. This construtor should
    * be called from a proper builder.
    *
    * @param T Bit array with the internal nodes.

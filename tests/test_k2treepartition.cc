@@ -21,12 +21,14 @@ using ::libk2tree::utils::Ceil;
 using ::libk2tree::K2TreePartition;
 using ::boost::filesystem::remove;
 using ::std::shared_ptr;
+using ::std::ifstream;
+using ::std::ofstream;
 
 typedef unsigned int uint;
 
 
 shared_ptr<K2TreePartition> BuildPartition(vector<vector<bool>> *matrix) {
-  string filename = "partition_test";
+  std::string filename = "partition_test";
   uint n = 1000;
 
   uint e = (uint) rand()%(n*10) + 1;

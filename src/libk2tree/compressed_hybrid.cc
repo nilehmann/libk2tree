@@ -14,7 +14,7 @@ using utils::LoadValue;
 using utils::SaveValue;
 
 
-CompressedHybrid::CompressedHybrid(shared_ptr<BitSequence> T,
+CompressedHybrid::CompressedHybrid(std::shared_ptr<BitSequence> T,
                                    FTRep *compressL,
                                    std::shared_ptr<Vocabulary> vocabulary,
                                    uint k1, uint k2, uint kL,
@@ -30,7 +30,7 @@ CompressedHybrid::CompressedHybrid(ifstream *in)
       vocabulary_(new Vocabulary(in)) {}
 
 CompressedHybrid::CompressedHybrid(ifstream *in,
-                                   shared_ptr<Vocabulary> voc)
+                                   std::shared_ptr<Vocabulary> voc)
     : base_hybrid(in),
       compressL_(LoadFT(in)),
       vocabulary_(voc) {}
@@ -57,10 +57,10 @@ CompressedHybrid::~CompressedHybrid() {
 }
 
 bool CompressedHybrid::operator==(const CompressedHybrid &rhs) const {
-  if (T_->getLength() != rhs.T_->getLength()) return false;
+  if (T_->GetLength() != rhs.T_->GetLength()) return false;
 
-  for (size_t i = 0; i < T_->getLength(); ++i)
-    if (T_->access(i) != rhs.T_->access(i)) return false;
+  for (size_t i = 0; i < T_->GetLength(); ++i)
+    if (T_->Access(i) != rhs.T_->Access(i)) return false;
 
 
   if (!equalsFT(compressL_, rhs.compressL_))

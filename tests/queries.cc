@@ -25,7 +25,7 @@ vector<pair<uint, uint> > GetEdges(const vector<vector<bool> > &matrix,
   vector<pair<uint, uint> > v;
   for (uint i = p1; i <= p2; ++i)
     for (uint j = q1; j <= q2; ++j)
-      if (matrix[i][j]) v.push_back(make_pair(i, j));
+      if (matrix[i][j]) v.push_back(std::make_pair(i, j));
   return v;
 }
 vector<uint> GetPredecessors(const vector<vector<bool> > &matrix, uint q) {
