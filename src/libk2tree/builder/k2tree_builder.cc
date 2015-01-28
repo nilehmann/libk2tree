@@ -46,7 +46,7 @@ K2TreeBuilder::K2TreeBuilder(cnt_size cnt,
   height_ = k1_levels + x + 1;
   size_ = powk1 * Pow<uint>(k2, x) * kL;
 }
-K2TreeBuilder::K2TreeBuilder(K2TreeBuilder::K2TreeBuilder &&lhs) noexcept
+K2TreeBuilder::K2TreeBuilder(K2TreeBuilder &&lhs) noexcept
     : cnt_(lhs.cnt_),
       size_(lhs.size_),
       k1_(lhs.k1_),
