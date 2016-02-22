@@ -7,3 +7,4 @@ bin/*
 !bin/delete.me
 html/
 latex/
+build/*

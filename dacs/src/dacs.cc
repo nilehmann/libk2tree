@@ -7,8 +7,12 @@
  * ----------------------------------------------------------------------------
  */
 
+/**
+ * C++ wrapper over library
+ */
+
 extern "C" {
-  #include "src/directcodes.h"
+  #include "directcodes.h"
 }
 #include <fstream>
 
