@@ -8,6 +8,9 @@
  */
 
 
+#ifndef TESTS_QUERIES_CC_
+#define TESTS_QUERIES_CC_
+
 #include "./queries.h"
 #include <vector>
 
@@ -35,4 +38,4 @@ vector<uint> GetPredecessors(const vector<vector<bool> > &matrix, uint q) {
   return v;
 }
 
-
+#endif // TESTS_QUERIES_CC_

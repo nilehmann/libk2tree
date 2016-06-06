@@ -16,7 +16,7 @@
 #include <memory>
 #include "./queries.h"
 
-uing ::libk2tree::K2TreePartitionBuilder;
+using ::libk2tree::K2TreePartitionBuilder;
 using ::libk2tree::utils::Ceil;
 using ::libk2tree::K2TreePartition;
 using ::libk2tree::CompressedPartition;
