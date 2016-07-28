@@ -124,7 +124,7 @@ ushort * optimizationk(uint * acumFreqs,int maxInt, uint * nkvalues) {
   ulong maxSize = 0, maxPos = 0;
   int posVocInf, posVocSup;
   ulong currentSize;
-  //Para la optimizacion, hay que mirar el máximo de todas las opciones anteriores anhadiendo
+  //Para la optimizacion, hay que mirar el mÃ¡ximo de todas las opciones anteriores anhadiendo
   //hasta el bit actual
 
   tableSize[0]=0;
@@ -232,6 +232,7 @@ FTRep* createFT(uint *list,uint listLength){
   rep->listLength = listLength;
   register uint i;
   int j, k;
+  uint l;
   uint value, newvalue;
   uint bits_BS_len = 0;
 
@@ -251,8 +252,8 @@ FTRep* createFT(uint *list,uint listLength){
   uint * weight = (uint *) malloc(sizeof(uint)*maxInt);
 
 
-  for(uint i=0; i<maxInt; i++)
-    weight[i] = 0;
+  for(l=0; l<maxInt; l++)
+    weight[l] = 0;
 
   for(i=0;i<listLength;i++)
     weight[list[i]]++;
@@ -376,7 +377,7 @@ FTRep* createFT(uint *list,uint listLength){
 
 
   rep->levels = (uint *) malloc(sizeof(uint)*(tamLevels/W+1));
-  //fprintf(stderr,"tamaño de levels: %d\n",sizeof(uint)*(tamLevels/W+1));
+  //fprintf(stderr,"tamaÃ±o de levels: %d\n",sizeof(uint)*(tamLevels/W+1));
   bits_BS_len = rep->levelsIndex[rep->nLevels-1]+1; 
   //Se pone el ultimo a 0 para ahorrarnos comparaciones despues en la descompresion
   uint * bits_BS = (uint *) malloc(sizeof(uint)*(bits_BS_len/W+1));

@@ -9,6 +9,13 @@
 
 #include <gtest/gtest.h>
 #include <pthread.h>
+#include "test_bitarray.cc"
+#include "test_compressed_hybrid.cc"
+#include "test_compressed_partition.cc"
+#include "test_k2tree.cc"
+#include "test_k2treebuilder.cc"
+#include "test_k2treepartition.cc"
+#include "test_utils.cc"
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
